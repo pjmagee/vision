@@ -1,0 +1,62 @@
+﻿@page "/sources/{sourceId:guid}/repositories"
+@inject HttpClient HttpClient
+
+<HeadingComponent Title="Repositories"></HeadingComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Repositories</h6>
+    </div>
+    <div class="card-body">
+        @if (Items != null)
+        {
+            <table class="table table-striped table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Url</th>
+                        <th>Assets</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Items)
+                    {
+                        <tr>
+                            <td>@item.WebUrl</td>
+                            <td>@item.Assets</td>
+                            <td>
+                                @{
+                                    string href = $"/sources/{sourceId}/repositories/{item.RepositoryId}";
+                                }
+
+                                <NavLink class="nav-link" href="@href" Match="NavLinkMatch.All">Browse assets</NavLink>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>Loading...</p>
+        }
+
+    </div>
+</div>
+
+@functions {
+
+    [Parameter] private Guid sourceId { get; set; }
+
+    private RepositoryDto[] Items { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Items = await HttpClient.GetJsonAsync<RepositoryDto[]>($"/api/repositories/{sourceId}");
+    }
+
+    protected override async Task OnAfterRenderAsync()
+    {
+        await JSRuntime.Current.InvokeAsync<object>("dataTable");
+    }
+}

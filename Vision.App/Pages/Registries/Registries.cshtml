@@ -1,0 +1,122 @@
+﻿@page "/registries"
+@inject HttpClient HttpClient
+
+<HeadingComponent Title="Sources"></HeadingComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Register</h6>
+    </div>
+    <div class="card-body">
+        <form>
+            <div class="form-row">
+                <div class="form-group">
+                    <input type="text" class="form-control" bind="Registry.Endpoint" placeholder="Endpoint" />
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" bind="Registry.ApiKey" placeholder="API Key" />
+                </div>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" bind="Registry.IsPublic" id="defaultCheck1" />
+                <label class="form-check-label" for="defaultCheck1">Public</label>
+            </div>
+
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" bind="Registry.IsDocker" />
+                <label class="form-check-label" for="inlineCheckbox1">Docker</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="inlineCheckbox2" bind="Registry.IsNuGet" />
+                <label class="form-check-label" for="inlineCheckbox2">NuGet</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="inlineCheckbox2" bind="Registry.IsMaven" />
+                <label class="form-check-label" for="inlineCheckbox2">Maven</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="inlineCheckbox2" bind="Registry.IsPyPi" />
+                <label class="form-check-label" for="inlineCheckbox2">Python</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="inlineCheckbox2" bind="Registry.IsRubygem" />
+                <label class="form-check-label" for="inlineCheckbox2">Ruby</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="inlineCheckbox2" bind="Registry.IsNpm" />
+                <label class="form-check-label" for="inlineCheckbox2">Node</label>
+            </div>
+
+            <button onclick="Submit" class="btn btn-primary">Save</button>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Registries</h6>
+    </div>
+    <div class="card-body">
+        @if (Items != null)
+        {
+            <table class="table table-striped table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Endpoint</th>
+                        <th>API Key</th>
+                        <th>Public</th>
+                        <th>Python</th>
+                        <th>NodeJs</th>
+                        <th>DotNet</th>
+                        <th>DockerFile</th>
+                        <th>Maven</th>
+                        <th>Ruby</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Items)
+                    {
+                    <tr>
+                        <td>@item.Endpoint</td>
+                        <td>@item.ApiKey</td>
+                        <td>@(item.IsPublic ? "Yes" : "No")</td>
+                        <td>@(item.IsPublic ? "Yes" : "No")</td>
+                        <td>@(item.IsNpm   ? "Yes" : "No")</td>
+                        <td>@(item.IsNuGet ? "Yes" : "No")</td>
+                        <td>@(item.IsDocker ? "Yes" : "No")</td>
+                        <td>@(item.IsMaven  ? "Yes" : "No")</td>
+                        <td>@(item.IsRubygem   ? "Yes" : "No")</td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>Loading...</p>
+        }        
+    </div>
+</div>
+
+@functions {
+
+    private RegistryDto[] Items { get; set; }
+    private RegistryDto Registry { get; set; } = new RegistryDto();
+
+    protected override async Task OnInitAsync()
+    {
+        Items = await HttpClient.GetJsonAsync<RegistryDto[]>("/api/registries");
+    }
+
+    protected async Task Submit()
+    {
+        var source = await HttpClient.PostJsonAsync<RegistryDto>("/api/registries", Registry);
+        Items = Items.Concat(new[] { source }).ToArray();
+    }
+
+    protected override async Task OnAfterRenderAsync()
+    {
+        await JSRuntime.Current.InvokeAsync<object>("dataTable");
+    }
+}
