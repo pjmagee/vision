@@ -32,7 +32,7 @@ namespace Vision.Core
 
         public async Task<IEnumerable<Asset>> GetByRepositoryIdAsync(Guid repositoryId)
         {
-            return await context.Assets.Where(a => a.RepositoryId == repositoryId).ToListAsync();
+            return await context.Assets.Where(a => a.GitRepositoryId == repositoryId).ToListAsync();
         }
 
         public async Task<Asset> GetByIdAsync(Guid dependencyId)

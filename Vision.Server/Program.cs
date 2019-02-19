@@ -1,13 +1,28 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Vision.Core;
 
 namespace Vision.Server
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            using (var host = CreateHostBuilder(args).Build())
+            {
+                using (var scope = host.Services.CreateScope())
+                {
+                    var context = scope.ServiceProvider.GetRequiredService<VisionDbContext>();
+                    //await context.Database.EnsureDeletedAsync();
+                    //await context.Database.EnsureCreatedAsync();
+
+                    //await Fake.SeedAsync(context);
+                }
+
+                await host.RunAsync();
+            }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args)

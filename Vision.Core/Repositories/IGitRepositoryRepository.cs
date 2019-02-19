@@ -32,7 +32,7 @@ namespace Vision.Core
 
         public async Task<GitRepository> GetByIdAsync(Guid repositoryId) => await context.GitRepositories.FindAsync(repositoryId);
 
-        public async Task<IEnumerable<GitRepository>> GetBySourceIdAsync(Guid sourceId) => await context.GitRepositories.Where(x => x.SourceId == sourceId).ToListAsync();
+        public async Task<IEnumerable<GitRepository>> GetBySourceIdAsync(Guid sourceId) => await context.GitRepositories.Where(x => x.GitSourceId == sourceId).ToListAsync();
 
         public async Task SaveAsync(GitRepository source)
         {

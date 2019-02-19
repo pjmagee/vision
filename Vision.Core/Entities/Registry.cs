@@ -17,7 +17,7 @@ namespace Vision.Core
         public bool IsNpm { get; set; }
         public bool IsEnabled { get; set; }
         
-        public List<Dependency> Dependencies { get; set; }
+        public virtual IList<Dependency> Dependencies { get; set; }
 
         [NotMapped]
         public IEnumerable<DependencyKind> Kinds

@@ -8,6 +8,6 @@ namespace Vision.Core
         public GitKind Kind { get; set; }
         public string Endpoint { get; set; }
         public string ApiKey { get; set; }
-        public List<GitRepository> Repositories { get; set; }
+        public virtual IList<GitRepository> GitRepositories { get; set; }
     }
 }

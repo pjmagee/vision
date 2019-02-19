@@ -7,9 +7,9 @@ namespace Vision.Core
     {
         public string Path { get; set; }
         public string Raw { get; set; }
-        public GitRepository Repository { get; set; }
-        public Guid RepositoryId { get; set; }
-        public List<AssetDependency> Dependencies { get; set; }
-        public List<AssetFramework> Frameworks { get; set; }
+        public virtual GitRepository GitRepository { get; set; }
+        public Guid GitRepositoryId { get; set; }
+        public virtual IList<AssetDependency> Dependencies { get; set; }
+        public virtual IList<AssetFramework> Frameworks { get; set; }
     }
 }

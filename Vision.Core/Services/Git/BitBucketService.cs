@@ -24,7 +24,7 @@ namespace Vision.Core
 
         public async Task<IEnumerable<Asset>> GetAssetsAsync(GitRepository repository)
         {
-            if (repository.Source.Kind != GitKind.Bitbucket) return Enumerable.Empty<Asset>();
+            if (repository.GitSource.Kind != GitKind.Bitbucket) return Enumerable.Empty<Asset>();
             List<Asset> results = new List<Asset>();
 
             ResponseWrapper<Atlassian.Stash.Entities.Project> projects = await client.Projects.Get();
@@ -46,7 +46,7 @@ namespace Vision.Core
                             if (AssetHelper.IsSupported(file))
                             {
                                 string contents = await httpClient.GetStringAsync(file);
-                                results.Add(new Asset { Id = Guid.NewGuid(), Repository = repository, Path = file });
+                                results.Add(new Asset { Id = Guid.NewGuid(), GitRepository = repository, Path = file });
                             }
                         }
                     }
@@ -73,8 +73,8 @@ namespace Vision.Core
                     results.Add(new GitRepository
                     {
                         Id = Guid.NewGuid(),
-                        Source = source,
-                        SourceId = source.Id,
+                        GitSource = source,
+                        GitSourceId = source.Id,
                         WebUrl = "TODO",
                         GitUrl = "TODO"
                     });

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Vision.Shared.Api
+namespace Vision.Shared
 {
     public class RegistryDto
     {

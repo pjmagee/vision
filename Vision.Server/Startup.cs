@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Vision.Core;
 
@@ -17,16 +18,33 @@ namespace Vision.Server
 {
     public class Startup
     {
+        private IConfiguration configuration;
+
+        public Startup(IConfiguration configuration)
+        {
+            this.configuration = configuration;
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorComponents<App.Startup>();
 
-            services.AddAutoMapper();
+            // services.AddAutoMapper();
 
-            services.AddDbContext<VisionDbContext>(options => options.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=echodata;Trusted_Connection=True;Integrated Security=True"));
+            services.AddDbContext<VisionDbContext>(options => options.UseLazyLoadingProxies().UseSqlServer(configuration["ConnectionStrings:Default"]));
+
+            services.AddScoped<IAssetRepository, AssetRepository>();
+            services.AddScoped<IDependencyRepository, DependencyRepository>();
+            services.AddScoped<IDependencyVersionRepository, DependencyVersionRepository>();
+            services.AddScoped<IAssetDependencyRepository, AssetDependencyRepository>();
+            services.AddScoped<IRegistryRepository, RegistryRepository>();
+            services.AddScoped<IGitSourceRepository, GitSourceRepository>();
+            services.AddScoped<IGitRepositoryRepository, GitRepositoryRepository>();
+            
+
             services.AddMvc().AddNewtonsoftJson().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
-            services.AddScoped(s => new HttpClient { BaseAddress = new Uri(s.GetRequiredService<IUriHelper>().GetBaseUri()) });
+            services.AddScoped(provider => new HttpClient { BaseAddress = new Uri(provider.GetRequiredService<IUriHelper>().GetBaseUri()) });
 
             services.AddResponseCompression(options =>
             {
@@ -48,8 +66,9 @@ namespace Vision.Server
             }
             
             app.UseMvc();
-
             app.UseStaticFiles();
+             // app.UseAuthentication();
+
             app.UseRazorComponents<App.Startup>();
         }
     }

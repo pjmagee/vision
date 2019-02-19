@@ -101,7 +101,7 @@ namespace Vision.Core
         public async Task RefreshSourceAsync(Guid sourceId)
         {
             GitSource source = await context.GitSources.FindAsync(sourceId);
-            context.GitRepositories.RemoveRange(source.Repositories);
+            context.GitRepositories.RemoveRange(source.GitRepositories);
             await context.SaveChangesAsync();
 
             IEnumerable<GitRepository> items = await gitService.GetRepositoriesAsync(source);

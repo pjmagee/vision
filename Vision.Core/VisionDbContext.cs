@@ -22,7 +22,7 @@ namespace Vision.Core
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-
+            // https://docs.microsoft.com/en-us/ef/core/querying/related-data
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -38,7 +38,8 @@ namespace Vision.Core
             {
                 entity.HasKey(x => x.Id);
                 entity.Property(x => x.ApiKey).IsRequired();
-                entity.Property(x => x.Kind).IsRequired();                
+                entity.Property(x => x.Kind).IsRequired();
+                entity.HasMany(x => x.GitRepositories).WithOne(r => r.GitSource).HasForeignKey(s => s.GitSourceId);
             });
 
             modelBuilder.Entity<Asset>(entity =>
@@ -46,6 +47,7 @@ namespace Vision.Core
                 entity.HasKey(x => x.Id);
                 entity.Property(x => x.Path).IsRequired();
                 entity.Property(x => x.Raw).IsRequired();
+                entity.HasMany(x => x.Dependencies).WithOne(x => x.Asset).HasForeignKey(x => x.AssetId);
             });
 
             modelBuilder.Entity<AssetDependency>(entity =>
@@ -57,6 +59,7 @@ namespace Vision.Core
             {
                 entity.HasKey(x => x.Id);
                 entity.Property(e => e.Kind).HasConversion(new EnumToStringConverter<DependencyKind>());
+                entity.HasMany(x => x.Versions).WithOne(v => v.Dependency).HasForeignKey(x => x.DependencyId);
             });
 
             modelBuilder.Entity<DependencyVersion>((entity) =>

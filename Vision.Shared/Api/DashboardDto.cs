@@ -1,4 +1,4 @@
-﻿namespace Vision.Shared.Api
+﻿namespace Vision.Shared
 {
     public class Dashboard
     {

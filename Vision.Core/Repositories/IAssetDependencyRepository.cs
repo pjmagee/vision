@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Vision.Core
 {
@@ -16,24 +18,27 @@ namespace Vision.Core
 
     public class AssetDependencyRepository : IAssetDependencyRepository
     {
-        public async Task DeleteAsync(params AssetDependency[] assetDependencies)
+        private readonly VisionDbContext context;
+
+        public AssetDependencyRepository(VisionDbContext context)
         {
-            throw new NotImplementedException();
+            this.context = context;
         }
 
         public async Task<IEnumerable<AssetDependency>> GetByAssetIdAsync(Guid assetId)
         {
-            throw new NotImplementedException();
+            return await context.AssetDependencies.Where(ad => ad.AssetId == assetId).ToListAsync();
         }
 
         public async Task<IEnumerable<AssetDependency>> GetByDependencyIdAsync(Guid dependencyId)
         {
-            throw new NotImplementedException();
+            List<Guid> dependencyIds = await context.DependencyVersions.Where(v => v.DependencyId == dependencyId).Select(x => x.DependencyId).Distinct().ToListAsync();
+            return await context.AssetDependencies.Where(ad => dependencyIds.Contains(ad.DependencyVersionId)).ToListAsync();
         }
 
         public async Task<AssetDependency> GetByIdAsync(Guid assetDependencyId)
         {
-            throw new NotImplementedException();
+            return await context.AssetDependencies.FindAsync(assetDependencyId);
         }
 
         public async Task SaveAsync(params AssetDependency[] assetDependencies)
@@ -42,6 +47,10 @@ namespace Vision.Core
         }
 
         public async Task UpdateAsync(params AssetDependency[] assetDependencies)
+        {
+            throw new NotImplementedException();
+        }
+        public async Task DeleteAsync(params AssetDependency[] assetDependencies)
         {
             throw new NotImplementedException();
         }

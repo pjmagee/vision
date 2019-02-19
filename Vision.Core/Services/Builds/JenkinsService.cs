@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using Microsoft.EntityFrameworkCore;
+using Vision.Shared;
 
 namespace Vision.Core.Services.Build
 {
@@ -26,7 +27,7 @@ namespace Vision.Core.Services.Build
 
             List<Build> builds = new List<Build>();
 
-            foreach (var build in await context.BuildSources.Where(buildSource => buildSource.Kind == Shared.BuildKind.Jenkins).ToListAsync())
+            foreach (var build in await context.BuildSources.Where(buildSource => buildSource.Kind == BuildKind.Jenkins).ToListAsync())
             {
                 var results = await GetBuildsAsync(repository.GitUrl, build.Endpoint, build.ApiKey);
                 builds.AddRange(results);

@@ -1,4 +1,4 @@
-window.register = function() {
+window.register = function () {
 
     window.console.log("window.register");
 
@@ -42,14 +42,19 @@ window.register = function() {
         var $anchor = $(this);
         $('html, body').stop().animate({ scrollTop: ($($anchor.attr('href')).offset().top) }, 1000, 'easeInOutExpo');
         e.preventDefault();
-    });    
+    });
 };
 
 window.dataTable = function () {
 
     $(document).ready(function () {
         
-        var tables = $('.table').DataTable();
+        var table = $('.table').DataTable();
+        table.on('page.dt', function () {
+            console.log('page changed');
+            $('.page-link').removeAttr('href');
+        });
+
         $('.page-link').removeAttr('href');
     });
 

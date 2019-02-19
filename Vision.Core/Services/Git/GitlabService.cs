@@ -10,13 +10,13 @@ namespace Vision.Core
     {
         public async Task<IEnumerable<Asset>> GetAssetsAsync(GitRepository repository)
         {
-            if (repository.Source.Kind != GitKind.Gitlab) return Enumerable.Empty<Asset>();
+            if (repository.GitSource.Kind != GitKind.Gitlab) return await Task.FromResult(Enumerable.Empty<Asset>());
             throw new NotImplementedException("TODO");
         }
 
         public async Task<IEnumerable<GitRepository>> GetRepositoriesAsync(GitSource source)
         {
-            if (source.Kind != GitKind.Gitlab) return Enumerable.Empty<GitRepository>();
+            if (source.Kind != GitKind.Gitlab) return await Task.FromResult(Enumerable.Empty<GitRepository>());
             throw new NotImplementedException("TODO");
         }
     }

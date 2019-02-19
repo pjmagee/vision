@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using FizzWare.NBuilder;
 using FizzWare.NBuilder.Generators;
 using Vision.Core;
 using Vision.Shared;
 
-namespace Vision.Fake
+namespace Vision
 {
     class DependencyComparer : IEqualityComparer<Dependency>
     {
@@ -15,31 +16,41 @@ namespace Vision.Fake
         public int GetHashCode(Dependency a) => a.Name.GetHashCode() ^ a.Kind.GetHashCode();
     }
 
-    public static class FakeData
+    public static class Fake
     {
-        public static void Seed(VisionDbContext context)
+        private const string CsProjFile = "csproj";
+        private const string RequirementsFile = "requirements.txt";
+        private const string PomFile = "pom.xml";
+        private const string GemFile = "GemFile";
+        private const string DockerFle = "DockerFile";
+        private const string PackagesFile = "packages.json";
+
+
+        private readonly static IList<DependencyKind> DependencyKinds = Enum.GetValues(typeof(DependencyKind)).Cast<DependencyKind>().Where(x => x != DependencyKind.Unknown).ToList();
+
+        public static async Task SeedAsync(VisionDbContext context)
         {
             // GIT SERVERS
             context.GitSources.AddRange(GetGitSources());
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
             // REPOSITORIES
             foreach (var gitSource in context.GitSources)
             {
                 context.GitRepositories.AddRange(GetRepositories(gitSource));
             }
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
             // DEPENDENCY REGISTRIES
             context.Registries.AddRange(GetRegistries());
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
             // ASSETS
             foreach (var repository in context.GitRepositories)
             {
                 context.Assets.AddRange(GetAssetsByKind(repository));
             }
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
             // DEPENDENCIES
             var repositories = context.GitRepositories.ToList();
@@ -49,14 +60,14 @@ namespace Vision.Fake
             {
                 context.Dependencies.AddRange(GetDependencies(registries, repositories, kind));
             }
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
             // DEPENDENCY VERSIONS
             foreach (var dependency in context.Dependencies)
             {
                 context.DependencyVersions.AddRange(GetDependencyVersions(dependency));
             }
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
             // ASSET DEPENDENCIES
             foreach (var asset in context.Assets)
@@ -65,8 +76,59 @@ namespace Vision.Fake
                 var assetDependencies = GetAssetDependencies(asset, context.Dependencies.Where(x => x.Kind == kind).ToList());
                 context.AssetDependencies.AddRange(assetDependencies);
             }
-            context.SaveChanges();
+            await context.SaveChangesAsync();
+        }
 
+        private static int GetAssetsByKind(DependencyKind kind)
+        {
+            switch (kind)
+            {
+                case DependencyKind.Docker: return GetRandom.Int(1, 5);
+                case DependencyKind.NuGet:
+                case DependencyKind.Maven: return GetRandom.Int(1, 10);
+                case DependencyKind.Npm: return GetRandom.Int(1, 2);
+                case DependencyKind.PyPi:
+                case DependencyKind.RubyGem: return GetRandom.Int(1, 5);
+            }
+            throw new Exception("Unhandled kind for random number of assets");
+        }
+
+        private static int GetDependenciesForAsset(DependencyKind kind)
+        {
+            switch (kind)
+            {
+                case DependencyKind.Docker: return GetRandom.Int(1, 2);
+                case DependencyKind.NuGet: return GetRandom.Int(4, 15);
+                case DependencyKind.Maven: return GetRandom.Int(5, 15);
+                case DependencyKind.Npm: return GetRandom.Int(5, 10);
+                case DependencyKind.RubyGem:
+                case DependencyKind.PyPi:
+                    return GetRandom.Int(2, 5);
+            }
+            throw new Exception("Unhandled kind for number of dependencies to return");
+        } 
+
+        private static DependencyKind GetDependencyKind(string file)
+        {
+            if (file.EndsWith(CsProjFile)) return DependencyKind.NuGet;
+            if (file.EndsWith(RequirementsFile)) return DependencyKind.PyPi;
+            if (file.EndsWith(PomFile)) return DependencyKind.Maven;
+            if (file.EndsWith(GemFile)) return DependencyKind.RubyGem;
+            if (file.EndsWith(DockerFle)) return DependencyKind.Docker;
+            if (file.EndsWith(PackagesFile)) return DependencyKind.Npm;
+
+            throw new Exception("Unsupported file for DependencyKind");
+        }
+
+        private static string GetFileExtension(DependencyKind kind)
+        {
+            if (kind == DependencyKind.NuGet) return CsProjFile;
+            if (kind == DependencyKind.PyPi) return RequirementsFile;
+            if (kind == DependencyKind.Maven) return PomFile;
+            if (kind == DependencyKind.RubyGem) return GemFile;
+            if (kind == DependencyKind.Docker) return DockerFle;
+            if (kind == DependencyKind.Npm) return PackagesFile;
+            throw new Exception("Unsupported kind for File extension");
         }
 
         private static IEnumerable<Asset> GetAssetsByKind(GitRepository repository)
@@ -79,9 +141,35 @@ namespace Vision.Fake
                 .With(x => x.Id = Guid.NewGuid())
                 .With(x => x.Raw = "FILE CONTENTS")
                 .With((asset, fileIndex) => asset.Path = GetPathForAsset(fileOrFolderName, fileIndex, kind))
-                .With(x => x.Repository = repository)
-                .With(x => x.RepositoryId = repository.Id)
+                .With(x => x.GitRepository = repository)
+                .With(x => x.GitRepositoryId = repository.Id)
                 .Build());
+        }
+
+        private static IEnumerable<Dependency> GetDependencies(IList<Registry> registries, IList<GitRepository> repositories, DependencyKind kind)
+        {
+            var privatePicker = new RandomItemPicker<GitRepository>(repositories, new RandomGenerator());
+            var publicPicker = new RandomItemPicker<string>(new[] { "http://github.com", "http://bitbucket.com", "http://gitlab.com" }, new RandomGenerator());
+
+            var names = Enumerable.Range(0, GetRandomDependencies(kind)).Select(x => GetGeneratedNameByKind(kind)).Distinct().ToList();
+            var namePicker = new RandomItemPicker<string>(names, new UniqueRandomGenerator());
+            RandomItemPicker<Registry> registryPicker = GetRegistryByKind(registries, kind);
+
+            return Builder<Dependency>.CreateListOfSize(names.Count)
+                    .All()
+                    .With(x => x.Id = Guid.NewGuid())
+                    .With(x => x.Name = namePicker.Pick().Trim())
+                    .With(x => x.Kind = kind)
+                    .With((x, i) =>
+                    {
+                        var registry = registryPicker.Pick();
+                        x.Registry = registry;
+                        x.RegistryId = registry.Id;
+                        x.RepositoryUrl = registry.IsPublic ? $"{publicPicker.Pick()}/{x.Name}.git" : privatePicker.Pick().GitUrl;
+                    })
+                    .With(x => x.Updated = DateTime.Now.Add(new TimeSpan(GetRandom.Int(-150, 0), GetRandom.Int(0, 10), GetRandom.Int(0, 10), GetRandom.Int(0, 10), GetRandom.Int(0, 500))))
+                    .Build()
+                    .Distinct();
         }
 
         private static IEnumerable<AssetDependency> GetAssetDependencies(Asset asset, IList<Dependency> dependencies)
@@ -129,68 +217,6 @@ namespace Vision.Fake
             return results;
         }
 
-        private static int GetAssetsByKind(DependencyKind kind)
-        {
-            switch (kind)
-            {
-                case DependencyKind.Docker: return GetRandom.Int(1, 5);
-                case DependencyKind.NuGet:
-                case DependencyKind.Maven: return GetRandom.Int(1, 10);
-                case DependencyKind.Npm: return GetRandom.Int(1, 2);
-                case DependencyKind.PyPi:
-                case DependencyKind.RubyGem: return GetRandom.Int(1, 5);
-            }
-            throw new Exception("Unhandled kind for random number of assets");
-        }
-
-        private static int GetDependenciesForAsset(DependencyKind kind)
-        {
-            switch (kind)
-            {
-                case DependencyKind.Docker: return GetRandom.Int(1, 2);
-                case DependencyKind.NuGet: return GetRandom.Int(4, 15);
-                case DependencyKind.Maven: return GetRandom.Int(5, 15);
-                case DependencyKind.Npm: return GetRandom.Int(5, 10);
-                case DependencyKind.RubyGem:
-                case DependencyKind.PyPi:
-                    return GetRandom.Int(2, 5);
-            }
-            throw new Exception("Unhandled kind for number of dependencies to return");
-        }
-
-        private const string CsProj = "csproj";
-        private const string RequirementsTxt = "requirements.txt";
-        private const string PomXml = "pom.xml";
-        private const string GemFile = "GemFile";
-        private const string Docker = "Docker";
-        private const string PackagesJson = "packages.json";
-
-        private static DependencyKind GetDependencyKind(string file)
-        {
-            if (file.EndsWith(CsProj)) return DependencyKind.NuGet;
-            if (file.EndsWith(RequirementsTxt)) return DependencyKind.PyPi;
-            if (file.EndsWith(PomXml)) return DependencyKind.Maven;
-            if (file.EndsWith(GemFile)) return DependencyKind.RubyGem;
-            if (file.EndsWith(Docker)) return DependencyKind.Docker;
-            if (file.EndsWith(PackagesJson)) return DependencyKind.Npm;
-
-            throw new Exception("Unsupported file for DependencyKind");
-        }
-
-        private static string GetFileExtension(DependencyKind kind)
-        {
-            if (kind == DependencyKind.NuGet) return CsProj;
-            if (kind == DependencyKind.PyPi) return RequirementsTxt;
-            if (kind == DependencyKind.Maven) return PomXml;
-            if (kind == DependencyKind.RubyGem) return GemFile;
-            if (kind == DependencyKind.Docker) return Docker;
-            if (kind == DependencyKind.Npm) return PackagesJson;
-            throw new Exception("Unsupported kind for File extension");
-        }
-
-        private readonly static RandomItemPicker<DependencyKind> DependencyTypePicker = new RandomItemPicker<DependencyKind>(DependencyKinds, new RandomGenerator());
-        private readonly static IList<DependencyKind> DependencyKinds = Enum.GetValues(typeof(DependencyKind)).Cast<DependencyKind>().Where(x => x != DependencyKind.Unknown).ToList();
-        
         private static IEnumerable<GitSource> GetGitSources()
         {
             var gitSources = new GitSource[]
@@ -232,17 +258,55 @@ namespace Vision.Fake
 
         private static IEnumerable<Framework> GetFrameworks()
         {
-            var netStandard = new[] { "netstandard1.0", "netstandard1.1", "netstandard1.2", "netstandard1.3", "netstandard1.4", "netstandard1.5", "netstandard1.6", "netstandard2.0" };
-            var netCore = new[] { "netcoreapp1.0", "netcoreapp1.1", "netcoreapp2.0", "netcoreapp2.1", "netcoreapp2.2" };
-            var netFramework = new[] { "net11", "net20", "net35", "net40", "net403", "net45", "net451", "net452", "net46", "net461", "net462", "net47", "net471", "net472" };
+            var netStandard = new[]
+            {
+                "netstandard1.0",
+                "netstandard1.1",
+                "netstandard1.2",
+                "netstandard1.3",
+                "netstandard1.4",
+                "netstandard1.5",
+                "netstandard1.6",
+                "netstandard2.0"
+            };
 
-            return Builder<Framework>.CreateListOfSize(netStandard.Length).All().With(x => x.Id = Guid.NewGuid()).DoForEach((x, v) => x.Version = v, netStandard).Build()
-                .Concat(Builder<Framework>.CreateListOfSize(netCore.Length).All().With(x => x.Id = Guid.NewGuid()).DoForEach((x, v) => x.Version = v, netCore).Build().Concat(
-                    Builder<Framework>.CreateListOfSize(netFramework.Length).All().With(x => x.Id = Guid.NewGuid()).DoForEach((x, v) => x.Version = v, netFramework).Build()));
+            var netCore = new[] 
+            {
+                "netcoreapp1.0",
+                "netcoreapp1.1",
+                "netcoreapp2.0",
+                "netcoreapp2.1",
+                "netcoreapp2.2"
+            };
+
+            var netFramework = new[] 
+            {
+                "net11",
+                "net20",
+                "net35",
+                "net40",
+                "net403",
+                "net45",
+                "net451",
+                "net452",
+                "net46",
+                "net461",
+                "net462",
+                "net47",
+                "net471",
+                "net472"
+            };
+
+            var netStandards = Builder<Framework>.CreateListOfSize(netStandard.Length).All().With(x => x.Id = Guid.NewGuid()).DoForEach((x, v) => x.Version = v, netStandard).Build();
+            var netCores = Builder<Framework>.CreateListOfSize(netCore.Length).All().With(x => x.Id = Guid.NewGuid()).DoForEach((x, v) => x.Version = v, netCore).Build();
+            var netFrameworks = Builder<Framework>.CreateListOfSize(netFramework.Length).All().With(x => x.Id = Guid.NewGuid()).DoForEach((x, v) => x.Version = v, netFramework).Build();
+
+            return netStandards.Concat(netCores).Concat(netFrameworks);
         }
+
         private static IEnumerable<GitRepository> GetRepositories(GitSource source)
         {
-            var repoNames = Enumerable.Range(0, GetRandom.Int(30, 100)).Select(x => GetNameByDependencyKind(DependencyKind.Npm).Trim('@')).Distinct().ToList();
+            var repoNames = Enumerable.Range(0, GetRandom.Int(30, 100)).Select(x => GetGeneratedNameByKind(DependencyKind.Npm).Trim('@')).Distinct().ToList();
             var repoPicker = new RandomItemPicker<string>(repoNames, new UniqueRandomGenerator());
 
             return Builder<GitRepository>.CreateListOfSize(GetRandom.Int(1, repoNames.Count))
@@ -257,24 +321,24 @@ namespace Vision.Fake
                     x.GitUrl = $"ssh://{uri.Host}:{uri.Port}/{group}/{name}.git";
                     x.WebUrl = $"http://{uri.Host}:{uri.Port}/{group}/{name}/browse";
                 })
-                .With(x => x.Source = source)
-                .With(x => x.SourceId = source.Id)
+                .With(x => x.GitSource = source)
+                .With(x => x.GitSourceId = source.Id)
                 .Build();
         }
 
-        private static RandomItemPicker<Registry> GetSourcePicker(IEnumerable<Registry> sources, DependencyKind kind)
+        private static RandomItemPicker<Registry> GetRegistryByKind(IEnumerable<Registry> sources, DependencyKind kind)
         {
-            bool chance = GetRandom.Int(1, 100) > 25;
-            if (kind == DependencyKind.Docker) return new RandomItemPicker<Registry>(sources.Where(x => x.IsDocker).Where(x => x.IsPublic == chance).ToList(), new RandomGenerator());
-            if (kind == DependencyKind.Maven) return new RandomItemPicker<Registry>(sources.Where(x => x.IsMaven).Where(x => x.IsPublic == chance).ToList(), new RandomGenerator());
-            if (kind == DependencyKind.Npm) return new RandomItemPicker<Registry>(sources.Where(x => x.IsNpm).Where(x => x.IsPublic == chance).ToList(), new RandomGenerator());
-            if (kind == DependencyKind.NuGet) return new RandomItemPicker<Registry>(sources.Where(x => x.IsNuGet).Where(x => x.IsPublic == chance).ToList(), new RandomGenerator());
-            if (kind == DependencyKind.PyPi) return new RandomItemPicker<Registry>(sources.Where(x => x.IsPyPi).Where(x => x.IsPublic == chance).ToList(), new RandomGenerator());
-            if (kind == DependencyKind.RubyGem) return new RandomItemPicker<Registry>(sources.Where(x => x.IsRubyGem).Where(x => x.IsPublic == chance).ToList(), new RandomGenerator());
+            if (kind == DependencyKind.Docker) return new RandomItemPicker<Registry>(sources.Where(x => x.IsDocker).ToList(), new RandomGenerator());
+            if (kind == DependencyKind.Maven) return new RandomItemPicker<Registry>(sources.Where(x => x.IsMaven).ToList(), new RandomGenerator());
+            if (kind == DependencyKind.Npm) return new RandomItemPicker<Registry>(sources.Where(x => x.IsNpm).ToList(), new RandomGenerator());
+            if (kind == DependencyKind.NuGet) return new RandomItemPicker<Registry>(sources.Where(x => x.IsNuGet).ToList(), new RandomGenerator());
+            if (kind == DependencyKind.PyPi) return new RandomItemPicker<Registry>(sources.Where(x => x.IsPyPi).ToList(), new RandomGenerator());
+            if (kind == DependencyKind.RubyGem) return new RandomItemPicker<Registry>(sources.Where(x => x.IsRubyGem).ToList(), new RandomGenerator());
+
             throw new Exception("Cannot pick random item picker for dependency sources for chosen dependency kind");
         }
 
-        private static int GetDependenciesByKind(DependencyKind kind)
+        private static int GetRandomDependencies(DependencyKind kind)
         {
             if (kind == DependencyKind.Docker) return GetRandom.Int(10, 30);
             if (kind == DependencyKind.Maven) return GetRandom.Int(50, 300);
@@ -285,33 +349,7 @@ namespace Vision.Fake
             throw new Exception("Cannot pick random item picker for dependency sources for chosen dependency kind");
         }
 
-        private static IEnumerable<Dependency> GetDependencies(IList<Registry> registries, IList<GitRepository> repositories, DependencyKind kind)
-        {
-            var privatePicker = new RandomItemPicker<GitRepository>(repositories, new RandomGenerator());
-            var publicPicker = new RandomItemPicker<string>(new[] { "http://github.com", "http://bitbucket.com", "http://gitlab.com" }, new RandomGenerator());
-
-            var names = Enumerable.Range(0, GetDependenciesByKind(kind)).Select(x => GetNameByDependencyKind(kind)).Distinct().ToList();
-            var namePicker = new RandomItemPicker<string>(names, new UniqueRandomGenerator());
-            RandomItemPicker<Registry> registryPicker = GetSourcePicker(registries, kind);
-
-            return Builder<Dependency>.CreateListOfSize(names.Count)
-                    .All()
-                    .With(x => x.Id = Guid.NewGuid())
-                    .With(x => x.Name = namePicker.Pick().Trim())
-                    .With(x => x.Kind = kind)
-                    .With((x, i) =>
-                    {
-                        var registry = registryPicker.Pick();
-                        x.Registry = registry;
-                        x.RegistryId = registry.Id;
-                        x.RepositoryUrl = registry.IsPublic ? $"{publicPicker.Pick()}/{x.Name}.git" : privatePicker.Pick().GitUrl;
-                    })
-                    .With(x => x.Updated = DateTime.Now.Add(new TimeSpan(GetRandom.Int(-150, 0), GetRandom.Int(0, 10), GetRandom.Int(0, 10), GetRandom.Int(0, 10), GetRandom.Int(0, 500))))
-                    .Build()
-                    .Distinct();
-        }
-
-        static string GetPathForAsset(string fileOrFolderName, int fileIndex, DependencyKind kind)
+        private static string GetPathForAsset(string fileOrFolderName, int fileIndex, DependencyKind kind)
         {
             string ext = GetFileExtension(kind);
             bool isFirstFile = fileIndex == 0;
@@ -328,7 +366,7 @@ namespace Vision.Fake
             throw new Exception("Unhandled kind");
         }
 
-        public static string GetNameByDependencyKind(DependencyKind kind)
+        private static string GetGeneratedNameByKind(DependencyKind kind)
         {
             string left = Feelings[GetRandom.Int(0, Feelings.Length)];
             string right = Names[GetRandom.Int(0, Names.Length)];
@@ -344,7 +382,7 @@ namespace Vision.Fake
             return builder.Append(left).Append('_').Append(right).ToString();
         }
 
-        public static readonly string[] Feelings =
+        private static readonly string[] Feelings =
         {
             "admiring", "adoring", "affectionate", "agitated", "amazing", "angry", "awesome",
             "blissful", "bold", "boring", "brave", "charming", "clever", "cocky", "cool", "compassionate",
@@ -360,7 +398,7 @@ namespace Vision.Fake
             "xenodochial", "youthful", "zealous","zen",
         };
 
-        public static readonly string[] Names =
+        private static readonly string[] Names =
         {
             "albattani",
             "allen",

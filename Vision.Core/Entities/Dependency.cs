@@ -10,9 +10,9 @@ namespace Vision.Core
         public string RepositoryUrl { get; set; }
         public DependencyKind Kind { get; set; }
         public DateTime Updated { get; set; }
-        public Registry Registry { get; set; }
+        public virtual Registry Registry { get; set; }
         public Guid RegistryId { get; set; }
-        public List<AssetDependency> Assets { get; set; }
-        public List<DependencyVersion> Versions { get; set; }
+        public virtual IList<AssetDependency> Assets { get; set; }
+        public virtual IList<DependencyVersion> Versions { get; set; }
     }
 }

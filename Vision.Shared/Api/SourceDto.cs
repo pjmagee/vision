@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Vision.Shared.Api
+namespace Vision.Shared
 {
     public class GitSourceDto
     {

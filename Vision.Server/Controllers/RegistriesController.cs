@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Vision.Core;
-using Vision.Shared.Api;
+using Vision.Shared;
 
 namespace Vision.Server.Controllers
 {

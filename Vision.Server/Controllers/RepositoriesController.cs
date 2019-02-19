@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Vision.Core;
-using Vision.Shared.Api;
+using Vision.Shared;
 
 namespace Vision.Server.Controllers
 {
@@ -22,7 +22,7 @@ namespace Vision.Server.Controllers
         public async Task<IEnumerable<RepositoryDto>> GetAsync(Guid sourceId)
         {
             var repositories = await gitRepositoryRepository.GetBySourceIdAsync(sourceId);
-            return repositories.Select(x => new RepositoryDto { Assets = x.Assets.Count, GitUrl = x.GitUrl, WebUrl = x.WebUrl, RepositoryId = x.Id });
+            return repositories.Select(x => new RepositoryDto { SourceId = x.GitSourceId, Assets = x.Assets.Count, GitUrl = x.GitUrl, WebUrl = x.WebUrl, RepositoryId = x.Id });
         }
     }
 }

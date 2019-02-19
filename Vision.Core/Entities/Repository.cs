@@ -7,8 +7,8 @@ namespace Vision.Core
     {
         public string GitUrl { get; set; }
         public string WebUrl { get; set; }
-        public GitSource Source { get; set; }
-        public Guid SourceId { get; set; }
-        public List<Asset> Assets { get; set; }
+        public virtual GitSource GitSource { get; set; }
+        public Guid GitSourceId { get; set; }
+        public virtual IList<Asset> Assets { get; set; }
     }   
 }

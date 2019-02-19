@@ -4,16 +4,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Vision.Core;
-using Vision.Shared.Api;
+using Vision.Shared;
 
 namespace Vision.Server.Controllers
 {
     [ApiController, Route("api/[controller]")]
-    public class GitSources : ControllerBase
+    public class SourcesController : ControllerBase
     {
         private readonly IGitSourceRepository gitSourceRepository;
 
-        public GitSources(IGitSourceRepository gitSourceRepository)
+        public SourcesController(IGitSourceRepository gitSourceRepository)
         {
             this.gitSourceRepository = gitSourceRepository;
         }
@@ -22,14 +22,14 @@ namespace Vision.Server.Controllers
         public async Task<IEnumerable<GitSourceDto>> GetAsync()
         {
             var sources = await gitSourceRepository.GetAllAsync();
-            return sources.Select(x => new GitSourceDto { Endpoint = x.Endpoint, ApiKey = x.ApiKey, Kind = x.Kind, SourceId = x.Id, Repositories = x.Repositories.Count });
+            return sources.Select(x => new GitSourceDto { Endpoint = x.Endpoint, ApiKey = x.ApiKey, Kind = x.Kind, SourceId = x.Id, Repositories = x.GitRepositories.Count });
         }
 
         [HttpGet("{sourceId}")]
         public async Task<GitSourceDto> Get(Guid sourceId)
         {
             GitSource source = await gitSourceRepository.GetByIdAsync(sourceId);
-            return new GitSourceDto { Endpoint = source.Endpoint, ApiKey = source.ApiKey, Kind = source.Kind, SourceId = source.Id, Repositories = source.Repositories.Count };
+            return new GitSourceDto { Endpoint = source.Endpoint, ApiKey = source.ApiKey, Kind = source.Kind, SourceId = source.Id, Repositories = source.GitRepositories.Count };
         }
 
         [HttpPost]
@@ -40,7 +40,7 @@ namespace Vision.Server.Controllers
 
             await gitSourceRepository.SaveAsync(source);
 
-            return CreatedAtAction(nameof(Get), new { sourceId = source.Id }, new GitSourceDto { Endpoint = source.Endpoint, ApiKey = source.ApiKey, Kind = source.Kind, SourceId = source.Id, Repositories = source.Repositories.Count });
+            return CreatedAtAction(nameof(Get), new { sourceId = source.Id }, new GitSourceDto { Endpoint = source.Endpoint, ApiKey = source.ApiKey, Kind = source.Kind, SourceId = source.Id, Repositories = source.GitRepositories.Count });
         }
 
         [HttpPost("/refresh")]
