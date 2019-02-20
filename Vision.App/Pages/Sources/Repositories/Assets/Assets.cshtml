@@ -1,7 +1,8 @@
 ﻿@page "/sources/{sourceId:guid}/repositories/{repositoryId:guid}"
 @inject HttpClient HttpClient
+@inject IJSRuntime Runtime
 
-<HeadingComponent Title="Assets"></HeadingComponent>
+<HeadingComponent Title="@Title"></HeadingComponent>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
@@ -45,14 +46,19 @@
     [Parameter] private Guid sourceId { get; set; }
 
     private AssetDto[] Items { get; set; }
+    private RepositoryDto Repository { get; set; }
+
+    public string Title { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        Items = await HttpClient.GetJsonAsync<AssetDto[]>($"/api/assets/{repositoryId}");
+        Repository = await HttpClient.GetJsonAsync<RepositoryDto>($"/api/repositories/{repositoryId}");
+        Items = await HttpClient.GetJsonAsync<AssetDto[]>($"/api/repositories/{repositoryId}/assets");
+        Title = Repository.WebUrl + " assets";
     }
 
     protected override async Task OnAfterRenderAsync()
     {
-        await JSRuntime.Current.InvokeAsync<object>("dataTable");
+        await Runtime.InvokeAsync<object>("dataTable");
     }
 }

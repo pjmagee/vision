@@ -71,6 +71,13 @@ namespace Vision.Core
                 entity.Property(x => x.Version).IsRequired();
                 entity.Property(x => x.IsVulnerable).HasDefaultValue(false);                    
             });
+
+            modelBuilder.Entity<Framework>((entity) =>
+            {
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.Version).IsRequired();
+                entity.HasMany(x => x.Frameworks).WithOne(x => x.Framework).HasForeignKey(x => x.FrameworkId).OnDelete(DeleteBehavior.Restrict);
+            });
         }
     }
 }

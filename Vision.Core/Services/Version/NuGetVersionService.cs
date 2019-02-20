@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
-using Vision.Core.Services.Queries;
 using Vision.Shared;
 
 namespace Vision.Core
@@ -24,7 +22,7 @@ namespace Vision.Core
 
         public async Task<DependencyVersion> GetLatestVersion(Dependency dependency)
         {
-            foreach (Registry registry in await context.Registries.FilterByKind(DependencyKind.NuGet).ToListAsync())
+            foreach (Registry registry in await context.Registries.Where(x => x.Kind == DependencyKind.NuGet).ToListAsync())
             {                
                 try
                 {

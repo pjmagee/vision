@@ -23,30 +23,12 @@
                 <label class="form-check-label" for="defaultCheck1">Public</label>
             </div>
 
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" bind="Registry.IsDocker" />
-                <label class="form-check-label" for="inlineCheckbox1">Docker</label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" id="inlineCheckbox2" bind="Registry.IsNuGet" />
-                <label class="form-check-label" for="inlineCheckbox2">NuGet</label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" id="inlineCheckbox2" bind="Registry.IsMaven" />
-                <label class="form-check-label" for="inlineCheckbox2">Maven</label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" id="inlineCheckbox2" bind="Registry.IsPyPi" />
-                <label class="form-check-label" for="inlineCheckbox2">Python</label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" id="inlineCheckbox2" bind="Registry.IsRubygem" />
-                <label class="form-check-label" for="inlineCheckbox2">Ruby</label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" id="inlineCheckbox2" bind="Registry.IsNpm" />
-                <label class="form-check-label" for="inlineCheckbox2">Node</label>
-            </div>
+            <select type="text" class="form-control" bind="Registry.Kind" placeholder="Type">
+                @foreach(var kind in Enum.GetValues(typeof(DependencyKind)).Cast<DependencyKind>())
+                {
+                    <option value="@kind">@kind.ToString()</option>
+                }
+            </select>
 
             <button onclick="Submit" class="btn btn-primary">Save</button>
         </form>
@@ -66,12 +48,7 @@
                         <th>Endpoint</th>
                         <th>API Key</th>
                         <th>Public</th>
-                        <th>Python</th>
-                        <th>NodeJs</th>
-                        <th>DotNet</th>
-                        <th>DockerFile</th>
-                        <th>Maven</th>
-                        <th>Ruby</th>
+                        <th>Kind</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -81,12 +58,7 @@
                         <td>@item.Endpoint</td>
                         <td>@item.ApiKey</td>
                         <td>@(item.IsPublic ? "Yes" : "No")</td>
-                        <td>@(item.IsPublic ? "Yes" : "No")</td>
-                        <td>@(item.IsNpm   ? "Yes" : "No")</td>
-                        <td>@(item.IsNuGet ? "Yes" : "No")</td>
-                        <td>@(item.IsDocker ? "Yes" : "No")</td>
-                        <td>@(item.IsMaven  ? "Yes" : "No")</td>
-                        <td>@(item.IsRubygem   ? "Yes" : "No")</td>
+                        <td>@item.Kind.ToString()</td>
                     </tr>
                     }
                 </tbody>

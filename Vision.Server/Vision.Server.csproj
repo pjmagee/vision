@@ -5,6 +5,11 @@
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Vision.App\Vision.App.csproj" />
     <ProjectReference Include="..\Vision.Core\Vision.Core.csproj" />
@@ -25,6 +30,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.0.0-preview.19074.3" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.2" />
     <PackageReference Include="Novell.Directory.Ldap.NETStandard" Version="2.3.8" />
+    <PackageReference Include="NSwag.AspNetCore" Version="12.0.14" />
     
   </ItemGroup>
 

@@ -7,7 +7,6 @@
         NuGet,
         Docker,
         Maven,
-        RubyGem,
-        Unknown
+        RubyGem
     }
 }

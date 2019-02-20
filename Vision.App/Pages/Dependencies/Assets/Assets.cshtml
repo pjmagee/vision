@@ -1,5 +1,6 @@
 ﻿@page "/dependencies/{dependencyId:guid}/assets"
 @inject HttpClient HttpClient
+@inject IJSRuntime Runtime
 
 <HeadingComponent Title="@Title"></HeadingComponent>
 
@@ -22,14 +23,12 @@
                 <tbody>
                     @foreach (var item in Items)
                     {
-                    <tr>
-                        <td>@item.Repository</td>
-                        <td>@item.Name</td>
-                        <td>@item.Version</td>                        
-                        <td>
-                            
-                        </td>
-                    </tr>
+                        <tr>
+                            <td>@item.Repository</td>
+                            <td>@item.Name</td>
+                            <td>@item.Version</td>
+                            <td></td>
+                        </tr>
                     }
                 </tbody>
             </table>
@@ -45,7 +44,7 @@
 
     [Parameter] private Guid dependencyId { get; set; }
 
-    public string Title => Dependency != null ? (Dependency.Name + " assets") : "Loading";
+    public string Title { get; set; }
 
     private DependencyDto Dependency { get; set; }
     private AssetDependencyDto[] Items { get; set; }
@@ -54,11 +53,11 @@
     {
         Dependency = await HttpClient.GetJsonAsync<DependencyDto>($"/api/dependencies/{dependencyId}");
         Items = await HttpClient.GetJsonAsync<AssetDependencyDto[]>($"/api/dependencies/{dependencyId}/assets");
-        StateHasChanged();
+        Title = Dependency.Name + " assets";
     }
 
     protected override async Task OnAfterRenderAsync()
     {
-        await JSRuntime.Current.InvokeAsync<object>("dataTable");
+        await Runtime.InvokeAsync<object>("dataTable");
     }
 }

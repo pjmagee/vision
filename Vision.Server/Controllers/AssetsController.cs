@@ -18,16 +18,16 @@ namespace Vision.Server.Controllers
         {
             this.context = context;
         }
-
-        [HttpGet("{repositoryId}")]
-        public async Task<IEnumerable<AssetDto>> GetAsync(Guid repositoryId)
+        
+        [HttpGet("{assetId}")]
+        public async Task<AssetDto> GetAssetByIdAsync(Guid assetId)
         {
-            IEnumerable<Asset> assets = await context.Assets.Where(x => x.GitRepositoryId == repositoryId).ToListAsync();
-            return assets.Select(a => new AssetDto { AssetId = a.Id, Dependencies = a.Dependencies.Count, Path = a.Path, RepositoryId = a.GitRepositoryId });
+            Asset asset = await context.Assets.FindAsync(assetId);
+            return new AssetDto { AssetId = asset.Id, Dependencies = asset.Dependencies.Count, Path = asset.Path, RepositoryId = asset.GitRepositoryId };
         }
 
         [HttpGet("{assetId}/dependencies")]
-        public async Task<IEnumerable<AssetDependencyDto>> GetByAssetId(Guid assetId)
+        public async Task<IEnumerable<AssetDependencyDto>> GetDependenciesByAssetIdAsync(Guid assetId)
         {
             IEnumerable<AssetDependency> assetDependencies = await context.AssetDependencies.Where(x => x.AssetId == assetId).ToListAsync();
 

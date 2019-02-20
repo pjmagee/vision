@@ -20,14 +20,21 @@ namespace Vision.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<GitSourceDto>> GetAsync()
+        public async Task<IEnumerable<GitSourceDto>> GetAllSourcesAsync()
         {
             var sources = await context.GitSources.ToListAsync();
             return sources.Select(x => new GitSourceDto { Endpoint = x.Endpoint, ApiKey = x.ApiKey, Kind = x.Kind, SourceId = x.Id, Repositories = x.GitRepositories.Count });
         }
 
+        [HttpGet("{sourceId}/repositories")]
+        public async Task<IEnumerable<RepositoryDto>> GetRepositoriesBySourceIdAsync(Guid sourceId)
+        {
+            var repositories = await context.GitRepositories.Where(x => x.GitSourceId == sourceId).ToListAsync();
+            return repositories.Select(x => new RepositoryDto { SourceId = x.GitSourceId, Assets = x.Assets.Count, GitUrl = x.GitUrl, WebUrl = x.WebUrl, RepositoryId = x.Id });
+        }
+
         [HttpGet("{sourceId}")]
-        public async Task<GitSourceDto> GetAsync(Guid sourceId)
+        public async Task<GitSourceDto> GetSourceByIdAsync(Guid sourceId)
         {
             GitSource source = await context.GitSources.FindAsync(sourceId);
             return new GitSourceDto { Endpoint = source.Endpoint, ApiKey = source.ApiKey, Kind = source.Kind, SourceId = source.Id, Repositories = source.GitRepositories.Count };
@@ -43,13 +50,6 @@ namespace Vision.Server.Controllers
             await context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(PostAsync), new { sourceId = source.Id }, new GitSourceDto { Endpoint = source.Endpoint, ApiKey = source.ApiKey, Kind = source.Kind, SourceId = source.Id, Repositories = source.GitRepositories.Count });
-        }
-
-        [HttpPost("/refresh")]
-        [ProducesResponseType(200)]
-        public async Task<IActionResult> RefreshAsync(Guid sourceId)
-        {
-            return Ok();
         }
     }
 }

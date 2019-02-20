@@ -6,6 +6,7 @@ namespace Vision.Shared
     {
         public Guid AssetId { get; set; }
         public string Path { get; set; }
+        public string Repository { get; set; }
         public Guid RepositoryId { get; set; }
         public int Dependencies { get; set; }
     }

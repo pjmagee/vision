@@ -20,7 +20,7 @@ namespace Vision.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<DependencyDto>> Get()
+        public async Task<IEnumerable<DependencyDto>> GetAllDependenciesAsync()
         {
             var dependencies = await context.Dependencies.ToListAsync();
 
@@ -36,7 +36,7 @@ namespace Vision.Server.Controllers
         }
 
         [HttpGet("{dependencyId}/assets")]
-        public async Task<IEnumerable<AssetDependencyDto>> GetAssetsByDependencyId(Guid dependencyId)
+        public async Task<IEnumerable<AssetDependencyDto>> GetAssetsByDependencyIdAsync(Guid dependencyId)
         {
             IEnumerable<AssetDependency> assetDependencies = await context.AssetDependencies.Where(x => x.DependencyId == dependencyId).ToListAsync();
 
@@ -52,7 +52,7 @@ namespace Vision.Server.Controllers
         }
 
         [HttpGet("{dependencyId}")]
-        public async Task<DependencyDto> Get(Guid dependencyId)
+        public async Task<DependencyDto> GetDependencyByIdAsync(Guid dependencyId)
         {
             var dependency = await context.Dependencies.FindAsync(dependencyId);
 
@@ -68,7 +68,7 @@ namespace Vision.Server.Controllers
         }
 
         [HttpGet("{dependencyId}/versions")]
-        public async Task<IEnumerable<DependencyVersionDto>> GetVersionsAsync(Guid dependencyId)
+        public async Task<IEnumerable<DependencyVersionDto>> GetVersionsByDependencyIdAsync(Guid dependencyId)
         {
             var versions = await context.DependencyVersions.Where(x => x.DependencyId == dependencyId).ToListAsync();
 

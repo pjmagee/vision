@@ -1,12 +1,12 @@
-﻿@page "/dependencies"
+﻿@page "/frameworks"
 @inject HttpClient HttpClient
 @inject IJSRuntime Runtime
 
-<HeadingComponent Title="Dependencies"></HeadingComponent>
+<HeadingComponent Title="Frameworks"></HeadingComponent>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Dependencies</h6>
+        <h6 class="m-0 font-weight-bold text-primary">Frameworks</h6>
     </div>
     <div class="card-body">
         @if (Items != null)
@@ -15,10 +15,8 @@
                 <thead>
                     <tr>
                         <th>Name</th>
-                        <th>Kind</th>
                         <th>Assets</th>
-                        <th>Versions</th>
-                        <th>Actions</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -26,12 +24,9 @@
                     {
                         <tr>
                             <td>@item.Name</td>
-                            <td>@item.Kind.ToString()</td>
                             <td>@item.Assets</td>
-                            <td>@item.Versions</td>
                             <td>
-                                <NavLink class="nav-link" href="@($"/dependencies/{item.DependencyId}/versions")" Match="NavLinkMatch.All">Browse versions</NavLink>
-                                <NavLink class="nav-link" href="@($"/dependencies/{item.DependencyId}/assets")" Match="NavLinkMatch.All">Browse assets</NavLink>
+                                <NavLink class="nav-link" href="@($"/frameworks/{item.FrameworkId}/assets")">Browse assets</NavLink>
                             </td>
                         </tr>
                     }
@@ -46,11 +41,12 @@
 </div>
 @functions {
 
-    private DependencyDto[] Items { get; set; }
+    private FrameworkDto[] Items { get; set; }
 
     protected override async Task OnInitAsync()
     {
-        Items = await HttpClient.GetJsonAsync<DependencyDto[]>("/api/dependencies");
+        Items = await HttpClient.GetJsonAsync<FrameworkDto[]>("/api/frameworks");
+        StateHasChanged();
     }
 
     protected override async Task OnAfterRenderAsync()

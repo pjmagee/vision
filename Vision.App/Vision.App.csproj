@@ -16,4 +16,9 @@
     <ProjectReference Include="..\Vision.Shared\Vision.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Pages\Builds\" />
+    <Folder Include="Pages\Assets\" />
+  </ItemGroup>
+
 </Project>

@@ -1,4 +1,4 @@
-﻿@page "/sources/{sourceId:guid}/repositories/{repositoryId:guid}/assets/{assetId:guid}"
+﻿@page "/frameworks/{frameworkId:guid}/assets"
 @inject HttpClient HttpClient
 @inject IJSRuntime Runtime
 
@@ -6,7 +6,7 @@
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Dependencies</h6>
+        <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
     </div>
     <div class="card-body">
         @if (Items != null)
@@ -14,18 +14,20 @@
             <table class="table table-striped table-bordered" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Version</th>
-                        <th>Latest</th>
+                        <th>Repository</th>
+                        <th>Asset</th>
+                        <th>Dependencies</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Items)
                     {
                         <tr>
-                            <td>@item.Name</td>
-                            <td>@item.Version</td>
-                            <td>@item.IsLatest</td>
+                            <td>@item.Repository</td>
+                            <td>@item.Path</td>
+                            <td>@item.Dependencies</td>
+                            <td></td>
                         </tr>
                     }
                 </tbody>
@@ -40,20 +42,18 @@
 
 @functions {
 
-    private AssetDto Asset { get; set; }
-    private AssetDependencyDto[] Items { get; set; }
+    [Parameter] private Guid frameworkId { get; set; }
+
+    private FrameworkDto Framework { get; set; }
+    private AssetDto[] Items { get; set; }
 
     public string Title { get; set; }
 
-    [Parameter] private Guid assetId { get; set; }
-    [Parameter] private Guid repositoryId { get; set; }
-    [Parameter] private Guid sourceId { get; set; }
-
     protected override async Task OnParametersSetAsync()
     {
-        Asset = await HttpClient.GetJsonAsync<AssetDto>($"/api/assets/{assetId}");
-        Items = await HttpClient.GetJsonAsync<AssetDependencyDto[]>($"/api/assets/{assetId}/dependencies");
-        Title = Asset.Path + " dependencies";
+        Framework = await HttpClient.GetJsonAsync<FrameworkDto>($"/api/frameworks/{frameworkId}");
+        Items = await HttpClient.GetJsonAsync<AssetDto[]>($"/api/frameworks/{frameworkId}/assets");
+        Title = Framework.Name + " assets";
     }
 
     protected override async Task OnAfterRenderAsync()

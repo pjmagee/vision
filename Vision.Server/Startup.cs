@@ -33,8 +33,8 @@ namespace Vision.Server
             services.AddDbContext<VisionDbContext>(options => 
                 options
                     .UseLazyLoadingProxies()
-                    .UseSqlServer(configuration["ConnectionStrings:Home"])
-                    .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)));
+                    .UseSqlServer(configuration["ConnectionStrings:Default"])
+                    .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)), ServiceLifetime.Transient);
 
             services.AddMvc().AddNewtonsoftJson().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
@@ -48,6 +48,29 @@ namespace Vision.Server
                     WasmMediaTypeNames.Application.Wasm,
                 });
             });
+
+            services.AddSwaggerDocument(config => 
+            {
+                config.PostProcess = document =>
+                {
+                    document.Info.Version = "v1";
+                    document.Info.Title = "Reed Business Information Vision API";
+                    document.Info.Description = "Vision API for reporting and insights on organisation assets and dependencies";
+                    document.Info.TermsOfService = "None";
+                    document.Info.Contact = new NSwag.SwaggerContact
+                    {
+                        Name = "Patrick Magee",
+                        Email = "patrick.magee@reedbusiness.com",
+                        Url = "https://github.com/pjmagee"
+                    };
+                    document.Info.License = new NSwag.SwaggerLicense
+                    {
+                        Name = "Use under LICX",
+                        Url = "https://example.com/license"
+                    };
+                };
+
+            });
         }
         
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -58,7 +81,10 @@ namespace Vision.Server
             {
                 app.UseDeveloperExceptionPage();
             }
-            
+
+            app.UseSwagger();
+            app.UseSwaggerUi3();
+
             app.UseMvc();
             app.UseStaticFiles();
              // app.UseAuthentication();

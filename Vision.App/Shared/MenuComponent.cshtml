@@ -1,11 +1,12 @@
 ﻿@inject IEnumerable<NavMenuItem> NavMenuItems
-@inject IUriHelper helper
+@inject IUriHelper Helper
+@inject IJSRuntime Runtime
 
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/">
         <div class="sidebar-brand-icon rotate-n-15">
-            <i class="fas fa-wifi"></i>
+            <i class="fas fa-eye"></i>
         </div>
         <div class="sidebar-brand-text mx-3">VisioN</div>
     </a>
@@ -14,7 +15,7 @@
 
     <li class="nav-item @ActiveClass("/")">
         <NavLink class="nav-link" href="/">
-            <i class="fas fa-fw fa-table"></i>
+            <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Dashboard</span>
         </NavLink>
     </li>
@@ -52,17 +53,22 @@
     </div>
 </ul>
 
-@functions { 
+@functions {
 
     public string ActiveClass(string route)
     {
-        if (helper.GetAbsoluteUri() .Contains(route)) return "active";
+        if (Helper.GetAbsoluteUri().Contains(route)) return "active";
         return string.Empty;
     }
 
     protected override void OnInit()
     {
-        helper.OnLocationChanged += (sender, o) => this.StateHasChanged();
+        Helper.OnLocationChanged += (sender, o) => this.StateHasChanged();
+    }
+
+    protected override async Task OnAfterRenderAsync()
+    {
+        await Runtime.InvokeAsync<object>("register");
     }
 }
 

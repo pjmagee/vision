@@ -26,7 +26,7 @@ namespace Vision
         private const string PackagesFile = "packages.json";
 
 
-        private readonly static IList<DependencyKind> DependencyKinds = Enum.GetValues(typeof(DependencyKind)).Cast<DependencyKind>().Where(x => x != DependencyKind.Unknown).ToList();
+        private readonly static IList<DependencyKind> DependencyKinds = Enum.GetValues(typeof(DependencyKind)).Cast<DependencyKind>().ToList();
 
         public static async Task SeedAsync(VisionDbContext context)
         {
@@ -43,6 +43,10 @@ namespace Vision
 
             // DEPENDENCY REGISTRIES
             context.Registries.AddRange(GetRegistries());
+            await context.SaveChangesAsync();
+
+            // FRAMEWORKS
+            context.Frameworks.AddRange(GetFrameworks());
             await context.SaveChangesAsync();
 
             // ASSETS
@@ -77,8 +81,23 @@ namespace Vision
                 context.AssetDependencies.AddRange(assetDependencies);
             }
             await context.SaveChangesAsync();
+            
+            // ASSET FRAMEWORKS
+            foreach (var asset in context.Assets)
+            {
+                var kind = GetDependencyKind(asset.Path);
+
+                if (kind != DependencyKind.NuGet)
+                    continue;
+
+                var assetFrameworks = GetAssetFrameworks(asset, context.Frameworks.ToList());
+                context.AssetFrameworks.AddRange(assetFrameworks);
+            }
+            await context.SaveChangesAsync();
+
         }
 
+        
         private static int GetAssetsByKind(DependencyKind kind)
         {
             switch (kind)
@@ -172,27 +191,42 @@ namespace Vision
                     .Distinct();
         }
 
+        private static IEnumerable<AssetFramework> GetAssetFrameworks(Asset asset, IList<Framework> frameworks)
+        {
+            var kind = GetDependencyKind(asset.Path);            
+            var selectedFrameworks = Pick<Framework>.UniqueRandomList(With.Between(1).And(2).Elements).From(frameworks);
+
+            return selectedFrameworks.Select(framework =>
+                Builder<AssetFramework>.CreateNew()
+                .With(x => x.Id = Guid.NewGuid())
+                .With(x => x.Asset = asset)
+                .With(x => x.AssetId = asset.Id)
+                .With(x => x.Framework = framework)
+                .With(x => x.FrameworkId = framework.Id).Build());
+        }
+
         private static IEnumerable<AssetDependency> GetAssetDependencies(Asset asset, IList<Dependency> dependencies)
         {
             var kind = GetDependencyKind(asset.Path);
             var max = Math.Min(dependencies.Count, GetDependenciesForAsset(kind));
             var selectedDependencies = Pick<Dependency>.UniqueRandomList(With.Between(1).And(max).Elements).From(dependencies);
 
-            return Builder<AssetDependency>.CreateListOfSize(selectedDependencies.Count).All()
-                .With(x => x.Id = Guid.NewGuid())
-                .With(x => x.Asset = asset)
-                .With(x => x.AssetId = asset.Id)                
-                .DoForEach((x, dependency) =>
-                {
-                    x.Dependency = dependency;
-                    x.DependencyId = dependency.Id;
+            return selectedDependencies.Select(dependency =>             
+                Builder<AssetDependency>
+                    .CreateNew()
+                    .With(x => x.Id = Guid.NewGuid())
+                    .With(x => x.AssetId = asset.Id)
+                    .With(x => x.Asset = asset)
+                    .And((x) =>
+                    {
+                        x.Dependency = dependency;
+                        x.DependencyId = dependency.Id;
+                        var pickedVersion = Pick<DependencyVersion>.RandomItemFrom(dependency.Versions.ToList());
+                        x.DependencyVersion = pickedVersion;
+                        x.DependencyVersionId = pickedVersion.Id;
+                    }).Build()
+            );
 
-                    var pickedVersion = Pick<DependencyVersion>.RandomItemFrom(dependency.Versions.ToList());
-
-                    x.DependencyVersion = pickedVersion;
-                    x.DependencyVersionId = pickedVersion.Id;                    
-
-                }, selectedDependencies).Build();
         }
 
         private static IEnumerable<DependencyVersion> GetDependencyVersions(Dependency dependency)
@@ -225,87 +259,62 @@ namespace Vision
         {
             var gitSources = new GitSource[]
             {
-		        Builder<GitSource>.CreateNew().With(x => x.Id = Guid.NewGuid()).With(x => x.ApiKey = Guid.NewGuid().ToString()).With(x => x.Endpoint = $"https://bitbucket.xperthr.rbxd.ds:8080/").With(x => x.Kind = GitKind.Bitbucket).Build(),
-                Builder<GitSource>.CreateNew().With(x => x.Id = Guid.NewGuid()).With(x => x.ApiKey = Guid.NewGuid().ToString()).With(x => x.Endpoint = $"https://bitbucket.accuity.rbxd.ds:8080/").With(x => x.Kind = GitKind.Bitbucket).Build(),
-                Builder<GitSource>.CreateNew().With(x => x.Id = Guid.NewGuid()).With(x => x.ApiKey = Guid.NewGuid().ToString()).With(x => x.Endpoint = $"https://bitbucket.flightglobal.rbxd.ds:8080/").With(x => x.Kind = GitKind.Gitlab).Build(),
-                Builder<GitSource>.CreateNew().With(x => x.Id = Guid.NewGuid()).With(x => x.ApiKey = Guid.NewGuid().ToString()).With(x => x.Endpoint = $"https://bitbucket.estatesgazette.rbxd.ds:8080/").With(x => x.Kind = GitKind.Bitbucket).Build(),
-                Builder<GitSource>.CreateNew().With(x => x.Id = Guid.NewGuid()).With(x => x.ApiKey = Guid.NewGuid().ToString()).With(x => x.Endpoint = $"https://gitlab.icis.rbxd.ds:8080/").With(x => x.Kind = GitKind.Gitlab).Build(),
-                Builder<GitSource>.CreateNew().With(x => x.Id = Guid.NewGuid()).With(x => x.ApiKey = Guid.NewGuid().ToString()).With(x => x.Endpoint = $"https://gitlab.proagrica.rbxd.ds:8080/").With(x => x.Kind = GitKind.Gitlab).Build(),
-                Builder<GitSource>.CreateNew().With(x => x.Id = Guid.NewGuid()).With(x => x.ApiKey = Guid.NewGuid().ToString()).With(x => x.Endpoint = $"https://bitbucket.lexisnexis.rbxd.ds:8080/").With(x => x.Kind = GitKind.Bitbucket).Build(),
-		        Builder<GitSource>.CreateNew().With(x => x.Id = Guid.NewGuid()).With(x => x.ApiKey = Guid.NewGuid().ToString()).With(x => x.Endpoint = $"https://gitlab.b2b.regn.net:8080/").With(x => x.Kind = GitKind.Gitlab).Build(),
+		         CreateNewGitSource().With(x => x.Endpoint = $"https://bitbucket.xperthr.rbxd.ds:8080/").With(x => x.Kind = GitKind.Bitbucket).Build(),
+                 CreateNewGitSource().With(x => x.Endpoint = $"https://bitbucket.accuity.rbxd.ds:8080/").With(x => x.Kind = GitKind.Bitbucket).Build(),
+                 CreateNewGitSource().With(x => x.Endpoint = $"https://bitbucket.flightglobal.rbxd.ds:8080/").With(x => x.Kind = GitKind.Gitlab).Build(),
+                 CreateNewGitSource().With(x => x.Endpoint = $"https://bitbucket.estatesgazette.rbxd.ds:8080/").With(x => x.Kind = GitKind.Bitbucket).Build(),
+                 CreateNewGitSource().With(x => x.Endpoint = $"https://gitlab.icis.rbxd.ds:8080/").With(x => x.Kind = GitKind.Gitlab).Build(),
+                 CreateNewGitSource().With(x => x.Endpoint = $"https://gitlab.proagrica.rbxd.ds:8080/").With(x => x.Kind = GitKind.Gitlab).Build(),
+                 CreateNewGitSource().With(x => x.Endpoint = $"https://bitbucket.lexisnexis.rbxd.ds:8080/").With(x => x.Kind = GitKind.Bitbucket).Build(),
+                 CreateNewGitSource().With(x => x.Endpoint = $"https://gitlab.b2b.regn.net:8080/").With(x => x.Kind = GitKind.Gitlab).Build(),
              };
 
             return gitSources;
         }
 
-        private static IEnumerable<Registry> GetRegistries()
-        {  
-            var dependencySources = new Registry[]
-            {
-		        Builder<Registry>.CreateNew().With(x => x.Id = Guid.NewGuid()).With(x => x.ApiKey = Guid.NewGuid().ToString()).With(x => x.Endpoint = $"https://nexus.xperthr.rbxd.ds:8080/")       .With(x => x.IsPublic = false).With(x => x.IsDocker = true).With(x => x.IsNpm = true).With(x => x.IsNuGet = true).With(x => x.IsPyPi = true).With(x => x.IsMaven = true).With(x => x.IsRubyGem = true).Build(),
-                Builder<Registry>.CreateNew().With(x => x.Id = Guid.NewGuid()).With(x => x.ApiKey = Guid.NewGuid().ToString()).With(x => x.Endpoint = $"https://nexus.flight.rbxd.ds:8080/")        .With(x => x.IsPublic = false).With(x => x.IsDocker = true).With(x => x.IsNpm = true).With(x => x.IsNuGet = true).With(x => x.IsPyPi = true).With(x => x.IsMaven = true).With(x => x.IsRubyGem = true).Build(),
-                Builder<Registry>.CreateNew().With(x => x.Id = Guid.NewGuid()).With(x => x.ApiKey = Guid.NewGuid().ToString()).With(x => x.Endpoint = $"https://nexus.estatesgazette.rbxd.ds:8080/").With(x => x.IsPublic = false).With(x => x.IsDocker = true).With(x => x.IsNpm = true).With(x => x.IsNuGet = true).With(x => x.IsPyPi = true).With(x => x.IsMaven = true).With(x => x.IsRubyGem = true).Build(),
-                Builder<Registry>.CreateNew().With(x => x.Id = Guid.NewGuid()).With(x => x.ApiKey = Guid.NewGuid().ToString()).With(x => x.Endpoint = $"https://nexus.proagrica.rbxd.ds:8080/")     .With(x => x.IsPublic = false).With(x => x.IsDocker = true).With(x => x.IsNpm = true).With(x => x.IsNuGet = true).With(x => x.IsPyPi = true).With(x => x.IsMaven = true).With(x => x.IsRubyGem = true).Build(),
-                Builder<Registry>.CreateNew().With(x => x.Id = Guid.NewGuid()).With(x => x.ApiKey = Guid.NewGuid().ToString()).With(x => x.Endpoint = $"https://nexus.icis.rbxd.ds:8080/")          .With(x => x.IsPublic = false).With(x => x.IsDocker = true).With(x => x.IsNpm = true).With(x => x.IsNuGet = true).With(x => x.IsPyPi = true).With(x => x.IsMaven = true).With(x => x.IsRubyGem = true).Build(),
-                Builder<Registry>.CreateNew().With(x => x.Id = Guid.NewGuid()).With(x => x.ApiKey = Guid.NewGuid().ToString()).With(x => x.Endpoint = $"https://nexus.iog.rbxd.ds:8080/")           .With(x => x.IsPublic = false).With(x => x.IsDocker = true).With(x => x.IsNpm = true).With(x => x.IsNuGet = true).With(x => x.IsPyPi = true).With(x => x.IsMaven = true).With(x => x.IsRubyGem = true).Build(),
-                Builder<Registry>.CreateNew().With(x => x.Id = Guid.NewGuid()).With(x => x.ApiKey = Guid.NewGuid().ToString()).With(x => x.Endpoint = $"https://nexus.lexisnexis.rbxd.ds:8080/")    .With(x => x.IsPublic = false).With(x => x.IsDocker = true).With(x => x.IsNpm = true).With(x => x.IsNuGet = true).With(x => x.IsPyPi = true).With(x => x.IsMaven = true).With(x => x.IsRubyGem = true).Build(),
-		        Builder<Registry>.CreateNew().With(x => x.Id = Guid.NewGuid()).With(x => x.ApiKey = Guid.NewGuid().ToString()).With(x => x.Endpoint = $"https://docker.registry.com/")              .With(x => x.IsPublic =  true).With(x => x.IsDocker =  true).With(x => x.IsNpm = false).With(x => x.IsNuGet = false).With(x => x.IsPyPi = false).With(x => x.IsMaven = false).With(x => x.IsRubyGem = false).Build(),
-                Builder<Registry>.CreateNew().With(x => x.Id = Guid.NewGuid()).With(x => x.ApiKey = Guid.NewGuid().ToString()).With(x => x.Endpoint = $"https://npm.registry.com/")                 .With(x => x.IsPublic =  true).With(x => x.IsDocker = false).With(x => x.IsNpm =  true).With(x => x.IsNuGet = false).With(x => x.IsPyPi = false).With(x => x.IsMaven = false).With(x => x.IsRubyGem = false).Build(),
-                Builder<Registry>.CreateNew().With(x => x.Id = Guid.NewGuid()).With(x => x.ApiKey = Guid.NewGuid().ToString()).With(x => x.Endpoint = $"https://nuget.registry.com/")               .With(x => x.IsPublic =  true).With(x => x.IsDocker = false).With(x => x.IsNpm = false).With(x => x.IsNuGet =  true).With(x => x.IsPyPi = false).With(x => x.IsMaven = false).With(x => x.IsRubyGem = false).Build(),
-                Builder<Registry>.CreateNew().With(x => x.Id = Guid.NewGuid()).With(x => x.ApiKey = Guid.NewGuid().ToString()).With(x => x.Endpoint = $"https://maven.registry.com/")               .With(x => x.IsPublic =  true).With(x => x.IsDocker = false).With(x => x.IsNpm = false).With(x => x.IsNuGet = false).With(x => x.IsPyPi = false).With(x => x.IsMaven =  true).With(x => x.IsRubyGem = false).Build(),
-                Builder<Registry>.CreateNew().With(x => x.Id = Guid.NewGuid()).With(x => x.ApiKey = Guid.NewGuid().ToString()).With(x => x.Endpoint = $"https://PyPi.registry.com/")                .With(x => x.IsPublic =  true).With(x => x.IsDocker = false).With(x => x.IsNpm = false).With(x => x.IsNuGet = false).With(x => x.IsPyPi =  true).With(x => x.IsMaven = false).With(x => x.IsRubyGem = false).Build(),
-                Builder<Registry>.CreateNew().With(x => x.Id = Guid.NewGuid()).With(x => x.ApiKey = Guid.NewGuid().ToString()).With(x => x.Endpoint = $"https://RubyGem.registry.com/")             .With(x => x.IsPublic =  true).With(x => x.IsDocker = false).With(x => x.IsNpm = false).With(x => x.IsNuGet = false).With(x => x.IsPyPi = false).With(x => x.IsMaven = false).With(x => x.IsRubyGem = true).Build(),
-            };
+        private static ISingleObjectBuilder<GitSource> CreateNewGitSource() => Builder<GitSource>.CreateNew().With(x => x.Id = Guid.NewGuid()).With(x => x.ApiKey = Guid.NewGuid().ToString());
 
-            return dependencySources;
+        private static IEnumerable<Registry> GetRegistries()
+        {
+            return DependencyKinds.SelectMany(kind => new Registry[]
+            {
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.xperthr.rbxd.ds/{kind}/")       .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.flight.rbxd.ds/{kind}/")        .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.estatesgazette.rbxd.ds/{kind}/").With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.proagrica.rbxd.ds/{kind}/")     .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.icis.rbxd.ds/{kind}/")          .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.iog.rbxd.ds/{kind}/")           .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.lexisnexis.rbxd.ds/{kind}/")    .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.flight.rbxd.ds/{kind}/")        .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.estatesgazette.rbxd.ds/{kind}/").With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.proagrica.rbxd.ds/{kind}/")     .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.icis.rbxd.ds/{kind}/")          .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.iog.rbxd.ds/{kind}/")           .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.lexisnexis.rbxd.ds/{kind}/")    .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),                
+            })
+            .Concat(new[] 
+            {
+                CreateNewRegistry().With(x => x.Endpoint = $"https://hub.docker.com/")        .With(x => x.IsPublic = true).With(x => x.Kind = DependencyKind.Docker).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://registry.npm.com/")      .With(x => x.IsPublic = true).With(x => x.Kind = DependencyKind.Npm).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nuget.org.com/v3/")      .With(x => x.IsPublic = true).With(x => x.Kind = DependencyKind.NuGet).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://maven.com/")             .With(x => x.IsPublic = true).With(x => x.Kind = DependencyKind.Maven).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://registry.python.com/")   .With(x => x.IsPublic = true).With(x => x.Kind = DependencyKind.PyPi).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://registry.rubygems.com/") .With(x => x.IsPublic = true).With(x => x.Kind = DependencyKind.RubyGem).Build()
+            });
         }
+
+        private static ISingleObjectBuilder<Registry> CreateNewRegistry() => Builder<Registry>.CreateNew().With(x => x.Id = Guid.NewGuid()).With(x => x.ApiKey = Guid.NewGuid().ToString());
 
         private static IEnumerable<Framework> GetFrameworks()
         {
-            var netStandard = new[]
-            {
-                "netstandard1.0",
-                "netstandard1.1",
-                "netstandard1.2",
-                "netstandard1.3",
-                "netstandard1.4",
-                "netstandard1.5",
-                "netstandard1.6",
-                "netstandard2.0"
-            };
+            var netStandards = new[] { "netstandard1.0","netstandard1.1", "netstandard1.2", "netstandard1.3", "netstandard1.4", "netstandard1.5", "netstandard1.6", "netstandard2.0" };
+            var netCores = new[]  { "netcoreapp1.0", "netcoreapp1.1", "netcoreapp2.0", "netcoreapp2.1", "netcoreapp2.2" };
+            var netFrameworks = new[] {  "net11", "net20", "net35", "net40", "net403", "net45", "net451", "net452", "net46", "net461", "net462", "net47", "net471", "net472" };
 
-            var netCore = new[] 
-            {
-                "netcoreapp1.0",
-                "netcoreapp1.1",
-                "netcoreapp2.0",
-                "netcoreapp2.1",
-                "netcoreapp2.2"
-            };
-
-            var netFramework = new[] 
-            {
-                "net11",
-                "net20",
-                "net35",
-                "net40",
-                "net403",
-                "net45",
-                "net451",
-                "net452",
-                "net46",
-                "net461",
-                "net462",
-                "net47",
-                "net471",
-                "net472"
-            };
-
-            var netStandards = Builder<Framework>.CreateListOfSize(netStandard.Length).All().With(x => x.Id = Guid.NewGuid()).DoForEach((x, v) => x.Version = v, netStandard).Build();
-            var netCores = Builder<Framework>.CreateListOfSize(netCore.Length).All().With(x => x.Id = Guid.NewGuid()).DoForEach((x, v) => x.Version = v, netCore).Build();
-            var netFrameworks = Builder<Framework>.CreateListOfSize(netFramework.Length).All().With(x => x.Id = Guid.NewGuid()).DoForEach((x, v) => x.Version = v, netFramework).Build();
-
-            return netStandards.Concat(netCores).Concat(netFrameworks);
+            return netStandards.Concat(netCores).Concat(netFrameworks)
+                .Select(framework => Builder<Framework>.CreateNew()
+                    .With(x => x.Id = Guid.NewGuid())
+                    .With(x => x.Version = framework).Build());
         }
 
         private static IEnumerable<GitRepository> GetRepositories(GitSource source)
@@ -332,14 +341,7 @@ namespace Vision
 
         private static RandomItemPicker<Registry> GetRegistryByKind(IEnumerable<Registry> sources, DependencyKind kind)
         {
-            if (kind == DependencyKind.Docker) return new RandomItemPicker<Registry>(sources.Where(x => x.IsDocker).ToList(), new RandomGenerator());
-            if (kind == DependencyKind.Maven) return new RandomItemPicker<Registry>(sources.Where(x => x.IsMaven).ToList(), new RandomGenerator());
-            if (kind == DependencyKind.Npm) return new RandomItemPicker<Registry>(sources.Where(x => x.IsNpm).ToList(), new RandomGenerator());
-            if (kind == DependencyKind.NuGet) return new RandomItemPicker<Registry>(sources.Where(x => x.IsNuGet).ToList(), new RandomGenerator());
-            if (kind == DependencyKind.PyPi) return new RandomItemPicker<Registry>(sources.Where(x => x.IsPyPi).ToList(), new RandomGenerator());
-            if (kind == DependencyKind.RubyGem) return new RandomItemPicker<Registry>(sources.Where(x => x.IsRubyGem).ToList(), new RandomGenerator());
-
-            throw new Exception("Cannot pick random item picker for dependency sources for chosen dependency kind");
+            return new RandomItemPicker<Registry>(sources.Where(x => x.Kind == kind).ToList(), new RandomGenerator());
         }
 
         private static int GetRandomDependencies(DependencyKind kind)

@@ -1,7 +1,8 @@
 ﻿@page "/sources/{sourceId:guid}/repositories"
 @inject HttpClient HttpClient
+@inject IJSRuntime Runtime
 
-<HeadingComponent Title="Repositories"></HeadingComponent>
+<HeadingComponent Title="@Title"></HeadingComponent>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
@@ -49,14 +50,20 @@
     [Parameter] private Guid sourceId { get; set; }
 
     private RepositoryDto[] Items { get; set; }
+    private GitSourceDto GitSource { get; set; }
+
+    public string Title { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        Items = await HttpClient.GetJsonAsync<RepositoryDto[]>($"/api/repositories/{sourceId}");
+        GitSource = await HttpClient.GetJsonAsync<GitSourceDto>($"/api/sources/{sourceId}");
+        Items = await HttpClient.GetJsonAsync<RepositoryDto[]>($"/api/sources/{sourceId}/repositories");
+        Title = GitSource?.Endpoint + " repositories";
+        StateHasChanged();
     }
 
     protected override async Task OnAfterRenderAsync()
     {
-        await JSRuntime.Current.InvokeAsync<object>("dataTable");
+        await Runtime.InvokeAsync<object>("dataTable");
     }
 }

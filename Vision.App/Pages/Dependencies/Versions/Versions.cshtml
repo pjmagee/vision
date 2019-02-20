@@ -1,7 +1,8 @@
 ﻿@page "/dependencies/{dependencyId:guid}/versions"
 @inject HttpClient HttpClient
+@inject IJSRuntime Runtime
 
-<HeadingComponent Title="Versions"></HeadingComponent>
+<HeadingComponent Title="@Title"></HeadingComponent>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
@@ -47,15 +48,18 @@
 
     [Parameter] private Guid dependencyId { get; set; }
 
+    public string Title { get; set; }
+
     protected override async Task OnParametersSetAsync()
     {
         Dependency = await HttpClient.GetJsonAsync<DependencyDto>($"/api/dependencies/{dependencyId}");
         Items = await HttpClient.GetJsonAsync<DependencyVersionDto[]>($"/api/dependencies/{dependencyId}/versions");
+        Title = Dependency.Name + " versions";
         StateHasChanged();
     }
 
     protected override async Task OnAfterRenderAsync()
     {
-        await JSRuntime.Current.InvokeAsync<object>("dataTable");
+        await Runtime.InvokeAsync<object>("dataTable");
     }
 }

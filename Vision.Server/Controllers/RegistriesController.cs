@@ -28,13 +28,7 @@ namespace Vision.Server.Controllers
                 ApiKey = x.ApiKey,
                 Dependencies = x.Dependencies.Count,
                 Endpoint = x.Endpoint,
-                IsDocker = x.IsDocker,
-                IsNuGet = x.IsNuGet,
-                IsMaven = x.IsMaven,
-                IsNpm = x.IsNpm,
-                IsPublic = x.IsPublic,
-                IsPyPi = x.IsPyPi,
-                IsRubygem = x.IsRubyGem,
+                Kind = x.Kind,
                 RegistryId = x.Id
             });
         }
