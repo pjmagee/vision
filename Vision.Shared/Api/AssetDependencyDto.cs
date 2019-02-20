@@ -4,8 +4,9 @@ namespace Vision.Shared
 {
     public class AssetDependencyDto
     {
+        public string Repository { get; set; }
         public string Name { get; set; }
-        public string Version { get; set; }        
+        public string Version { get; set; }
         public bool IsLatest { get; set; }
         public Guid AssetId { get; set; }
         public Guid DependencyId { get; set; }

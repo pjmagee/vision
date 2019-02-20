@@ -10,6 +10,6 @@ namespace Vision.Core
         public string VulnerabilityUrl { get; set; }
         public virtual Dependency Dependency { get; set; }
         public Guid DependencyId { get; set; }
-        public virtual IList<AssetDependency> Assets { get; set; }
+        public virtual ICollection<AssetDependency> Assets { get; set; }
     }
 }

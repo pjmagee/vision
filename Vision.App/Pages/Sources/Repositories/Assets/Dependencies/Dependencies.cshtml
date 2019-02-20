@@ -47,7 +47,8 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        Items = await HttpClient.GetJsonAsync<AssetDependencyDto[]>($"/api/assetdependencies/{assetId}");
+        Items = await HttpClient.GetJsonAsync<AssetDependencyDto[]>($"/api/assets/{assetId}/dependencies");
+        StateHasChanged();
     }
 
     protected override async Task OnAfterRenderAsync()

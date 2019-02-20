@@ -181,12 +181,16 @@ namespace Vision
             return Builder<AssetDependency>.CreateListOfSize(selectedDependencies.Count).All()
                 .With(x => x.Id = Guid.NewGuid())
                 .With(x => x.Asset = asset)
-                .With(x => x.AssetId = asset.Id)
+                .With(x => x.AssetId = asset.Id)                
                 .DoForEach((x, dependency) =>
                 {
-                    var pickedVersion = Pick<DependencyVersion>.RandomItemFrom(dependency.Versions);
+                    x.Dependency = dependency;
+                    x.DependencyId = dependency.Id;
+
+                    var pickedVersion = Pick<DependencyVersion>.RandomItemFrom(dependency.Versions.ToList());
+
                     x.DependencyVersion = pickedVersion;
-                    x.DependencyVersionId = pickedVersion.Id;
+                    x.DependencyVersionId = pickedVersion.Id;                    
 
                 }, selectedDependencies).Build();
         }

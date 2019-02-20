@@ -9,6 +9,7 @@ namespace Vision.Core
         public string WebUrl { get; set; }
         public virtual GitSource GitSource { get; set; }
         public Guid GitSourceId { get; set; }
-        public virtual IList<Asset> Assets { get; set; }
+
+        public virtual ICollection<Asset> Assets { get; set; }
     }   
 }

@@ -30,6 +30,7 @@
                             <td>@item.Versions</td>
                             <td>
                                 <NavLink class="nav-link" href="@($"/dependencies/{item.DependencyId}/versions")" Match="NavLinkMatch.All">Browse versions</NavLink>
+                                <NavLink class="nav-link" href="@($"/dependencies/{item.DependencyId}/assets")" Match="NavLinkMatch.All">Browse assets</NavLink>
                             </td>
                         </tr>
                     }

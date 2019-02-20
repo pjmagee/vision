@@ -53,6 +53,8 @@ namespace Vision.Core
             modelBuilder.Entity<AssetDependency>(entity =>
             {
                 entity.HasKey(x => x.Id);
+                entity.HasOne(x => x.Dependency).WithMany(x => x.Assets).HasForeignKey(x => x.DependencyId).OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(x => x.DependencyVersion).WithMany(x => x.Assets).HasForeignKey(x => x.DependencyVersionId).OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<Dependency>((entity) =>
@@ -60,13 +62,14 @@ namespace Vision.Core
                 entity.HasKey(x => x.Id);
                 entity.Property(e => e.Kind).HasConversion(new EnumToStringConverter<DependencyKind>());
                 entity.HasMany(x => x.Versions).WithOne(v => v.Dependency).HasForeignKey(x => x.DependencyId);
+                entity.HasMany(x => x.Assets).WithOne(x => x.Dependency).HasForeignKey(x => x.DependencyId);
             });
 
             modelBuilder.Entity<DependencyVersion>((entity) =>
             {
                 entity.HasKey(x => x.Id);
                 entity.Property(x => x.Version).IsRequired();
-                entity.Property(x => x.IsVulnerable).HasDefaultValue(false);    
+                entity.Property(x => x.IsVulnerable).HasDefaultValue(false);                    
             });
         }
     }

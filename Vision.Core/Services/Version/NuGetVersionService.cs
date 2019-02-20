@@ -3,26 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
+using Vision.Core.Services.Queries;
 using Vision.Shared;
 
 namespace Vision.Core
 {
     public class NuGetVersionService : IVersionService
     {
-        private readonly IRegistryRepository registryService;
+        private readonly VisionDbContext context;
         private static readonly HttpClient client = new HttpClient();
 
         public DependencyKind Kind => DependencyKind.NuGet;
 
-        public NuGetVersionService(IRegistryRepository registryService)
+        public NuGetVersionService(VisionDbContext registryService)
         {
-            this.registryService = registryService;
+            this.context = registryService;
         }
 
         public async Task<DependencyVersion> GetLatestVersion(Dependency dependency)
         {
-            foreach (var registry in await registryService.GetByKindAsync(DependencyKind.NuGet))
+            foreach (Registry registry in await context.Registries.FilterByKind(DependencyKind.NuGet).ToListAsync())
             {                
                 try
                 {

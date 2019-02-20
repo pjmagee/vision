@@ -12,7 +12,9 @@ namespace Vision.Core
         public DateTime Updated { get; set; }
         public virtual Registry Registry { get; set; }
         public Guid RegistryId { get; set; }
-        public virtual IList<AssetDependency> Assets { get; set; }
-        public virtual IList<DependencyVersion> Versions { get; set; }
+
+
+        public virtual ICollection<AssetDependency> Assets { get; set; }
+        public virtual ICollection<DependencyVersion> Versions { get; set; }
     }
 }

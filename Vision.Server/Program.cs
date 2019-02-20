@@ -17,7 +17,6 @@ namespace Vision.Server
                     var context = scope.ServiceProvider.GetRequiredService<VisionDbContext>();
                     //await context.Database.EnsureDeletedAsync();
                     //await context.Database.EnsureCreatedAsync();
-
                     //await Fake.SeedAsync(context);
                 }
 

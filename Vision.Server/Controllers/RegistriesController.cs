@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Vision.Core;
 using Vision.Shared;
 
@@ -10,17 +11,17 @@ namespace Vision.Server.Controllers
     [ApiController, Route("api/[controller]")]
     public class RegistriesController : ControllerBase
     {
-        private readonly IRegistryRepository registryRepository;
+        private readonly VisionDbContext context;
 
-        public RegistriesController(IRegistryRepository registryRepository)
+        public RegistriesController(VisionDbContext context)
         {
-            this.registryRepository = registryRepository;
+            this.context = context;
         }
 
         [HttpGet]
         public async Task<IEnumerable<RegistryDto>> Get()
         {
-            var registries = await registryRepository.GetAllAsync();
+            var registries = await context.Registries.ToListAsync();
 
             return registries.Select(x => new RegistryDto
             {
