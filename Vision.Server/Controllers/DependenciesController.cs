@@ -35,6 +35,22 @@ namespace Vision.Server.Controllers
             }).ToList());
         }
 
+        [HttpGet("{dependencyId}")]
+        public async Task<DependencyDto> GetDependencyByIdAsync(Guid dependencyId)
+        {
+            var dependency = await context.Dependencies.FindAsync(dependencyId);
+
+            return new DependencyDto
+            {
+                Name = dependency.Name,
+                Kind = dependency.Kind,
+                DependencyId = dependency.Id,
+                RepositoryUrl = dependency.RepositoryUrl,
+                Assets = await context.AssetDependencies.CountAsync(x => x.DependencyId == dependencyId),
+                Versions = await context.DependencyVersions.CountAsync(x => x.DependencyId == dependencyId),
+            };
+        }
+
         [HttpGet("{dependencyId}/assets")]
         public async Task<IEnumerable<AssetDependencyDto>> GetAssetsByDependencyIdAsync(Guid dependencyId)
         {
@@ -49,22 +65,6 @@ namespace Vision.Server.Controllers
                 DependencyId = dependencyId,
                 DependencyVersionId = x.DependencyVersionId,
             });
-        }
-
-        [HttpGet("{dependencyId}")]
-        public async Task<DependencyDto> GetDependencyByIdAsync(Guid dependencyId)
-        {
-            var dependency = await context.Dependencies.FindAsync(dependencyId);
-
-            return new DependencyDto
-            {                  
-                Name = dependency.Name,
-                Kind = dependency.Kind,
-                DependencyId = dependency.Id,
-                RepositoryUrl = dependency.RepositoryUrl,
-                Assets = await context.AssetDependencies.CountAsync(x => x.DependencyId == dependencyId),
-                Versions = await context.DependencyVersions.CountAsync(x => x.DependencyId == dependencyId),
-            };
         }
 
         [HttpGet("{dependencyId}/versions")]

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Vision.Shared;
 
-namespace Vision.Core.Services.Build
+namespace Vision.Core.Services.Builds
 {
     public interface IBuildService
     {
-        Task<IEnumerable<Build>> GetBuildsByRepositoryAsync(Guid repositoryId);
+        Task<IEnumerable<Build>> GetBuildsByRepositoryIdAsync(Guid repositoryId);
     }
 }

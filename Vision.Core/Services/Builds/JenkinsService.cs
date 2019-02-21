@@ -8,7 +8,7 @@ using System.Xml.XPath;
 using Microsoft.EntityFrameworkCore;
 using Vision.Shared;
 
-namespace Vision.Core.Services.Build
+namespace Vision.Core.Services.Builds
 {
     public class JenkinsService : IBuildService
     {
@@ -21,7 +21,7 @@ namespace Vision.Core.Services.Build
             this.context = context;
         }
 
-        public async Task<IEnumerable<Build>> GetBuildsByRepositoryAsync(Guid repositoryId)
+        public async Task<IEnumerable<Shared.Build>> GetBuildsByRepositoryIdAsync(Guid repositoryId)
         {
             GitRepository repository = await context.GitRepositories.FindAsync(repositoryId);
 
@@ -62,7 +62,7 @@ namespace Vision.Core.Services.Build
 
                         if(string.Equals(gitUri, gitUrl, StringComparison.OrdinalIgnoreCase))
                         {
-                            builds.Add(new Build { Name = name, GitUri = gitUri, WebUri = jobUrl });
+                            builds.Add(new Build { Name = name, WebUrl = jobUrl });
                         }                  
                     }
                     catch (Exception)

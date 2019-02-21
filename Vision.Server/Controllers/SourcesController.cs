@@ -26,13 +26,6 @@ namespace Vision.Server.Controllers
             return sources.Select(x => new GitSourceDto { Endpoint = x.Endpoint, ApiKey = x.ApiKey, Kind = x.Kind, SourceId = x.Id, Repositories = x.GitRepositories.Count });
         }
 
-        [HttpGet("{sourceId}/repositories")]
-        public async Task<IEnumerable<RepositoryDto>> GetRepositoriesBySourceIdAsync(Guid sourceId)
-        {
-            var repositories = await context.GitRepositories.Where(x => x.GitSourceId == sourceId).ToListAsync();
-            return repositories.Select(x => new RepositoryDto { SourceId = x.GitSourceId, Assets = x.Assets.Count, GitUrl = x.GitUrl, WebUrl = x.WebUrl, RepositoryId = x.Id });
-        }
-
         [HttpGet("{sourceId}")]
         public async Task<GitSourceDto> GetSourceByIdAsync(Guid sourceId)
         {
@@ -40,16 +33,23 @@ namespace Vision.Server.Controllers
             return new GitSourceDto { Endpoint = source.Endpoint, ApiKey = source.ApiKey, Kind = source.Kind, SourceId = source.Id, Repositories = source.GitRepositories.Count };
         }
 
+        [HttpGet("{sourceId}/repositories")]
+        public async Task<IEnumerable<RepositoryDto>> GetRepositoriesBySourceIdAsync(Guid sourceId)
+        {
+            var repositories = await context.GitRepositories.Where(x => x.GitSourceId == sourceId).ToListAsync();
+            return repositories.Select(x => new RepositoryDto { SourceId = x.GitSourceId, Assets = x.Assets.Count, GitUrl = x.GitUrl, WebUrl = x.WebUrl, RepositoryId = x.Id });
+        }
+
         [HttpPost]
         [ProducesResponseType(400)]
-        public async Task<ActionResult<GitSourceDto>> PostAsync([FromBody] GitSourceDto post)
+        public async Task<ActionResult<GitSourceDto>> CreateGitSource([FromBody] GitSourceDto post)
         {
             var source = new GitSource { Id = Guid.NewGuid(), ApiKey = post.ApiKey, Endpoint = post.Endpoint, Kind = post.Kind };
 
             context.GitSources.Add(source);
             await context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(PostAsync), new { sourceId = source.Id }, new GitSourceDto { Endpoint = source.Endpoint, ApiKey = source.ApiKey, Kind = source.Kind, SourceId = source.Id, Repositories = source.GitRepositories.Count });
+            return CreatedAtAction(nameof(CreateGitSource), new { sourceId = source.Id }, new GitSourceDto { Endpoint = source.Endpoint, ApiKey = source.ApiKey, Kind = source.Kind, SourceId = source.Id, Repositories = source.GitRepositories.Count });
         }
     }
 }

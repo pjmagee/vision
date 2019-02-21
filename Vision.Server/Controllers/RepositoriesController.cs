@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Vision.Core;
+using Vision.Core.Services.Builds;
 using Vision.Shared;
 
 namespace Vision.Server.Controllers
@@ -13,10 +14,12 @@ namespace Vision.Server.Controllers
     public class RepositoriesController : ControllerBase
     {
         private readonly VisionDbContext context;
+        private readonly IBuildService buildService;
 
-        public RepositoriesController(VisionDbContext context)
+        public RepositoriesController(VisionDbContext context, IBuildService buildService)
         {
             this.context = context;
+            this.buildService = buildService;
         }        
 
         [HttpGet("{repositoryId}/assets")]
@@ -24,6 +27,12 @@ namespace Vision.Server.Controllers
         {
             IEnumerable<Asset> assets = await context.Assets.Where(x => x.GitRepositoryId == repositoryId).ToListAsync();
             return assets.Select(a => new AssetDto { AssetId = a.Id, Dependencies = a.Dependencies.Count, Path = a.Path, RepositoryId = a.GitRepositoryId });
+        }
+
+        [HttpGet("{repositoryId}/builds")]
+        public async Task<IEnumerable<Build>> GetBuildsByRepositoryIdAsync(Guid repositoryId)
+        {
+            return await buildService.GetBuildsByRepositoryIdAsync(repositoryId);
         }
 
         [HttpGet("{repositoryId}")]

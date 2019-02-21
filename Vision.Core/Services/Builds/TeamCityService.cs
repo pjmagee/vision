@@ -5,10 +5,10 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
+using Vision.Shared;
 
-namespace Vision.Core.Services.Build
+namespace Vision.Core.Services.Builds
 {
-
     public class TeamCityService : IBuildService
     {        
         private static readonly HttpClient BuildsClient = new HttpClient(new HttpClientHandler { ServerCertificateCustomValidationCallback = delegate { return true; } });
@@ -20,7 +20,7 @@ namespace Vision.Core.Services.Build
             this.context = context;
         }
 
-        public async Task<IEnumerable<Build>> GetBuildsByRepositoryAsync(Guid repositoryId)
+        public async Task<IEnumerable<Build>> GetBuildsByRepositoryIdAsync(Guid repositoryId)
         {
             GitRepository repository = await context.GitRepositories.FindAsync(repositoryId);
 
@@ -61,7 +61,7 @@ namespace Vision.Core.Services.Build
 
                         if (repositoryGitUrl == gitUri)
                         {
-                            builds.Add(new Build { Name = name, GitUri = gitUri, WebUri = webUri });
+                            builds.Add(new Build { Name = name, WebUrl = webUri });
                         }
                     }
                     catch (Exception)

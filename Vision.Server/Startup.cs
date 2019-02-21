@@ -14,12 +14,13 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Vision.Core;
+using Vision.Core.Services.Builds;
 
 namespace Vision.Server
 {
     public class Startup
     {
-        private IConfiguration configuration;
+        private readonly IConfiguration configuration;
 
         public Startup(IConfiguration configuration)
         {
@@ -37,6 +38,8 @@ namespace Vision.Server
                     .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)), ServiceLifetime.Transient);
 
             services.AddMvc().AddNewtonsoftJson().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+
+            services.AddScoped<IBuildService, FakeBuildService>();
 
             services.AddScoped(provider => new HttpClient { BaseAddress = new Uri(provider.GetRequiredService<IUriHelper>().GetBaseUri()) });
 
