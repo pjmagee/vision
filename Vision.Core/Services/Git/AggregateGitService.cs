@@ -7,9 +7,9 @@ namespace Vision.Core
     {
         private readonly IEnumerable<IGitService> gitServices;
 
-        public AggregateGitService(IEnumerable<IGitService> gitServices)
+        public AggregateGitService(BitBucketService bitBucketService, GitlabService gitlabService)
         {
-            this.gitServices = gitServices;
+            this.gitServices = new IGitService[] { bitBucketService, gitlabService };
         }
 
         public async Task<IEnumerable<Asset>> GetAssetsAsync(GitRepository repository)

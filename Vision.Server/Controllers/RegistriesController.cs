@@ -8,7 +8,7 @@ using Vision.Shared;
 
 namespace Vision.Server.Controllers
 {
-    [ApiController, Route("api/[controller]")]
+    [ApiController, Route("api/[controller]"), Produces("application/json"), ApiConventionType(typeof(DefaultApiConventions))]
     public class RegistriesController : ControllerBase
     {
         private readonly VisionDbContext context;
@@ -19,18 +19,18 @@ namespace Vision.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<RegistryDto>> Get()
+        public async Task<IEnumerable<RegistryDto>> GetAllRegistriesAsync()
         {
             var registries = await context.Registries.ToListAsync();
 
-            return registries.Select(x => new RegistryDto
+            return await Task.WhenAll(registries.Select(async registry => new RegistryDto
             {
-                ApiKey = x.ApiKey,
-                Dependencies = x.Dependencies.Count,
-                Endpoint = x.Endpoint,
-                Kind = x.Kind,
-                RegistryId = x.Id
-            });
+                ApiKey = registry.ApiKey,
+                Dependencies = await context.Dependencies.CountAsync(d => d.RegistryId == registry.Id),
+                Endpoint = registry.Endpoint,
+                Kind = registry.Kind,
+                RegistryId = registry.Id
+            }));
         }
     }
 }

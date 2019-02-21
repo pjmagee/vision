@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,29 +9,32 @@ using Vision.Shared;
 
 namespace Vision.Core
 {
-    public interface ISystemRefreshService
+    public interface IRefreshService
     {
+        Task NextRefreshTaskAsync();
         Task RefreshAllAsync();
-        Task RefreshSourceAsync(Guid sourceId);
-        Task RefreshRepositoryAsync(Guid repositoryId);
+        Task RefreshGitSourceAsync(Guid sourceId);
+        Task RefreshGitRepositoryId(Guid repositoryId);
         Task RefreshAssetAsync(Guid assetId);
         Task RefreshAssetDependenciesAsync(Guid assetId);
         Task RefreshAssetFrameworksAsync(Guid assetId);
     }
 
-    public class SystemRefreshService : ISystemRefreshService
+    public class RefreshService : IRefreshService
     {
         private readonly VisionDbContext context;
 
         private readonly IGitService gitService;
         private readonly IExtractionService extractionService;
         private readonly IVersionService versionService;
+        private readonly ILogger<RefreshService> logger;
 
-        public SystemRefreshService(VisionDbContext context, IGitService gitService, IExtractionService extractionService, IVersionService versionService)
+        public RefreshService(VisionDbContext context, IGitService gitService, IExtractionService extractionService, IVersionService versionService, ILogger<RefreshService> logger)
         {
             this.gitService = gitService;
             this.extractionService = extractionService;
             this.versionService = versionService;
+            this.logger = logger;
             this.context = context;
         }
 
@@ -40,16 +44,19 @@ namespace Vision.Core
             {
                 foreach (GitSource source in context.GitSources)
                 {
-                    await RefreshSourceAsync(source.Id);
+                    await RefreshGitSourceAsync(source.Id);
                 }
 
                 transaction.Commit();
             }
         }
 
-        public async Task RefreshRepositoryAsync(Guid repositoryId)
+        public async Task RefreshGitRepositoryId(Guid repositoryId)
         {
             GitRepository repository = await context.GitRepositories.FindAsync(repositoryId);
+
+            logger.LogInformation($"Refreshing repository: {repository.GitUrl}");
+
             context.Assets.RemoveRange(repository.Assets);
             await context.SaveChangesAsync();
 
@@ -73,6 +80,9 @@ namespace Vision.Core
         public async Task RefreshAssetDependenciesAsync(Guid assetId)
         {
             Asset asset = await context.Assets.FindAsync(assetId);
+
+            logger.LogInformation($"Refreshing asset dependencies for: {asset.Path}");
+
             context.AssetDependencies.RemoveRange(asset.Dependencies);
             await context.SaveChangesAsync();
 
@@ -87,6 +97,9 @@ namespace Vision.Core
         public async Task RefreshAssetFrameworksAsync(Guid assetId)
         {
             Asset asset = await context.Assets.FindAsync(assetId);
+
+            logger.LogInformation($"Refreshing asset frameworks for: {asset.Path}");
+
             context.AssetFrameworks.RemoveRange(asset.Frameworks);
             await context.SaveChangesAsync();
             
@@ -98,7 +111,7 @@ namespace Vision.Core
             }
         }
 
-        public async Task RefreshSourceAsync(Guid sourceId)
+        public async Task RefreshGitSourceAsync(Guid sourceId)
         {
             GitSource source = await context.GitSources.FindAsync(sourceId);
             context.GitRepositories.RemoveRange(source.GitRepositories);
@@ -110,7 +123,7 @@ namespace Vision.Core
             {
                 context.GitRepositories.Add(repository);
                 await context.SaveChangesAsync();
-                await RefreshRepositoryAsync(repository.Id);
+                await RefreshGitRepositoryId(repository.Id);
             }
         }
 
@@ -146,10 +159,10 @@ namespace Vision.Core
             }
 
             /* FIND AND SAVE LATEST IF NEEDED */
-            DependencyVersion latest = await versionService.GetLatestVersion(dependency);
+            DependencyVersion latest = await versionService.GetLatestVersionAsync(dependency);
 
             // Save Latest version if not found
-            if (await context.DependencyVersions.AnyAsync(v => v.Version == latest.Version))
+            if (await context.DependencyVersions.AllAsync(dv => dv.Version != latest.Version))
             {
                 context.DependencyVersions.Add(latest);
             }
@@ -163,6 +176,70 @@ namespace Vision.Core
             }
 
             context.AssetDependencies.Add(new AssetDependency { Id = Guid.NewGuid(), Asset = asset, DependencyVersion = dependencyVersion });
+        }
+
+        public async Task NextRefreshTaskAsync()
+        {
+            RefreshTask task = await context.RefreshTasks.OrderByDescending(task => task.Created).FirstOrDefaultAsync(task => task.Status == RefreshStatus.Pending);
+
+            if (task == null)
+            {
+                logger.LogInformation($"No tasks to process...");
+                return;
+            }
+
+            try
+            {
+                task.Status = RefreshStatus.Processing;
+                context.RefreshTasks.Update(task);
+                await context.SaveChangesAsync();
+                logger.LogInformation($"Refresh task {task.Id} processing...");
+
+                using (IDbContextTransaction transaction = await context.Database.BeginTransactionAsync())
+                {
+                    switch (task.Kind)
+                    {
+                        case RefreshKind.Asset:
+                            await RefreshAssetAsync(task.TargetId);
+                            break;
+                        case RefreshKind.Dependency:
+                            await RefreshDependencyAsync(task.TargetId);
+                            break;
+                        case RefreshKind.GitRepository:
+                            await RefreshGitRepositoryId(task.TargetId);
+                            break;
+                        case RefreshKind.GitServer:
+                            await RefreshGitSourceAsync(task.TargetId);
+                            break;
+                    }
+
+                    transaction.Commit();
+                }
+            }
+            finally
+            {
+                task.Completed = DateTime.Now;
+                task.Status = RefreshStatus.Done;
+
+                context.RefreshTasks.Update(task);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task RefreshDependencyAsync(Guid dependencyId)
+        {
+            Dependency dependency = await context.Dependencies.FindAsync(dependencyId);
+
+            DependencyVersion latest = await versionService.GetLatestVersionAsync(dependency);
+
+            if (await context.DependencyVersions.Where(x => x.DependencyId == dependencyId).AllAsync(dv => dv.Version != latest.Version))
+            {
+                context.DependencyVersions.Add(latest);
+            }
+
+            await context.SaveChangesAsync();
+
+            // TODO: Remove versions not used by any assets..
         }
     }   
 }

@@ -9,30 +9,30 @@ using Vision.Shared;
 
 namespace Vision.Server.Controllers
 {
-    [ApiController, Route("api/[controller]")]
+    [ApiController, Route("api/[controller]"), Produces("application/json"), ApiConventionType(typeof(DefaultApiConventions))]
     public class DependenciesController : ControllerBase
     {
         private readonly VisionDbContext context;
 
-        public DependenciesController(VisionDbContext context)
-        {
-            this.context = context;
-        }
+        public DependenciesController(VisionDbContext context) => this.context = context;
 
         [HttpGet]
         public async Task<IEnumerable<DependencyDto>> GetAllDependenciesAsync()
         {
             var dependencies = await context.Dependencies.ToListAsync();
 
-            return await Task.WhenAll(dependencies.Select(async x => new DependencyDto
+            var tasks = dependencies.Select(async dependency => new DependencyDto
             {
-                DependencyId = x.Id,
-                Name = x.Name,
-                Kind = x.Kind,
-                Assets = await context.AssetDependencies.CountAsync(a => a.DependencyId == x.Id),
+                DependencyId = dependency.Id,
+                Name = dependency.Name,
+                Kind = dependency.Kind,
+                Assets = await context.AssetDependencies.CountAsync(a => a.DependencyId == dependency.Id),
                 Versions = await context.DependencyVersions.CountAsync(x => x.DependencyId == x.Id),
-                RepositoryUrl = x.RepositoryUrl
-            }).ToList());
+                RepositoryUrl = dependency.RepositoryUrl
+            })
+            .ToArray();
+
+            return await Task.WhenAll(tasks);
         }
 
         [HttpGet("{dependencyId}")]

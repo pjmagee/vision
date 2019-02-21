@@ -35,7 +35,7 @@
         }
         else
         {
-            <p>Loading...</p>
+            <LoaderComponent></LoaderComponent>
         }
     </div>
 </div>
@@ -54,6 +54,7 @@
         Framework = await HttpClient.GetJsonAsync<FrameworkDto>($"/api/frameworks/{frameworkId}");
         Items = await HttpClient.GetJsonAsync<AssetDto[]>($"/api/frameworks/{frameworkId}/assets");
         Title = Framework.Name + " assets";
+        StateHasChanged();
     }
 
     protected override async Task OnAfterRenderAsync()

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vision.Shared;
 
@@ -20,6 +21,8 @@ namespace Vision.Core
         public DbSet<BuildSources> BuildSources { get; set; }
         public DbSet<Registry> Registries { get; set; }
 
+        public DbSet<RefreshTask> RefreshTasks { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             // https://docs.microsoft.com/en-us/ef/core/querying/related-data
@@ -27,6 +30,15 @@ namespace Vision.Core
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<RefreshTask>((entity) =>
+            {
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.Kind).IsRequired();
+                entity.Property(x => x.Status).IsRequired();
+                entity.Property(x => x.Created).IsRequired();
+                entity.Property(x => x.Completed);
+            });
+
             modelBuilder.Entity<GitRepository>((entity) =>
             {
                 entity.HasKey(x => x.Id);

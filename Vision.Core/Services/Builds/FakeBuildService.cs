@@ -21,7 +21,7 @@ namespace Vision.Core.Services.Builds
 
         public async Task<IEnumerable<Build>> GetBuildsByRepositoryIdAsync(Guid repositoryId)
         {
-            await Task.Delay(5000);
+            await Task.Delay(2000); // simulate network latency
 
             GitRepository repository = await context.GitRepositories.FindAsync(repositoryId);
             List<string> assets = await context.Assets.Where(x => x.GitRepositoryId == repositoryId).Select(x => x.Path).ToListAsync();

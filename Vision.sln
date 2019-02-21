@@ -11,7 +11,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vision.Shared", "Vision.Sha
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vision.Tests", "Vision.Tests\Vision.Tests.csproj", "{A3B81618-02E1-4EC3-8891-D3D855A8A8D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vision.Core", "Vision.Core\Vision.Core.csproj", "{8F1475B4-2D4D-43B0-A0F3-AADCE7C9A69F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vision.Core", "Vision.Core\Vision.Core.csproj", "{8F1475B4-2D4D-43B0-A0F3-AADCE7C9A69F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{545F473C-B413-4AC4-8E02-5A4B5806B230}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

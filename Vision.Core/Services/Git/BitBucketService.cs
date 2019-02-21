@@ -10,22 +10,23 @@ using Vision.Shared;
 namespace Vision.Core
 {
     public class BitBucketService : IGitService
-    {
-        private readonly StashClient client;
-        private readonly HttpClient httpClient;
+    {        
+        private static HttpClient httpClient = new HttpClient();
 
         private static readonly RequestOptions options = new RequestOptions { Limit = 10000 };
 
-        public BitBucketService(StashClient client, HttpClient httpClient)
+        public BitBucketService()
         {
-            this.httpClient = httpClient;
-            this.client = client;
+            
         }
 
         public async Task<IEnumerable<Asset>> GetAssetsAsync(GitRepository repository)
         {
             if (repository.GitSource.Kind != GitKind.Bitbucket) return Enumerable.Empty<Asset>();
             List<Asset> results = new List<Asset>();
+
+            var base64 = repository.GitSource.ApiKey;
+            var client = new StashClient(repository.GitSource.Endpoint, base64, usePersonalAccessTokenForAuthentication: true);
 
             ResponseWrapper<Atlassian.Stash.Entities.Project> projects = await client.Projects.Get();
 
@@ -59,6 +60,9 @@ namespace Vision.Core
         public async Task<IEnumerable<GitRepository>> GetRepositoriesAsync(GitSource source)
         {
             if (source.Kind != GitKind.Bitbucket) return Enumerable.Empty<GitRepository>();
+            
+            var base64 = source.ApiKey;
+            var client = new StashClient(source.Endpoint, base64, usePersonalAccessTokenForAuthentication: true);
 
             List<GitRepository> results = new List<GitRepository>();
 

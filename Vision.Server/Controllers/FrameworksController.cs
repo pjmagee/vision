@@ -9,7 +9,7 @@ using Vision.Shared;
 
 namespace Vision.Server.Controllers
 {
-    [ApiController, Route("api/[controller]")]
+    [ApiController, Route("api/[controller]"), Produces("application/json"), ApiConventionType(typeof(DefaultApiConventions))]
     public class FrameworksController : ControllerBase
     {
         private readonly VisionDbContext context;

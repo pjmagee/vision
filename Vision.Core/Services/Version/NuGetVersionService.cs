@@ -20,7 +20,7 @@ namespace Vision.Core
             this.context = registryService;
         }
 
-        public async Task<DependencyVersion> GetLatestVersion(Dependency dependency)
+        public async Task<DependencyVersion> GetLatestVersionAsync(Dependency dependency)
         {
             foreach (Registry registry in await context.Registries.Where(x => x.Kind == DependencyKind.NuGet).ToListAsync())
             {                

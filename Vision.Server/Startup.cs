@@ -15,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Vision.Core;
 using Vision.Core.Services.Builds;
+using Vision.Server.Services;
 
 namespace Vision.Server
 {
@@ -37,9 +38,26 @@ namespace Vision.Server
                     .UseSqlServer(configuration["ConnectionStrings:Default"])
                     .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)), ServiceLifetime.Transient);
 
-            services.AddMvc().AddNewtonsoftJson().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            services.AddMvc(options => 
+            {
+                options.RespectBrowserAcceptHeader = false; // Only serve application/json
+
+            }).AddNewtonsoftJson().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+
+
+            services.AddScoped<BitBucketService>();
+            services.AddScoped<GitlabService>();
+            services.AddScoped<NpmExtractionService>();
+            services.AddScoped<NuGetPackageExtractionService>();
 
             services.AddScoped<IBuildService, FakeBuildService>();
+            services.AddScoped<IRefreshService, RefreshService>();
+            services.AddScoped<IGitService, AggregateGitService>();
+            services.AddScoped<IVersionService, AggregateVersionService>();
+            services.AddScoped<IExtractionService, AggregateExtractionService>();
+
+            services.AddHostedService<RefreshHostedService>();
+            services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 
             services.AddScoped(provider => new HttpClient { BaseAddress = new Uri(provider.GetRequiredService<IUriHelper>().GetBaseUri()) });
 

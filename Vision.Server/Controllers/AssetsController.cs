@@ -9,7 +9,8 @@ using Vision.Shared;
 
 namespace Vision.Server.Controllers
 {
-    [ApiController, Route("api/[controller]")]
+
+    [ApiController, Route("api/[controller]"), Produces("application/json"), ApiConventionType(typeof(DefaultApiConventions))]
     public class AssetsController : ControllerBase
     {
         private readonly VisionDbContext context;
@@ -19,11 +20,23 @@ namespace Vision.Server.Controllers
             this.context = context;
         }
         
+        /// <summary>
+        /// Information about the asset.
+        /// </summary>
+        /// <param name="assetId">The Asset Id</param>
+        /// <returns>The asset details</returns>
         [HttpGet("{assetId}")]
         public async Task<AssetDto> GetAssetByIdAsync(Guid assetId)
         {
             Asset asset = await context.Assets.FindAsync(assetId);
-            return new AssetDto { AssetId = asset.Id, Dependencies = asset.Dependencies.Count, Path = asset.Path, RepositoryId = asset.GitRepositoryId };
+
+            return new AssetDto
+            {
+                AssetId = asset.Id,
+                Dependencies = await context.AssetDependencies.CountAsync(x => x.AssetId == assetId),
+                Path = asset.Path,
+                RepositoryId = asset.GitRepositoryId
+            };
         }
 
         [HttpGet("{assetId}/dependencies")]

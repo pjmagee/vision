@@ -2,11 +2,11 @@
 @inject HttpClient HttpClient
 @inject IJSRuntime Runtime
 
-<HeadingComponent Title="Git sources"></HeadingComponent>
+<HeadingComponent Title="Git Servers"></HeadingComponent>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Register</h6>
+        <h6 class="m-0 font-weight-bold text-primary">Add new</h6>
     </div>
     <div class="card-body">
         <form>
@@ -18,11 +18,12 @@
             </div>
             <div class="form-group">
                 <select type="text" class="form-control" bind="Source.Kind" placeholder="Type">
-                    <option value="@GitKind.Bitbucket">Bitbucket</option>
-                    <option value="@GitKind.GitHub">GitHub</option>
-                    <option value="@GitKind.Gitlab">Gitlab</option>
+                    @foreach (GitKind kind in Enum.GetValues(typeof(GitKind)).Cast<GitKind>())
+                    {
+                        <option value="@kind">@kind.ToString()</option>
+                    }
                 </select>
-            </div>
+             </div>
             <button onclick="Submit" class="btn btn-primary">Save</button>
         </form>
     </div>
@@ -61,7 +62,7 @@
         }
         else
         {
-            <p>Loading...</p>
+            <LoaderComponent></LoaderComponent>
         }
     </div>
 </div>
