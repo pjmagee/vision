@@ -30,7 +30,7 @@ namespace Vision.Core
                     var response = await client.GetStringAsync($"/{dependency}");
                     var resp = JObject.Parse(response);
                     var latest = resp["dist-tags"]["latest"].ToString();
-                    return new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Id = Guid.NewGuid(), Version = latest, IsVulnerable = false, VulnerabilityUrl = null };
+                    return new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Id = Guid.NewGuid(), Version = latest };
                 }
                 catch(Exception)
                 {

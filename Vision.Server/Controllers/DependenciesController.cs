@@ -9,6 +9,7 @@ using Vision.Shared;
 
 namespace Vision.Server.Controllers
 {
+    [ResponseCache(Duration = 30)]
     [ApiController, Route("api/[controller]"), Produces("application/json"), ApiConventionType(typeof(DefaultApiConventions))]
     public class DependenciesController : ControllerBase
     {
@@ -16,23 +17,20 @@ namespace Vision.Server.Controllers
 
         public DependenciesController(VisionDbContext context) => this.context = context;
 
+
         [HttpGet]
         public async Task<IEnumerable<DependencyDto>> GetAllDependenciesAsync()
         {
-            var dependencies = await context.Dependencies.ToListAsync();
-
-            var tasks = dependencies.Select(async dependency => new DependencyDto
+            return await context.Dependencies.Select(dependency => new DependencyDto
             {
-                DependencyId = dependency.Id,
+                DependencyId  = dependency.Id,
                 Name = dependency.Name,
                 Kind = dependency.Kind,
-                Assets = await context.AssetDependencies.CountAsync(a => a.DependencyId == dependency.Id),
-                Versions = await context.DependencyVersions.CountAsync(x => x.DependencyId == x.Id),
+                Versions = context.DependencyVersions.Count(dv => dv.DependencyId == dependency.Id),
+                Assets = context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id),
                 RepositoryUrl = dependency.RepositoryUrl
             })
-            .ToArray();
-
-            return await Task.WhenAll(tasks);
+            .ToListAsync();
         }
 
         [HttpGet("{dependencyId}")]
@@ -56,14 +54,14 @@ namespace Vision.Server.Controllers
         {
             IEnumerable<AssetDependency> assetDependencies = await context.AssetDependencies.Where(x => x.DependencyId == dependencyId).ToListAsync();
 
-            return assetDependencies.Select(x => new AssetDependencyDto
+            return assetDependencies.Select(assetDependency => new AssetDependencyDto
             {
-                Repository = x.Asset.GitRepository.WebUrl,
-                Name = x.Asset.Path,
-                Version = x.DependencyVersion.Version,
-                AssetId = x.AssetId,
                 DependencyId = dependencyId,
-                DependencyVersionId = x.DependencyVersionId,
+                AssetId = assetDependency.AssetId,                
+                Name = assetDependency.Asset.Path,
+                Version = assetDependency.DependencyVersion.Version,
+                DependencyVersionId = assetDependency.DependencyVersionId,
+                Repository = assetDependency.Asset.GitRepository.WebUrl
             });
         }
 
@@ -72,7 +70,7 @@ namespace Vision.Server.Controllers
         {
             var versions = await context.DependencyVersions.Where(x => x.DependencyId == dependencyId).ToListAsync();
 
-            return versions.Select(x => new DependencyVersionDto { DependencyId = x.DependencyId, DependencyVersionId = x.Id, IsVulnerable = x.IsVulnerable, Version = x.Version, VulnerabilityUrl = x.VulnerabilityUrl });
+            return versions.Select(x => new DependencyVersionDto { DependencyId = x.DependencyId, DependencyVersionId = x.Id, Version = x.Version, VulnerabilityUrl = x.VulnerabilityUrl });
         }
     }
 }

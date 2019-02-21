@@ -9,6 +9,7 @@ using Vision.Shared;
 
 namespace Vision.Server.Controllers
 {
+    [ResponseCache(Duration = 30)]
     [ApiController, Route("api/[controller]"), Produces("application/json"), ApiConventionType(typeof(DefaultApiConventions))]
     public class FrameworksController : ControllerBase
     {
@@ -48,16 +49,18 @@ namespace Vision.Server.Controllers
         [HttpGet("{frameworkId}/assets")]
         public async Task<IEnumerable<AssetDto>> GetAssetsByFrameworkIdAsync(Guid frameworkId)
         {
-            var assets = await context.AssetFrameworks.Where(x => x.FrameworkId == frameworkId).Select(x => x.Asset).ToListAsync();
+            List<Guid> assetIds = await context.AssetFrameworks.Where(x => x.FrameworkId == frameworkId).Select(x => x.AssetId).ToListAsync();
 
-            return await Task.WhenAll(assets.Distinct().Select(async asset => new AssetDto
-            {
-                Repository = asset.GitRepository.WebUrl,
-                RepositoryId = asset.GitRepositoryId,
-                AssetId = asset.Id,
-                Path = asset.Path,
-                Dependencies = await context.AssetDependencies.CountAsync(x => x.AssetId == asset.Id)
-            }));
+            return await context.Assets
+                .Where(asset => assetIds.Contains(asset.Id))
+                .Select(asset => new AssetDto
+                {
+                    AssetId = asset.Id,
+                    Path = asset.Path,
+                    Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id),
+                    Repository = asset.GitRepository.WebUrl,
+                    RepositoryId = asset.GitRepositoryId
+                }).ToListAsync();
         }
     }
 }

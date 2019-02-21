@@ -239,14 +239,11 @@ namespace Vision
                 .With(x => x.Id = Guid.NewGuid())
                 .With(x => x.Dependency = dependency)
                 .With(x => x.DependencyId = dependency.Id)
-                .With(x => x.VulnerabilityUrl = string.Empty)
-                .With(x => x.IsVulnerable = false)
                 .With((x, i) => x.Version = new Version(GetRandom.Int(i, 10), GetRandom.Int(i, 10), GetRandom.Int(i, 10)).ToString());
 
             if (chanceOfVulnerability)
             {
                 chain = chain.Random(1)
-                    .With(x => x.IsVulnerable = true)
                     .With(x => x.VulnerabilityUrl = "http://nvd.org/?" + x.Dependency.Name);
             }
 

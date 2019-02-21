@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Mime;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Components.Services;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Net.Http.Headers;
 using Vision.Core;
 using Vision.Core.Services.Builds;
 using Vision.Server.Services;
@@ -35,15 +35,15 @@ namespace Vision.Server
             services.AddDbContext<VisionDbContext>(options => 
                 options
                     .UseLazyLoadingProxies()
-                    .UseSqlServer(configuration["ConnectionStrings:Default"])
-                    .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)), ServiceLifetime.Transient);
+                    .UseSqlServer(configuration["ConnectionStrings:Home"])
+                    .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)), ServiceLifetime.Transient, ServiceLifetime.Transient);
 
+            services.AddResponseCaching();
             services.AddMvc(options => 
             {
                 options.RespectBrowserAcceptHeader = false; // Only serve application/json
 
             }).AddNewtonsoftJson().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
-
 
             services.AddScoped<BitBucketService>();
             services.AddScoped<GitlabService>();
@@ -59,13 +59,13 @@ namespace Vision.Server
             services.AddHostedService<RefreshHostedService>();
             services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 
-            services.AddScoped(provider => new HttpClient { BaseAddress = new Uri(provider.GetRequiredService<IUriHelper>().GetBaseUri()) });
+            services.AddScoped(provider => new System.Net.Http.HttpClient { BaseAddress = new Uri(provider.GetRequiredService<IUriHelper>().GetBaseUri()) });
 
             services.AddResponseCompression(options =>
             {
                 options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
                 {
-                    MediaTypeNames.Application.Octet,
+                    System.Net.Mime.MediaTypeNames.Application.Octet,
                     WasmMediaTypeNames.Application.Wasm,
                 });
             });
@@ -75,8 +75,8 @@ namespace Vision.Server
                 config.PostProcess = document =>
                 {
                     document.Info.Version = "v1";
-                    document.Info.Title = "Reed Business Information Vision API";
-                    document.Info.Description = "Vision API for reporting and insights on organisation assets and dependencies";
+                    document.Info.Title = "Vision API";
+                    document.Info.Description = "Vision API for asset and dependency reporting for the organisation";
                     document.Info.TermsOfService = "None";
                     document.Info.Contact = new NSwag.SwaggerContact
                     {
@@ -105,6 +105,15 @@ namespace Vision.Server
 
             app.UseSwagger();
             app.UseSwaggerUi3();
+
+            app.UseResponseCaching();
+
+            app.Use(async (context, next) =>
+            {
+                context.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue() { Public = true, MaxAge = TimeSpan.FromSeconds(10) };
+                context.Response.Headers[HeaderNames.Vary] = new string[] { "Accept-Encoding" };
+                await next();
+            });
 
             app.UseMvc();
             app.UseStaticFiles();

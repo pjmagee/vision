@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Vision.Core
 {
@@ -10,23 +11,15 @@ namespace Vision.Core
 
     public class AggregateExtractionService : IExtractionService
     {
-        private readonly NpmExtractionService npmExtractionService;
-        private readonly NuGetPackageExtractionService nuGetPackageExtractionService;
+        private readonly IEnumerable<IExtractionService> extractionServices;        
 
         public AggregateExtractionService(NpmExtractionService npmExtractionService, NuGetPackageExtractionService nuGetPackageExtractionService)
         {
-            this.npmExtractionService = npmExtractionService;
-            this.nuGetPackageExtractionService = nuGetPackageExtractionService;
+            extractionServices = new IExtractionService[] { npmExtractionService, nuGetPackageExtractionService };
         }
 
-        public IEnumerable<Extract> ExtractDependencies(Asset asset)
-        {
-            throw new System.NotImplementedException();
-        }
+        public IEnumerable<Extract> ExtractDependencies(Asset asset) => extractionServices.SelectMany(service => service.ExtractDependencies(asset));
 
-        public IEnumerable<Extract> ExtractFrameworks(Asset asset)
-        {
-            throw new System.NotImplementedException();
-        }
+        public IEnumerable<Extract> ExtractFrameworks(Asset asset) => extractionServices.SelectMany(service => service.ExtractFrameworks(asset));
     }
 }

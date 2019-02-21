@@ -39,22 +39,24 @@ window.register = function () {
     // Smooth scrolling using jQuery easing
     $(document).on('click', 'a.scroll-to-top', function (e) {
         var $anchor = $(this);
-        $('html, body').stop().animate({ scrollTop: ($($anchor.attr('href')).offset().top) }, 1000, 'easeInOutExpo');
+        $('html, body').stop().animate({ scrollTop: $($anchor.attr('href')).offset().top }, 1000, 'easeInOutExpo');
         e.preventDefault();
+        e.stopPropagation();
     });
 };
 
 window.dataTable = function () {
-
     $(document).ready(function () {
-
         var table = $('.table').DataTable();
-        table.on('page.dt', function () {
-            console.log('page changed');
-            $('.page-link').removeAttr('href');
+        table.on('page.dt', function () {            
+            $('.page-link').removeAttr('href'); // Blazor hack
         });
-
-        $('.page-link').removeAttr('href');
+        $('.page-link').removeAttr('href');  // Blazor hack
     });
+};
+
+window.assetSearch = function () {
+
+
 
 };

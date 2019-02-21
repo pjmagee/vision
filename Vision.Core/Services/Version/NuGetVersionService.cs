@@ -41,7 +41,7 @@ namespace Vision.Core
                         var json = await client.GetStringAsync(new Uri($"registration3/{dependency}/index.json", UriKind.Relative));
                         var response = JObject.Parse(json);
                         var latest = response["items"].First["upper"].Value<string>();
-                        return new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Id = Guid.NewGuid(), IsVulnerable = false, Version = latest, VulnerabilityUrl = null };
+                        return new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Id = Guid.NewGuid(), Version = latest, IsLatest = true };
                     }
                 }
                 catch (Exception)

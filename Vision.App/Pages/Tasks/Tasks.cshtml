@@ -2,8 +2,13 @@
 @inject HttpClient HttpClient
 @inject IJSRuntime Runtime
 
-<HeadingComponent Title="Refresh Tasks"></HeadingComponent>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item active" aria-current="page">Tasks</li>
+    </ol>
+</nav>
 
+<HeadingComponent Title="Refresh Tasks"></HeadingComponent>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">

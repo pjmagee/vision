@@ -168,7 +168,7 @@ namespace Vision.Core
             }
 
             /* FIND AND SAVE CURRENT VERSION IF NEEDED */
-            DependencyVersion dependencyVersion = dependency.Versions.FirstOrDefault(v => v.Version == version) ?? new DependencyVersion { Id = Guid.NewGuid(), Dependency = dependency, Version = version, IsVulnerable = false, VulnerabilityUrl = null };
+            DependencyVersion dependencyVersion = dependency.Versions.FirstOrDefault(v => v.Version == version) ?? new DependencyVersion { Id = Guid.NewGuid(), Dependency = dependency, Version = version  };
                         
             if (context.Entry(dependencyVersion).State == EntityState.Detached)
             {
@@ -229,12 +229,14 @@ namespace Vision.Core
         public async Task RefreshDependencyAsync(Guid dependencyId)
         {
             Dependency dependency = await context.Dependencies.FindAsync(dependencyId);
+            DependencyVersion latestVersion = await versionService.GetLatestVersionAsync(dependency);
+            List<DependencyVersion> currentVersions = await context.DependencyVersions.Where(x => x.DependencyId == dependencyId).ToListAsync();
 
-            DependencyVersion latest = await versionService.GetLatestVersionAsync(dependency);
-
-            if (await context.DependencyVersions.Where(x => x.DependencyId == dependencyId).AllAsync(dv => dv.Version != latest.Version))
+            if (currentVersions.All(current => current.Version != latestVersion.Version))
             {
-                context.DependencyVersions.Add(latest);
+                currentVersions.ForEach(v => v.IsLatest = false);
+                context.DependencyVersions.UpdateRange(currentVersions);
+                context.DependencyVersions.Add(latestVersion);
             }
 
             await context.SaveChangesAsync();

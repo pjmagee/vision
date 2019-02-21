@@ -6,13 +6,5 @@
     <AssemblyName>Vision.Shared</AssemblyName>
     <RootNamespace>Vision.Shared</RootNamespace>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.2" />
-    
-    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="2.2.0" />
-  </ItemGroup>
-
+  
 </Project>

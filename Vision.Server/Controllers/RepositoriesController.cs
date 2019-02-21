@@ -10,6 +10,7 @@ using Vision.Shared;
 
 namespace Vision.Server.Controllers
 {
+    [ResponseCache(Duration = 30)]
     [ApiController, Route("api/[controller]"), Produces("application/json"), ApiConventionType(typeof(DefaultApiConventions))]
     public class RepositoriesController : ControllerBase
     {

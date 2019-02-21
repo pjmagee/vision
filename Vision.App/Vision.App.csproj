@@ -8,13 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Pages\Assets\**" />
     <Compile Remove="Pages\Builds\**" />
-    <Content Remove="Pages\Assets\**" />
     <Content Remove="Pages\Builds\**" />
-    <EmbeddedResource Remove="Pages\Assets\**" />
     <EmbeddedResource Remove="Pages\Builds\**" />
-    <None Remove="Pages\Assets\**" />
     <None Remove="Pages\Builds\**" />
   </ItemGroup>
 

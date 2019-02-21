@@ -10,6 +10,7 @@ using Vision.Shared;
 namespace Vision.Server.Controllers
 {
 
+    [ResponseCache(Duration = 30)]
     [ApiController, Route("api/[controller]"), Produces("application/json"), ApiConventionType(typeof(DefaultApiConventions))]
     public class AssetsController : ControllerBase
     {
@@ -20,11 +21,6 @@ namespace Vision.Server.Controllers
             this.context = context;
         }
         
-        /// <summary>
-        /// Information about the asset.
-        /// </summary>
-        /// <param name="assetId">The Asset Id</param>
-        /// <returns>The asset details</returns>
         [HttpGet("{assetId}")]
         public async Task<AssetDto> GetAssetByIdAsync(Guid assetId)
         {
@@ -54,7 +50,5 @@ namespace Vision.Server.Controllers
                 DependencyVersionId = x.DependencyVersionId,
             });
         }
-
-       
     }
 }

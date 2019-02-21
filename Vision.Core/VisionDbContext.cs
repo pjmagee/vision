@@ -80,8 +80,7 @@ namespace Vision.Core
             modelBuilder.Entity<DependencyVersion>((entity) =>
             {
                 entity.HasKey(x => x.Id);
-                entity.Property(x => x.Version).IsRequired();
-                entity.Property(x => x.IsVulnerable).HasDefaultValue(false);                    
+                entity.Property(x => x.Version).IsRequired();                  
             });
 
             modelBuilder.Entity<Framework>((entity) =>
