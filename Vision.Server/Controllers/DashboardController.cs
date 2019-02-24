@@ -16,8 +16,8 @@ namespace Vision.Server.Controllers
 
         public DashboardController(VisionDbContext context) => this.context = context;
 
-        [HttpGet("/metrics/assets/{count?}")]
-        public async Task<IEnumerable<MetricDto<AssetDto>>> GetAssetsMetrics(int count = 5)
+        [HttpGet("/metrics/assets")]
+        public async Task<IEnumerable<MetricDto<AssetDto>>> GetAssetMetricsAsync()
         {
             IQueryable<Asset> orderedByLargest = context.Assets.OrderByDescending(asset => context.AssetDependencies.Count(ad => ad.AssetId == asset.Id));
             // orderedByLargest.TakeLast(5).Select(asset => new AssetDto { AssetId = asset.Id, Asset = asset.Path, Repository = asset.Repository.Url, RepositoryId = asset.RepositoryId })

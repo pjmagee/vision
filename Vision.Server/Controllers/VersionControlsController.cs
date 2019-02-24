@@ -57,17 +57,17 @@ namespace Vision.Server.Controllers
             };
         }
 
-        [HttpGet("{versionControlId}/metrics")]
-        public async Task<IEnumerable<MetricDto>> GetMetricsForVersionControlById(Guid versionControlId)
+        [HttpGet("{versionControlId}/metrics/repositories")]
+        [ResponseCache(Duration = 60)]
+        public async Task<IEnumerable<MetricDto<RepositoryDto>>> GetRepositoriesMetricsByVersionControlIdAsync(Guid versionControlId)
         {
-            // top 5 largest repositories
-            // top 5 smallest repositories
+            IQueryable<Repository> orderedByLargest = context.Repositories.Where(repository => repository.VersionControlId == versionControlId).OrderBy(repository => context.Assets.Count(asset => asset.RepositoryId == repository.Id));
 
-            // top 5 largest assets
-            // top 5 smallest assets
-
-            // top 5 assets with most updated dependencies
-            // top 5 assets with most outdated dependencies
+            return new MetricDto<RepositoryDto>[]
+            {
+                new MetricDto<RepositoryDto>(MetricsKind.Info, "Top 5 smallest repositories", await orderedByLargest.TakeLast(5).Select(repository => new RepositoryDto {  }).ToListAsync()),
+                new MetricDto<RepositoryDto>(MetricsKind.Info, "Top 5 largest repositories", await orderedByLargest.Take(5).Select(repository => new RepositoryDto {  }).ToListAsync())
+            };
         }
 
         [HttpGet("{versionControlId}/repositories")]
