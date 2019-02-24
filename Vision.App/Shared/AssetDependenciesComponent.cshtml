@@ -1,9 +1,8 @@
 ﻿@inject IJSRuntime Runtime
 
-<table class="table table-striped table-bordered" style="width:100%">
+<table class="table table-striped table-bordered table-condensed" style="width:100%">
     <thead>
         <tr>
-            <th>@nameof(AssetDependencyDto.Repository)</th>
             <th>@nameof(AssetDependencyDto.Asset)</th>
             <th>@nameof(AssetDependencyDto.Dependency)</th>
             <th>@nameof(AssetDependencyDto.Version)</th>
@@ -15,15 +14,14 @@
         @foreach (var item in Items)
         {
             <tr>
-                <td>@item.Repository</td>
                 <td>@item.Asset</td>
                 <td>@item.Dependency</td>
                 <td>@item.Version</td>
                 <td>@item.IsLatest</td>
                 <td>
-                    <NavLink class="nav-link" href="@($"/dependencies/{item.DependencyId}")">Dependency Details</NavLink>
-                    <NavLink class="nav-link" href="@($"/assets/{item.AssetId}")">Asset Details</NavLink>
-                    <NavLink class="nav-link" href="@($"/repository/{item.RepositoryId}")">Repository Details</NavLink>
+                    <NavLink class="nav-link" href="@($"/dependencies/{item.DependencyId}")">Dependency</NavLink>
+                    <NavLink class="nav-link" href="@($"/assets/{item.AssetId}")">Asset</NavLink>
+                    <NavLink class="nav-link" href="@($"/repository/{item.RepositoryId}")">Repository</NavLink>
                 </td>
             </tr>
         }

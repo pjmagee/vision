@@ -59,6 +59,7 @@
     protected override async Task OnInitAsync()
     {
         Items = await HttpClient.GetJsonAsync<RegistryDto[]>("/api/registries");
+        StateHasChanged();
     }
 
     protected async Task Submit()

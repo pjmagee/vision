@@ -51,12 +51,13 @@
 
     protected override async Task OnInitAsync()
     {
-        Items = await HttpClient.GetJsonAsync<VersionControlDto[]>("/api/vcs");
+        Items = await HttpClient.GetJsonAsync<VersionControlDto[]>("/api/versioncontrols");
+        StateHasChanged();
     }
 
     protected async Task Submit()
     {
-        var source = await HttpClient.PostJsonAsync<VersionControlDto>("/api/vcs", NewVcs);
+        var source = await HttpClient.PostJsonAsync<VersionControlDto>("/api/versioncontrols", NewVcs);
         Items = Items.Concat(new[] { source }).ToArray();
     }
 }

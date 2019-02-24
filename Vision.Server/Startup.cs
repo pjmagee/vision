@@ -39,7 +39,8 @@ namespace Vision.Server
                     .UseSqlServer(configuration["ConnectionStrings:Home"])
                     .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)), ServiceLifetime.Transient, ServiceLifetime.Transient);
 
-            services.AddResponseCaching();
+            // services.AddResponseCaching();
+
             services.AddMvc(options => 
             {
                 options.RespectBrowserAcceptHeader = false; // Only serve application/json
@@ -107,14 +108,14 @@ namespace Vision.Server
             app.UseSwagger();
             app.UseSwaggerUi3();
 
-            app.UseResponseCaching();
+            //app.UseResponseCaching();
 
-            app.Use(async (context, next) =>
-            {
-                context.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue() { Public = true, MaxAge = TimeSpan.FromSeconds(10) };
-                context.Response.Headers[HeaderNames.Vary] = new string[] { "Accept-Encoding" };
-                await next();
-            });
+            //app.Use(async (context, next) =>
+            //{
+            //    context.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue() { Public = true, MaxAge = TimeSpan.FromSeconds(10) };
+            //    context.Response.Headers[HeaderNames.Vary] = new string[] { "Accept-Encoding" };
+            //    await next();
+            //});
 
             app.UseMvc();
             app.UseStaticFiles();

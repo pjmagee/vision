@@ -5,6 +5,7 @@
         <tr>
             <th>Name</th>
             <th>Assets</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -14,7 +15,7 @@
                 <td>@item.Name</td>
                 <td>@item.Assets</td>
                 <td>
-                    <NavLink class="nav-link" href="@($"/frameworks/{item.FrameworkId}")">Framework Details</NavLink>
+                    <NavLink class="nav-link" href="@($"/frameworks/{item.FrameworkId}")">Framework</NavLink>
                 </td>
             </tr>
         }

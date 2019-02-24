@@ -13,8 +13,12 @@
 
     <hr class="sidebar-divider my-0">
 
-    <li class="nav-item @ActiveClass(NavMenuItems.Find(mu => mu.Name == "Dashboard"))">
-        <NavLink class="nav-link" href="/">
+    @{ 
+        var dashboard = NavMenuItems.Find(mu => mu.Name == "Dashboard");
+    }
+
+    <li class="nav-item @ActiveClass(dashboard)">
+        <NavLink class="nav-link" href="/"  onclick="@(() => Select(dashboard))">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Dashboard</span>
         </NavLink>
@@ -25,8 +29,10 @@
 
     @foreach (var item in NavMenuItems.Where(x => x.Type == NavMenuItemType.Datasource))
     {
+        var selected = item;
+
         <li class="nav-item @ActiveClass(item)">
-            <NavLink class="nav-link" href="@item.Route" Match="@item.Match">
+            <NavLink class="nav-link" href="@item.Route" Match="@item.Match" onclick="@(() => Select(selected))">
                 <i class="@item.Icon"></i>
                 <span>@item.Name</span>
             </NavLink>
@@ -38,8 +44,10 @@
 
     @foreach (var item in NavMenuItems.Where(x => x.Type == NavMenuItemType.Data))
     {
+         var selected = item;
+
         <li class="nav-item @ActiveClass(item)">
-            <NavLink class="nav-link" href="@item.Route" Match="@item.Match">
+            <NavLink class="nav-link" href="@item.Route" Match="@item.Match"  onclick="@(() => Select(selected))">
                 <i class="@item.Icon"></i>
                 <span>@item.Name</span>
             </NavLink>
@@ -61,11 +69,14 @@
     {
         Helper.OnLocationChanged += (sender, o) =>
         {
-            NavMenuItems.ForEach(x => x.IsActive = false);
-            NavMenuItem current = NavMenuItems.Find(x => string.Compare(x.Route, o, ignoreCase: true) == 0);
-            current.IsActive = true;
             this.StateHasChanged();
         };
+    }
+
+    private void Select(NavMenuItem item)
+    {
+        NavMenuItems.ForEach(x => x.IsActive = false);
+        item.IsActive = true;
     }
 
     protected override async Task OnAfterRenderAsync()

@@ -81,7 +81,7 @@ namespace Vision
             // ASSET FRAMEWORKS
             foreach (var asset in context.Assets)
             {
-                var kind = GetDependencyKind(asset.Path);
+                var kind = asset.GetDependencyKind();
 
                 if (kind != DependencyKind.NuGet)
                     continue;
@@ -168,7 +168,7 @@ namespace Vision
 
         private static IEnumerable<AssetFramework> GetAssetFrameworks(Asset asset, IList<Framework> frameworks)
         {
-            var kind = GetDependencyKind(asset.Path);            
+                   
             var selectedFrameworks = Pick<Framework>.UniqueRandomList(With.Between(1).And(2).Elements).From(frameworks);
 
             return selectedFrameworks.Select(framework =>
@@ -182,7 +182,7 @@ namespace Vision
 
         private static IEnumerable<AssetDependency> GetAssetDependencies(Asset asset, IList<Dependency> dependencies)
         {
-            var kind = GetDependencyKind(asset.Path);
+            var kind = asset.GetDependencyKind();
             var max = Math.Min(dependencies.Count, GetDependenciesForAsset(kind));
             var selectedDependencies = Pick<Dependency>.UniqueRandomList(With.Between(1).And(max).Elements).From(dependencies);
 
@@ -353,7 +353,7 @@ namespace Vision
 
         private static string GetPathForAsset(string fileOrFolderName, int fileIndex, DependencyKind kind)
         {
-            string ext = GetFileExtension(kind);
+            string ext = kind.GetFileExtension();
             bool isFirstFile = fileIndex == 0;
 
             switch (kind)

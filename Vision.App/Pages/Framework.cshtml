@@ -4,7 +4,7 @@
 
 <BreadcrumbsComponent Key="framework"></BreadcrumbsComponent>
 
-<HeadingComponent Title="@Item.Name"></HeadingComponent>
+<HeadingComponent Title="@Item?.Name"></HeadingComponent>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
@@ -52,7 +52,6 @@
         Item = await HttpClient.GetJsonAsync<FrameworkDto>($"/api/frameworks/{Id}");
         Repositories = await HttpClient.GetJsonAsync<RepositoryDto[]>($"/api/frameworks/{Id}/repositories");
         Assets = await HttpClient.GetJsonAsync<AssetDto[]>($"/api/frameworks/{Id}/assets");
+        StateHasChanged();   
     }
-
-    protected override async Task OnAfterRenderAsync() => await Runtime.InvokeAsync<object>("dataTable");
 }

@@ -4,7 +4,7 @@
 
 <BreadcrumbsComponent Key="dependency"></BreadcrumbsComponent>
 
-<HeadingComponent title="@Item.Name"></HeadingComponent>
+<HeadingComponent title="@Item?.Name"></HeadingComponent>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
@@ -17,7 +17,7 @@
         }
         else
         {
-            <p>Loading...</p>
+            <LoaderComponent></LoaderComponent>
         }
     </div>
 </div>
@@ -27,13 +27,13 @@
         <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
     </div>
     <div class="card-body">
-        @if (Assets  != null)
+        @if (Assets != null)
         {
             <AssetsComponent Items="Assets"></AssetsComponent>
         }
         else
         {
-            <p>Loading...</p>
+            <LoaderComponent></LoaderComponent>
         }
     </div>
 </div>
@@ -52,10 +52,5 @@
         Item = await HttpClient.GetJsonAsync<DependencyDto>($"/api/dependencies/{Id}");
         Assets = await HttpClient.GetJsonAsync<AssetDto[]>($"/api/dependencies/{Id}/assets");
         Versions = await HttpClient.GetJsonAsync<DependencyVersionDto[]>($"/api/dependencies/{Id}/versions");
-    }
-
-    protected override async Task OnAfterRenderAsync()
-    {
-        await Runtime.InvokeAsync<object>("dataTable");
     }
 }

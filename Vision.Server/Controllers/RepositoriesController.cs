@@ -29,9 +29,9 @@ namespace Vision.Server.Controllers
             Repository repository = await context.Repositories.FindAsync(repositoryId);
 
             return new RepositoryDto
-            {
+            {                
                 VersionControlId = repository.VersionControlId,
-                Assets = await context.Assets.CountAsync(a => a.RepositoryId == repositoryId),
+                Assets = await context.Assets.CountAsync(asset => asset.RepositoryId == repositoryId),
                 Url = repository.Url,
                 WebUrl = repository.WebUrl,
                 RepositoryId = repository.Id
@@ -41,10 +41,11 @@ namespace Vision.Server.Controllers
         [HttpGet("{repositoryId}/assets")]
         public async Task<IEnumerable<AssetDto>> GetByRepositoryId(Guid repositoryId)
         {
-            return await context.Assets.Where(x => x.RepositoryId == repositoryId).Select(asset => new AssetDto
+            return await context.Assets.Where(asset => asset.RepositoryId == repositoryId).Select(asset => new AssetDto
             {
                 AssetId = asset.Id,
-                Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id),
+                Repository = asset.Repository.Url,
+                Dependencies = context.AssetDependencies.Count(assetDependency => assetDependency.AssetId == asset.Id),
                 Asset = asset.Path,
                 RepositoryId = asset.RepositoryId
             })
@@ -52,16 +53,17 @@ namespace Vision.Server.Controllers
         }
 
         [HttpGet("{repositoryId}/frameworks")]
-        public async Task<IEnumerable<AssetFrameworkDto>> GetFrameworksByRepositoryId(Guid repositoryId)
+        public async Task<IEnumerable<FrameworkDto>> GetFrameworksByRepositoryId(Guid repositoryId)
         {
             return await context.Assets
                 .Where(asset => asset.RepositoryId == repositoryId) // assets in this repository
                 .SelectMany(asset => context.AssetFrameworks.Where(x => x.AssetId == asset.Id)) // all asset frameworks that this asset uses
-                .Select(x => x.Framework).Distinct() // select the linked unique frameworks and distinct them
-                .Select(framework => new AssetFrameworkDto
+                .Select(assetFramework => assetFramework.Framework).Distinct() // select the linked unique frameworks and distinct them
+                .Select(framework => new FrameworkDto
                 {
+                    Assets = context.AssetFrameworks.Count(assetFramework => assetFramework.FrameworkId == framework.Id),
                     FrameworkId = framework.Id,
-                    Name = framework.Version
+                    Name = framework.Version                    
                 })
                 .ToListAsync();
         }

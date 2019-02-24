@@ -43,15 +43,15 @@ namespace Vision.Server.Controllers
                 Kind = dependency.Kind,
                 DependencyId = dependency.Id,
                 RepositoryUrl = dependency.RepositoryUrl,
-                Assets = await context.AssetDependencies.CountAsync(x => x.DependencyId == dependencyId),
-                Versions = await context.DependencyVersions.CountAsync(x => x.DependencyId == dependencyId),
+                Assets = await context.AssetDependencies.CountAsync(assetDependency => assetDependency.DependencyId == dependencyId),
+                Versions = await context.DependencyVersions.CountAsync(dependencyVersion => dependencyVersion.DependencyId == dependencyId),
             };
         }
 
         [HttpGet("{dependencyId}/assets")]
         public async Task<IEnumerable<AssetDependencyDto>> GetAssetsByDependencyIdAsync(Guid dependencyId)
         {
-            return await context.AssetDependencies.Where(x => x.DependencyId == dependencyId).Select(assetDependency => new AssetDependencyDto
+            return await context.AssetDependencies.Where(assetDependency => assetDependency.DependencyId == dependencyId).Select(assetDependency => new AssetDependencyDto
             {
                 DependencyId = dependencyId,
                 AssetId = assetDependency.AssetId,
@@ -68,13 +68,13 @@ namespace Vision.Server.Controllers
         public async Task<IEnumerable<DependencyVersionDto>> GetVersionsByDependencyIdAsync(Guid dependencyId)
         {
             return await context.DependencyVersions
-                .Where(x => x.DependencyId == dependencyId)
-                .Select(x => new DependencyVersionDto
+                .Where(dependencyVersion => dependencyVersion.DependencyId == dependencyId)
+                .Select(dependencyVersion => new DependencyVersionDto
                 {
-                    DependencyId = x.DependencyId,
-                    DependencyVersionId = x.Id,
-                    Version = x.Version,
-                    VulnerabilityUrl = x.VulnerabilityUrl
+                    DependencyId = dependencyVersion.DependencyId,
+                    DependencyVersionId = dependencyVersion.Id,
+                    Version = dependencyVersion.Version,
+                    VulnerabilityUrl = dependencyVersion.VulnerabilityUrl
                 }).ToListAsync();
         }
     }

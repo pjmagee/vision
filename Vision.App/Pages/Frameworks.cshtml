@@ -48,6 +48,7 @@
     protected override async Task OnInitAsync()
     {
         Items = await HttpClient.GetJsonAsync<FrameworkDto[]>("/api/frameworks");
+        StateHasChanged();
     }
 
     protected override async Task OnAfterRenderAsync() => await Runtime.InvokeAsync<object>("dataTable");

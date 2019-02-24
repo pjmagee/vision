@@ -3,7 +3,7 @@
 
 <BreadcrumbsComponent Key="repository"></BreadcrumbsComponent>
 
-<HeadingComponent Title="@Item.WebUrl"></HeadingComponent>
+<HeadingComponent Title="@Item?.WebUrl"></HeadingComponent>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
@@ -58,10 +58,7 @@
 {
     [Parameter]
     private Guid Id { get; set; }
-
-    [Parameter]
-    private Guid vcsId { get; set; }
-
+    
     private RepositoryDto Item { get; set; }
     private CiCdBuildDto[] Builds { get; set; }
     private AssetDto[] Assets { get; set; }
@@ -73,5 +70,6 @@
         Builds = await HttpClient.GetJsonAsync<CiCdBuildDto[]>($"/api/repositories/{Id}/cicds");
         Assets = await HttpClient.GetJsonAsync<AssetDto[]>($"/api/repositories/{Id}/assets");
         Frameworks = await HttpClient.GetJsonAsync<FrameworkDto[]>($"/api/repositories/{Id}/frameworks");
+        StateHasChanged();
     }
 }

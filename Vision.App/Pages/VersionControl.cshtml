@@ -31,10 +31,6 @@
     protected override async Task OnParametersSetAsync()
     {   
         Repositories = await HttpClient.GetJsonAsync<RepositoryDto[]>($"/api/versioncontrols/{Id}/repositories");
-    }
-
-    protected override async Task OnAfterRenderAsync()
-    {
-        await Runtime.InvokeAsync<object>("dataTable");
+        StateHasChanged();
     }
 }

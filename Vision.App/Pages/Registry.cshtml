@@ -3,7 +3,7 @@
 
 <BreadcrumbsComponent Key="registry"></BreadcrumbsComponent>
 
-<HeadingComponent Title="@Item.Endpoint"></HeadingComponent>
+<HeadingComponent Title="@Item?.Endpoint"></HeadingComponent>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
@@ -33,5 +33,6 @@
     {
         Item = await HttpClient.GetJsonAsync<RegistryDto>($"/api/registries/{Id}");
         Dependencies = await HttpClient.GetJsonAsync<DependencyDto[]>($"/api/registries/{Id}/dependencies");
+        StateHasChanged();
     }    
 }

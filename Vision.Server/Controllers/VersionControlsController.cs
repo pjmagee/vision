@@ -21,13 +21,13 @@ namespace Vision.Server.Controllers
         [HttpGet]
         public async Task<IEnumerable<VersionControlDto>> GetAllAsync()
         {
-            return await context.VersionControls.Select(x => new VersionControlDto
+            return await context.VersionControls.Select(versionControl => new VersionControlDto
             {
-                Endpoint = x.Endpoint,
-                ApiKey = x.ApiKey,
-                Kind = x.Kind,
-                VersionControlId = x.Id,
-                Repositories = context.Repositories.Count(x => x.VersionControlId == x.Id)
+                Endpoint = versionControl.Endpoint,
+                ApiKey = versionControl.ApiKey,
+                Kind = versionControl.Kind,
+                VersionControlId = versionControl.Id,
+                Repositories = context.Repositories.Count(repository => repository.VersionControlId == versionControl.Id)
             }).ToListAsync();
         }
 
@@ -42,10 +42,10 @@ namespace Vision.Server.Controllers
             return CreatedAtAction(nameof(PostVersionControlAsync), new { sourceId = versionControl.Id }, new VersionControlDto { Endpoint = versionControl.Endpoint, ApiKey = versionControl.ApiKey, Kind = versionControl.Kind, VersionControlId = versionControl.Id, Repositories = versionControl.Repositories.Count });
         }
 
-        [HttpGet("{id}")]
-        public async Task<VersionControlDto> GetVersionControlByIdAsync(Guid id)
+        [HttpGet("{versionControlId}")]
+        public async Task<VersionControlDto> GetVersionControlByIdAsync(Guid versionControlId)
         {
-            VersionControl versionControl = await context.VersionControls.FindAsync(id);
+            VersionControl versionControl = await context.VersionControls.FindAsync(versionControlId);
 
             return new VersionControlDto
             {
@@ -57,10 +57,10 @@ namespace Vision.Server.Controllers
             };
         }
 
-        [HttpGet("{id}/repositories")]
-        public async Task<IEnumerable<RepositoryDto>> GetRepositoriesByIdAsync(Guid id)
+        [HttpGet("{versionControlId}/repositories")]
+        public async Task<IEnumerable<RepositoryDto>> GetRepositoriesByIdAsync(Guid versionControlId)
         {
-            var repositories = await context.Repositories.Where(x => x.VersionControlId == id).ToListAsync();
+            var repositories = await context.Repositories.Where(repository => repository.VersionControlId == versionControlId).ToListAsync();
             return repositories.Select(x => new RepositoryDto { VersionControlId = x.VersionControlId, Assets = x.Assets.Count, Url = x.Url, WebUrl = x.WebUrl, RepositoryId = x.Id });
         }
 
