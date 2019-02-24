@@ -1,18 +1,13 @@
 ﻿@inject IUriHelper UriHelper
-@inject Dictionary<string, BreadCrumbItem[]> Breadcrumbs
 
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-        @*@foreach(var item in Breadcrumbs[Key])
-        {
-            <li class="breadcrumb-item @(item.Active ? " active" : string.Empty)"  aria-current="">@item.Name</li>
-        }*@        
+        @ChildContent
     </ol>
 </nav>
 
-@functions {
-
+@functions 
+{
     [Parameter]
-    private string Key { get; set; }
-
+    private RenderFragment ChildContent { get; set; }
 }

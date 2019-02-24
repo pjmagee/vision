@@ -15,7 +15,7 @@ namespace Vision.App
 
     public enum NavMenuItemType
     {
-        Datasource,
+        Seperator,
         Data
     }
 }

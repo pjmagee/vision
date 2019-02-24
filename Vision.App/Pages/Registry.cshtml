@@ -1,9 +1,10 @@
 ﻿@page "/registries/{Id:guid}"
 @inject HttpClient HttpClient
 
-<BreadcrumbsComponent Key="registry"></BreadcrumbsComponent>
-
-<HeadingComponent Title="@Item?.Endpoint"></HeadingComponent>
+<BreadcrumbsComponent>
+    <li class="breadcrumb-item"><NavLink href="/registries">Registries</NavLink></li>
+    <li class="breadcrumb-item active">@Item?.Endpoint</li>
+</BreadcrumbsComponent>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
@@ -21,8 +22,8 @@
     </div>
 </div>
 
-@functions 
-{    
+@functions
+{
     [Parameter]
     private Guid Id { get; set; }
 
@@ -34,5 +35,5 @@
         Item = await HttpClient.GetJsonAsync<RegistryDto>($"/api/registries/{Id}");
         Dependencies = await HttpClient.GetJsonAsync<DependencyDto[]>($"/api/registries/{Id}/dependencies");
         StateHasChanged();
-    }    
+    }
 }

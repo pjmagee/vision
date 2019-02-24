@@ -1,20 +1,19 @@
-﻿@page "/vcs/{Id:guid}"
+﻿@page "/versions/{Id:guid}"
 @inject HttpClient HttpClient
-@inject IJSRuntime Runtime
 
 <BreadcrumbsComponent>
-    <li class="breadcrumb-item"><NavLink href="/vcs">Version Controls</NavLink></li>
-    <li class="breadcrumb-item active" aria-current="page">@Item?.Endpoint</li>
+    <li class="breadcrumb-item"><NavLink href="/dependencies">Dependencies</NavLink></li>
+    <li class="breadcrumb-item active">@Item.Name</li>
 </BreadcrumbsComponent>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Repositories</h6>
+        <h6 class="m-0 font-weight-bold text-primary">Versions</h6>
     </div>
     <div class="card-body">
-        @if (Repositories != null)
+        @if (Versions != null)
         {
-            <RepositoriesComponent Items="Repositories"></RepositoriesComponent>
+            <DependencyVersionsComponent Items="Versions"></DependencyVersionsComponent>
         }
         else
         {
@@ -22,7 +21,6 @@
         }
     </div>
 </div>
-
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
@@ -40,22 +38,19 @@
     </div>
 </div>
 
-@functions
+@functions 
 {
     [Parameter]
     private Guid Id { get; set; }
-
-    private RepositoryDto[] Repositories { get; set; }
-
+    
+    private DependencyDto Item { get; set; }
     private AssetDto[] Assets { get; set; }
-
-    private VersionControlDto Item { get; set; }
+    private DependencyVersionDto[] Versions { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        Item = await HttpClient.GetJsonAsync<VersionControlDto>($"/api/versioncontrols/{Id}");
-        Repositories = await HttpClient.GetJsonAsync<RepositoryDto[]>($"/api/versioncontrols/{Id}/repositories");
-        Assets = await HttpClient.GetJsonAsync<AssetDto[]>($"/api/versioncontrols/{Id}/assets");
+        Item = await HttpClient.GetJsonAsync<DependencyDto>($"/api/dependencyversions/{Id}");
+        Assets = await HttpClient.GetJsonAsync<AssetDto[]>($"/api/dependencyversions/{Id}/assets");
         StateHasChanged();
     }
 }

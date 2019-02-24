@@ -2,9 +2,10 @@
 @inject HttpClient HttpClient
 @inject IJSRuntime Runtime
 
-<BreadcrumbsComponent Key="framework"></BreadcrumbsComponent>
-
-<HeadingComponent Title="@Item?.Name"></HeadingComponent>
+<BreadcrumbsComponent>
+    <li class="breadcrumb-item"><NavLink href="/frameworks">Frameworks</NavLink></li>
+    <li class="breadcrumb-item active">@Item?.Name</li>
+</BreadcrumbsComponent>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">

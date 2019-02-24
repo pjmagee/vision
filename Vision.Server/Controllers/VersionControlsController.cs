@@ -57,6 +57,19 @@ namespace Vision.Server.Controllers
             };
         }
 
+        [HttpGet("{versionControlId}/metrics")]
+        public async Task<IEnumerable<MetricDto>> GetMetricsForVersionControlById(Guid versionControlId)
+        {
+            // top 5 largest repositories
+            // top 5 smallest repositories
+
+            // top 5 largest assets
+            // top 5 smallest assets
+
+            // top 5 assets with most updated dependencies
+            // top 5 assets with most outdated dependencies
+        }
+
         [HttpGet("{versionControlId}/repositories")]
         public async Task<IEnumerable<RepositoryDto>> GetRepositoriesByIdAsync(Guid versionControlId)
         {
@@ -64,6 +77,23 @@ namespace Vision.Server.Controllers
             return repositories.Select(x => new RepositoryDto { VersionControlId = x.VersionControlId, Assets = x.Assets.Count, Url = x.Url, WebUrl = x.WebUrl, RepositoryId = x.Id });
         }
 
-       
+        [HttpGet("{versionControlId}/assets")]
+        public async Task<IEnumerable<AssetDto>> GetAssetsByVersionControlIdAsync(Guid versionControlId)
+        {
+            VersionControl versionControl = await context.VersionControls.FindAsync(versionControlId);
+
+            return await context.Assets
+                    .Where(asset => context.Repositories.Any(repository => repository.VersionControlId == versionControlId && asset.RepositoryId == repository.Id))
+                    .Select(asset => new AssetDto
+                    {
+                        Asset = asset.Path,
+                        AssetId = asset.Id,
+                        Repository = asset.Repository.Url,
+                        RepositoryId = asset.RepositoryId
+                    })
+                    .ToListAsync();
+        }
+
+
     }
 }

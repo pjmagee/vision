@@ -1,11 +1,12 @@
 ﻿@inject IJSRuntime Runtime
 
-<table class="table table-striped table-bordered" style="width: 100%">
+<table class="table table-striped table-bordered table-sm" style="width: 100%">
     <thead>
         <tr>
             <th>Version</th>
             <th>Latest</th>
-            <th>Vulnerable</th>
+            <th>Vulnerability</th>
+            <th>Assets</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -15,9 +16,12 @@
             <tr>
                 <td>@item.Version</td>
                 <td>@item.IsLatest</td>
-                <td>@item.IsVulnerable</td>
+                <td>@item.VulnerabilityUrl</td>
+                <td>@item.Assets</td>
                 <td>
-                    <NavLink class="nav-link" href="@($"/versions/{item.DependencyVersionId}")">Details</NavLink>
+                    <nav class="nav">
+                        <NavLink class="nav-link" href="@($"/versions/{item.DependencyVersionId}")">Details</NavLink>
+                    </nav>
                 </td>
             </tr>
         }

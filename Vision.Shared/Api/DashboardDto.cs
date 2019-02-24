@@ -1,6 +1,6 @@
 ﻿namespace Vision.Shared
 {
-    public class Dashboard
+    public class DashboardDto
     {
         public int Assets { get; set; }
         public int Dependencies { get; set; }

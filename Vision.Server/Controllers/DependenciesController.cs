@@ -9,6 +9,7 @@ using Vision.Shared;
 
 namespace Vision.Server.Controllers
 {
+
     [ResponseCache(Duration = 30)]
     [ApiController, Route("api/[controller]"), Produces("application/json"), ApiConventionType(typeof(DefaultApiConventions))]
     public class DependenciesController : ControllerBase
@@ -71,6 +72,8 @@ namespace Vision.Server.Controllers
                 .Where(dependencyVersion => dependencyVersion.DependencyId == dependencyId)
                 .Select(dependencyVersion => new DependencyVersionDto
                 {
+                    Assets = context.AssetDependencies.Count(assetDependency => assetDependency.DependencyVersionId == dependencyVersion.Id),
+                    IsLatest = dependencyVersion.IsLatest,                    
                     DependencyId = dependencyVersion.DependencyId,
                     DependencyVersionId = dependencyVersion.Id,
                     Version = dependencyVersion.Version,

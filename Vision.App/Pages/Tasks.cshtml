@@ -2,7 +2,9 @@
 @inject HttpClient HttpClient
 @inject IJSRuntime Runtime
 
-<BreadcrumbsComponent Key="tasks"></BreadcrumbsComponent>
+<BreadcrumbsComponent>
+    <li class="breadcrumb-item active"><a href="#">Tasks</a></li>
+</BreadcrumbsComponent>
 
 <HeadingComponent Title="Refresh Tasks"></HeadingComponent>
 
@@ -27,16 +29,16 @@
                 <tbody>
                     @foreach (var item in RefreshTasks)
                     {
-                    <tr>
-                        <td>@item.Status</td>
-                        <td>@item.Kind.ToString()</td>
-                        <td>@item.TargetId</td>
-                        <th>@item.Created</th>
-                        <th>@item.Completed?.ToString()</th>
-                        <td>
-                            <!-- TODO: DELETE TASK -->
-                        </td>
-                    </tr>
+                        <tr>
+                            <td>@item.Status</td>
+                            <td>@item.Kind.ToString()</td>
+                            <td>@item.TargetId</td>
+                            <th>@item.Created</th>
+                            <th>@item.Completed?.ToString()</th>
+                            <td>
+                                <!-- TODO: DELETE TASK -->
+                            </td>
+                        </tr>
                     }
                 </tbody>
             </table>
