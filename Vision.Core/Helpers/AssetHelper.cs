@@ -5,12 +5,13 @@ namespace Vision.Core
 {
     public static class AssetHelper
     {
-        public const string CsProj = "csproj";
-        public const string RequirementsTxt = "requirements.txt";
-        public const string PomXml = "pom.xml";
-        public const string GemFile = "GemFile";
-        public const string DockerFile = "DockerFile";
-        public const string PackagesJson = "packages.json";
+        private const string CsProj = "csproj";
+        private const string RequirementsTxt = "requirements.txt";
+        private const string PomXml = "pom.xml";
+        private const string GemFile = "GemFile";
+        private const string DockerFile = "DockerFile";
+        private const string PackagesJson = "packages.json";
+        private const string GradleFile = "gradle";
 
         public static DependencyKind GetDependencyKind(this Asset asset)
         {
@@ -19,9 +20,11 @@ namespace Vision.Core
             if (file.EndsWith(CsProj)) return DependencyKind.NuGet;
             if (file.EndsWith(RequirementsTxt)) return DependencyKind.PyPi;
             if (file.EndsWith(PomXml)) return DependencyKind.Maven;
+            if (file.EndsWith(GradleFile)) return DependencyKind.Gradle;
             if (file.EndsWith(GemFile)) return DependencyKind.RubyGem;
             if (file.EndsWith(DockerFile)) return DependencyKind.Docker;
             if (file.EndsWith(PackagesJson)) return DependencyKind.Npm;
+            if (file.EndsWith())
 
             throw new Exception("Unsupported file for DependencyKind");
         }
@@ -32,8 +35,7 @@ namespace Vision.Core
 
         public static bool IsSupported(this string path)
         {
-            if (string.IsNullOrEmpty(path))
-                throw new Exception("Path is null");
+            if (string.IsNullOrEmpty(path)) throw new Exception("Path is null");
 
             if (path.EndsWith(CsProj)) return true;
             if (path.EndsWith(RequirementsTxt)) return true;
@@ -41,19 +43,23 @@ namespace Vision.Core
             if (path.EndsWith(GemFile)) return true;
             if (path.EndsWith(DockerFile)) return true;
             if (path.EndsWith(PackagesJson)) return true;
+            if (path.EndsWith(GradleFile)) return true;
 
             return false;
         }
 
         public static string GetFileExtension(DependencyKind kind)
         {
-            if (kind == DependencyKind.NuGet) return CsProj;
-            if (kind == DependencyKind.PyPi) return RequirementsTxt;
-            if (kind == DependencyKind.Maven) return PomXml;
-            if (kind == DependencyKind.RubyGem) return GemFile;
-            if (kind == DependencyKind.Docker) return DockerFile;
-            if (kind == DependencyKind.Npm) return PackagesJson;
-
+            switch (kind)
+            {
+                case DependencyKind.Docker: return DockerFle;
+                case DependencyKind.NuGet: return CsProjFile;
+                case DependencyKind.PyPi: return RequirementsFile;
+                case DependencyKind.Maven: return PomFile;
+                case DependencyKind.Gradle: return GradleFile;
+                case DependencyKind.RubyGem: return GemFile;
+                case DependencyKind.Npm: return PackagesFile;
+            }
             throw new Exception("Unsupported kind for File extension");
         }
     }

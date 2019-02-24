@@ -1,0 +1,39 @@
+﻿@inject IJSRuntime Runtime
+
+<table class="table table-striped table-bordered" style="width:100%">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Kind</th>
+            <th>Assets</th>
+            <th>Versions</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Items)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Kind.ToString()</td>
+                <td>@item.Assets</td>
+                <td>@item.Versions</td>
+                <td>
+                    <NavLink class="nav-link" href="@($"/dependencies/{item.DependencyId}")">Details</NavLink>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@functions {
+
+    [Parameter]
+    private DependencyDto[] Items { get; set; }
+
+    protected override async Task OnAfterRenderAsync()
+    {
+        await Runtime.InvokeAsync<object>("dataTable");
+    }
+
+}

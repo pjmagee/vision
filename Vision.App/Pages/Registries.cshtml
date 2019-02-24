@@ -1,0 +1,69 @@
+﻿@page "/registries"
+@inject HttpClient HttpClient
+
+<BreadcrumbsComponent Key="registries"></BreadcrumbsComponent>
+
+<HeadingComponent Title="Dependency registries"></HeadingComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Add new</h6>
+    </div>
+    <div class="card-body">
+        <form>
+            <div class="form-group">
+                <input type="text" class="form-control" bind="NewRegistry.Endpoint" placeholder="Endpoint" />
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" bind="NewRegistry.ApiKey" placeholder="API Key" />
+            </div>
+            <div class="form-group">
+                <select type="text" class="form-control" bind="NewRegistry.Kind" placeholder="Type">
+                    @foreach (var kind in Enum.GetValues(typeof(DependencyKind)).Cast<DependencyKind>())
+                    {
+                        <option value="@kind">@kind.ToString()</option>
+                    }
+                </select>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" bind="NewRegistry.IsPublic" id="defaultCheck1" />
+                <label class="form-check-label" for="defaultCheck1">Public</label>
+            </div>
+
+            <button onclick="Submit" class="btn btn-primary">Save</button>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Dependency registries</h6>
+    </div>
+    <div class="card-body">
+        @if (Items != null)
+        {
+            <RegistriesComponent Items="Items"></RegistriesComponent>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
+
+@functions 
+{
+    private RegistryDto[] Items { get; set; }
+    private RegistryDto NewRegistry { get; set; } = new RegistryDto();
+
+    protected override async Task OnInitAsync()
+    {
+        Items = await HttpClient.GetJsonAsync<RegistryDto[]>("/api/registries");
+    }
+
+    protected async Task Submit()
+    {
+        var source = await HttpClient.PostJsonAsync<RegistryDto>("/api/registries", NewRegistry);
+        Items = Items.Concat(new[] { source }).ToArray();
+    }
+}

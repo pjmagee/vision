@@ -65,8 +65,8 @@ namespace Vision.Server.Services
 
     public class BackgroundTaskQueue : IBackgroundTaskQueue
     {
-        private ConcurrentQueue<Func<CancellationToken, Task>> workItems = new ConcurrentQueue<Func<CancellationToken, Task>>();
-        private SemaphoreSlim signal = new SemaphoreSlim(0);
+        private readonly ConcurrentQueue<Func<CancellationToken, Task>> workItems = new ConcurrentQueue<Func<CancellationToken, Task>>();
+        private readonly SemaphoreSlim signal = new SemaphoreSlim(0);
 
         public void QueueBackgroundWorkItem(Func<CancellationToken, Task> workItem)
         {

@@ -1,0 +1,64 @@
+﻿@page "/cicds"
+@inject HttpClient HttpClient
+
+<BreadcrumbsComponent Key="cicds"></BreadcrumbsComponent>
+
+<HeadingComponent Title="Continious Integration / Continous Delivery"></HeadingComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Add new</h6>
+    </div>
+    <div class="card-body">
+        <form>
+            <div class="form-group">
+                <input type="text" class="form-control" bind="NewCiCd.Endpoint" placeholder="Endpoint" />
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" bind="NewCiCd.ApiKey" placeholder="API Key" />
+            </div>
+            <div class="form-group">
+                <select type="text" class="form-control" bind="NewCiCd.Kind" placeholder="Type">
+                    @foreach (CiCdKind kind in Enum.GetValues(typeof(CiCdKind)).Cast<CiCdKind>())
+                    {
+                        <option value="@kind">@kind.ToString()</option>
+                    }
+                </select>
+            </div>
+            <button onclick="Submit" class="btn btn-primary">Save</button>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Sources</h6>
+    </div>
+    <div class="card-body">
+        @if (Items != null)
+        {
+            <CiCdsComponent Items="Items"></CiCdsComponent>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
+
+@functions 
+{
+
+    private CiCdDto[] Items { get; set; }
+    private CiCdDto NewCiCd { get; set; } = new CiCdDto();
+
+    protected override async Task OnInitAsync()
+    {
+        Items = await HttpClient.GetJsonAsync<CiCdDto[]>("/api/cicds");
+    }
+
+    protected async Task Submit()
+    {
+        await HttpClient.PostJsonAsync<CiCdDto>("/api/vcs", NewCiCd);        
+    }
+}

@@ -1,4 +1,4 @@
-﻿@inject IEnumerable<NavMenuItem> NavMenuItems
+﻿@inject List<NavMenuItem> NavMenuItems
 @inject IUriHelper Helper
 @inject IJSRuntime Runtime
 
@@ -8,12 +8,12 @@
         <div class="sidebar-brand-icon rotate-n-15">
             <i class="fas fa-eye"></i>
         </div>
-        <div class="sidebar-brand-text mx-3">VisioN</div>
+        <div class="sidebar-brand-text mx-3">Vision</div>
     </a>
 
     <hr class="sidebar-divider my-0">
 
-    <li class="nav-item @ActiveClass("/")">
+    <li class="nav-item @ActiveClass(NavMenuItems.Find(mu => mu.Name == "Dashboard"))">
         <NavLink class="nav-link" href="/">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Dashboard</span>
@@ -25,7 +25,7 @@
 
     @foreach (var item in NavMenuItems.Where(x => x.Type == NavMenuItemType.Datasource))
     {
-        <li class="nav-item @ActiveClass(item.Route)">
+        <li class="nav-item @ActiveClass(item)">
             <NavLink class="nav-link" href="@item.Route" Match="@item.Match">
                 <i class="@item.Icon"></i>
                 <span>@item.Name</span>
@@ -38,7 +38,7 @@
 
     @foreach (var item in NavMenuItems.Where(x => x.Type == NavMenuItemType.Data))
     {
-        <li class="nav-item @ActiveClass(item.Route)">
+        <li class="nav-item @ActiveClass(item)">
             <NavLink class="nav-link" href="@item.Route" Match="@item.Match">
                 <i class="@item.Icon"></i>
                 <span>@item.Name</span>
@@ -53,17 +53,19 @@
     </div>
 </ul>
 
-@functions {
-
-    public string ActiveClass(string route)
-    {
-        if (Helper.GetAbsoluteUri().Contains(route)) return "active";
-        return string.Empty;
-    }
+@functions 
+{
+    private string ActiveClass(NavMenuItem item) => item.IsActive ? " active" : string.Empty;
 
     protected override void OnInit()
     {
-        Helper.OnLocationChanged += (sender, o) => this.StateHasChanged();
+        Helper.OnLocationChanged += (sender, o) =>
+        {
+            NavMenuItems.ForEach(x => x.IsActive = false);
+            NavMenuItem current = NavMenuItems.Find(x => string.Compare(x.Route, o, ignoreCase: true) == 0);
+            current.IsActive = true;
+            this.StateHasChanged();
+        };
     }
 
     protected override async Task OnAfterRenderAsync()

@@ -1,0 +1,36 @@
+﻿@inject IJSRuntime Runtime
+
+<table class="table table-striped table-bordered" style="width:100%">
+    <thead>
+        <tr>
+            <th>Endpoint</th>
+            <th>ApiKey</th>
+            <th>Repositories</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Items)
+        {
+            <tr>
+                <td>@item.Endpoint</td>
+                <td>@item.ApiKey</td>
+                <td>@item.Repositories</td>
+                <td>
+                    <NavLink class="nav-link" href="@($"/vcs/{item.VersionControlId}")">Details</NavLink>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@functions
+{
+    [Parameter]
+    private VersionControlDto[] Items { get; set; }
+
+    protected override async Task OnAfterRenderAsync()
+    {
+        await Runtime.InvokeAsync<object>("dataTable");
+    }
+}

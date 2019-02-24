@@ -16,12 +16,11 @@ namespace Vision.Core
         public DbSet<DependencyVersion> DependencyVersions { get; set; }
         public DbSet<AssetDependency> AssetDependencies { get; set; }
         public DbSet<AssetFramework> AssetFrameworks { get; set; }
-        public DbSet<GitRepository> GitRepositories { get; set; }
-        public DbSet<GitSource> GitSources { get; set; }
-        public DbSet<BuildSources> BuildSources { get; set; }
+        public DbSet<Repository> Repositories { get; set; }
+        public DbSet<VersionControl> VersionControls { get; set; }
+        public DbSet<CiCd> CiCds { get; set; }
         public DbSet<Registry> Registries { get; set; }
-
-        public DbSet<RefreshTask> RefreshTasks { get; set; }
+        public DbSet<SystemTask> Tasks { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -30,28 +29,28 @@ namespace Vision.Core
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<RefreshTask>((entity) =>
+            modelBuilder.Entity<SystemTask>((entity) =>
             {
                 entity.HasKey(x => x.Id);
-                entity.Property(x => x.Kind).IsRequired();
                 entity.Property(x => x.Status).IsRequired();
                 entity.Property(x => x.Created).IsRequired();
+                entity.Property(x => x.Scope).IsRequired();
                 entity.Property(x => x.Completed);
             });
 
-            modelBuilder.Entity<GitRepository>((entity) =>
+            modelBuilder.Entity<Repository>((entity) =>
             {
                 entity.HasKey(x => x.Id);
-                entity.Property(x => x.GitUrl).IsRequired();
+                entity.Property(x => x.Url).IsRequired();
                 entity.Property(x => x.WebUrl).IsRequired();                
             });
 
-            modelBuilder.Entity<GitSource>((entity) =>
+            modelBuilder.Entity<VersionControl>((entity) =>
             {
                 entity.HasKey(x => x.Id);
                 entity.Property(x => x.ApiKey).IsRequired();
                 entity.Property(x => x.Kind).IsRequired();
-                entity.HasMany(x => x.GitRepositories).WithOne(r => r.GitSource).HasForeignKey(s => s.GitSourceId);
+                entity.HasMany(x => x.Repositories).WithOne(r => r.VersionControl).HasForeignKey(s => s.VersionControlId);
             });
 
             modelBuilder.Entity<Asset>(entity =>

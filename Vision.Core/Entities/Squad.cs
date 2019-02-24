@@ -5,6 +5,6 @@ namespace Vision.Core
     public class Squad : Entity
     {
         public string Name { get; set; }
-        public virtual ICollection<GitRepository> Repositories { get; set; }
+        public virtual ICollection<Repository> Repositories { get; set; }
     }
 }

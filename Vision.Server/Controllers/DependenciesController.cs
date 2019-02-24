@@ -17,9 +17,8 @@ namespace Vision.Server.Controllers
 
         public DependenciesController(VisionDbContext context) => this.context = context;
 
-
         [HttpGet]
-        public async Task<IEnumerable<DependencyDto>> GetAllDependenciesAsync()
+        public async Task<IEnumerable<DependencyDto>> GetAllAsync()
         {
             return await context.Dependencies.Select(dependency => new DependencyDto
             {
@@ -36,7 +35,7 @@ namespace Vision.Server.Controllers
         [HttpGet("{dependencyId}")]
         public async Task<DependencyDto> GetDependencyByIdAsync(Guid dependencyId)
         {
-            var dependency = await context.Dependencies.FindAsync(dependencyId);
+            Dependency dependency = await context.Dependencies.FindAsync(dependencyId);
 
             return new DependencyDto
             {
@@ -52,25 +51,31 @@ namespace Vision.Server.Controllers
         [HttpGet("{dependencyId}/assets")]
         public async Task<IEnumerable<AssetDependencyDto>> GetAssetsByDependencyIdAsync(Guid dependencyId)
         {
-            IEnumerable<AssetDependency> assetDependencies = await context.AssetDependencies.Where(x => x.DependencyId == dependencyId).ToListAsync();
-
-            return assetDependencies.Select(assetDependency => new AssetDependencyDto
+            return await context.AssetDependencies.Where(x => x.DependencyId == dependencyId).Select(assetDependency => new AssetDependencyDto
             {
                 DependencyId = dependencyId,
-                AssetId = assetDependency.AssetId,                
-                Name = assetDependency.Asset.Path,
+                AssetId = assetDependency.AssetId,
+                Asset = assetDependency.Asset.Path,
+                Dependency = assetDependency.Dependency.Name,
                 Version = assetDependency.DependencyVersion.Version,
                 DependencyVersionId = assetDependency.DependencyVersionId,
-                Repository = assetDependency.Asset.GitRepository.WebUrl
-            });
+                Repository = assetDependency.Asset.Repository.WebUrl
+            })
+            .ToListAsync();
         }
 
         [HttpGet("{dependencyId}/versions")]
         public async Task<IEnumerable<DependencyVersionDto>> GetVersionsByDependencyIdAsync(Guid dependencyId)
         {
-            var versions = await context.DependencyVersions.Where(x => x.DependencyId == dependencyId).ToListAsync();
-
-            return versions.Select(x => new DependencyVersionDto { DependencyId = x.DependencyId, DependencyVersionId = x.Id, Version = x.Version, VulnerabilityUrl = x.VulnerabilityUrl });
+            return await context.DependencyVersions
+                .Where(x => x.DependencyId == dependencyId)
+                .Select(x => new DependencyVersionDto
+                {
+                    DependencyId = x.DependencyId,
+                    DependencyVersionId = x.Id,
+                    Version = x.Version,
+                    VulnerabilityUrl = x.VulnerabilityUrl
+                }).ToListAsync();
         }
     }
 }

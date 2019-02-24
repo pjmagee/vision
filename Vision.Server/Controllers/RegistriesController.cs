@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -14,24 +15,36 @@ namespace Vision.Server.Controllers
     {
         private readonly VisionDbContext context;
 
-        public RegistriesController(VisionDbContext context)
-        {
-            this.context = context;
-        }
+        public RegistriesController(VisionDbContext context) => this.context = context;
 
         [HttpGet]
         public async Task<IEnumerable<RegistryDto>> GetAllRegistriesAsync()
         {
-            var registries = await context.Registries.ToListAsync();
-
-            return await Task.WhenAll(registries.Select(async registry => new RegistryDto
+            return await context.Registries.Select(registry => new RegistryDto
             {
                 ApiKey = registry.ApiKey,
-                Dependencies = await context.Dependencies.CountAsync(d => d.RegistryId == registry.Id),
+                Dependencies = context.Dependencies.Count(d => d.RegistryId == registry.Id),
                 Endpoint = registry.Endpoint,
                 Kind = registry.Kind,
                 RegistryId = registry.Id
-            }));
+            })
+            .ToListAsync();
+        }
+
+        [HttpGet("{registryId}/dependencies")]
+        public async Task<IEnumerable<DependencyDto>> GetDependenciesByRegistry(Guid registryId)
+        {
+            return await context.Dependencies
+                    .Where(d => d.RegistryId == registryId)
+                    .Select(d => new DependencyDto
+                    {
+                        Name = d.Name,
+                        RepositoryUrl = d.RepositoryUrl,
+                        Versions = context.DependencyVersions.Count(x => x.DependencyId == d.Id),
+                        Assets = context.AssetDependencies.Count(x => x.DependencyId == d.Id),
+                        DependencyId = d.Id,
+                        Kind = d.Kind                    
+                    }).ToListAsync();
         }
     }
 }

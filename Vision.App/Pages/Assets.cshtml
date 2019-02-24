@@ -1,0 +1,37 @@
+﻿@page "/assets"
+@inject HttpClient HttpClient
+@inject IJSRuntime Runtime
+
+<BreadcrumbsComponent Key="assets"></BreadcrumbsComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
+    </div>
+    <div class="card-body">
+        @if (Items != null)
+        {
+            <AssetsComponent Items="Items"></AssetsComponent>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
+
+@functions 
+{
+
+    private AssetDto[] Items { get; set; }
+
+    protected override async Task OnInitAsync()
+    {        
+        Items = await HttpClient.GetJsonAsync<AssetDto[]>("/api/assets");
+    }
+
+    protected override async Task OnAfterRenderAsync()
+    {
+        await Runtime.InvokeAsync<object>("dataTable");
+    }
+}

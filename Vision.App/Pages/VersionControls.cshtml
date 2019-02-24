@@ -1,0 +1,62 @@
+﻿@page "/vcs"
+@inject HttpClient HttpClient
+
+<BreadcrumbsComponent Key="versioncontrols"></BreadcrumbsComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Add new</h6>
+    </div>
+    <div class="card-body">
+        <form>
+            <div class="form-group">
+                <input type="text" class="form-control" bind="NewVcs.Endpoint" placeholder="Endpoint" />
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" bind="NewVcs.ApiKey" placeholder="API Key" />
+            </div>
+            <div class="form-group">
+                <select type="text" class="form-control" bind="NewVcs.Kind" placeholder="Type">
+                    @foreach (VersionControlKind kind in Enum.GetValues(typeof(VersionControlKind)).Cast<VersionControlKind>())
+                    {
+                        <option value="@kind">@kind.ToString()</option>
+                    }
+                </select>
+            </div>
+            <button onclick="Submit" class="btn btn-primary">Save</button>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Version Control Systems</h6>
+    </div>
+    <div class="card-body">
+        @if (Items != null)
+        {
+           <VersionControlsComponent Items="Items"></VersionControlsComponent>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
+
+@functions {
+
+    private VersionControlDto[] Items { get; set; }
+    private VersionControlDto NewVcs { get; set; } = new VersionControlDto();
+
+    protected override async Task OnInitAsync()
+    {
+        Items = await HttpClient.GetJsonAsync<VersionControlDto[]>("/api/vcs");
+    }
+
+    protected async Task Submit()
+    {
+        var source = await HttpClient.PostJsonAsync<VersionControlDto>("/api/vcs", NewVcs);
+        Items = Items.Concat(new[] { source }).ToArray();
+    }
+}

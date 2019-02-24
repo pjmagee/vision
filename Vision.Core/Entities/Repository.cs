@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace Vision.Core
 {
-    public class GitRepository : Entity
+    public class Repository : Entity
     {
-        public string GitUrl { get; set; }
+        public string Url { get; set; }
         public string WebUrl { get; set; }
-        public virtual GitSource GitSource { get; set; }
-        public Guid GitSourceId { get; set; }
+        public virtual VersionControl VersionControl { get; set; }
+        public Guid VersionControlId { get; set; }
 
         public virtual ICollection<Asset> Assets { get; set; }
     }   

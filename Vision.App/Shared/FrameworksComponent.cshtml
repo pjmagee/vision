@@ -1,0 +1,32 @@
+﻿@inject IJSRuntime Runtime
+
+<table class="table table-striped table-bordered" style="width: 100%">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Assets</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Items)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Assets</td>
+                <td>
+                    <NavLink class="nav-link" href="@($"/frameworks/{item.FrameworkId}")">Framework Details</NavLink>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@functions
+{
+    [Parameter] private FrameworkDto[] Items { get; set; }
+
+    protected override async Task OnAfterRenderAsync()
+    {
+        await Runtime.InvokeAsync<object>("dataTable");
+    }
+}

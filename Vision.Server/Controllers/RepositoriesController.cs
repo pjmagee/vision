@@ -15,40 +15,61 @@ namespace Vision.Server.Controllers
     public class RepositoriesController : ControllerBase
     {
         private readonly VisionDbContext context;
-        private readonly IBuildService buildService;
+        private readonly ICiCdChecker cicdChecker;
 
-        public RepositoriesController(VisionDbContext context, IBuildService buildService)
+        public RepositoriesController(VisionDbContext context, ICiCdChecker cicdChecker)
         {
             this.context = context;
-            this.buildService = buildService;
-        }        
-
-        [HttpGet("{repositoryId}/assets")]
-        public async Task<IEnumerable<AssetDto>> GetByRepositoryId(Guid repositoryId)
-        {
-            IEnumerable<Asset> assets = await context.Assets.Where(x => x.GitRepositoryId == repositoryId).ToListAsync();
-            return assets.Select(a => new AssetDto { AssetId = a.Id, Dependencies = a.Dependencies.Count, Path = a.Path, RepositoryId = a.GitRepositoryId });
-        }
-
-        [HttpGet("{repositoryId}/builds")]
-        public async Task<IEnumerable<Build>> GetBuildsByRepositoryIdAsync(Guid repositoryId)
-        {
-            return await buildService.GetBuildsByRepositoryIdAsync(repositoryId);
+            this.cicdChecker = cicdChecker;
         }
 
         [HttpGet("{repositoryId}")]
         public async Task<RepositoryDto> GetRepositoryByIdAsync(Guid repositoryId)
         {
-            var repository = await context.GitRepositories.FindAsync(repositoryId);
+            Repository repository = await context.Repositories.FindAsync(repositoryId);
 
             return new RepositoryDto
             {
-                SourceId = repository.GitSourceId,
-                Assets = await context.Assets.CountAsync(a => a.GitRepositoryId == repositoryId),
-                GitUrl = repository.GitUrl,
+                VersionControlId = repository.VersionControlId,
+                Assets = await context.Assets.CountAsync(a => a.RepositoryId == repositoryId),
+                Url = repository.Url,
                 WebUrl = repository.WebUrl,
                 RepositoryId = repository.Id
             };
+        }
+
+        [HttpGet("{repositoryId}/assets")]
+        public async Task<IEnumerable<AssetDto>> GetByRepositoryId(Guid repositoryId)
+        {
+            return await context.Assets.Where(x => x.RepositoryId == repositoryId).Select(asset => new AssetDto
+            {
+                AssetId = asset.Id,
+                Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id),
+                Asset = asset.Path,
+                RepositoryId = asset.RepositoryId
+            })
+            .ToListAsync();
+        }
+
+        [HttpGet("{repositoryId}/frameworks")]
+        public async Task<IEnumerable<AssetFrameworkDto>> GetFrameworksByRepositoryId(Guid repositoryId)
+        {
+            return await context.Assets
+                .Where(asset => asset.RepositoryId == repositoryId) // assets in this repository
+                .SelectMany(asset => context.AssetFrameworks.Where(x => x.AssetId == asset.Id)) // all asset frameworks that this asset uses
+                .Select(x => x.Framework).Distinct() // select the linked unique frameworks and distinct them
+                .Select(framework => new AssetFrameworkDto
+                {
+                    FrameworkId = framework.Id,
+                    Name = framework.Version
+                })
+                .ToListAsync();
+        }
+
+        [HttpGet("{repositoryId}/cicds")]
+        public async Task<IEnumerable<CiCdBuildDto>> GetCiCdsByRepositoryId(Guid repositoryId)
+        {
+            return await cicdChecker.GetBuildsByRepositoryIdAsync(repositoryId);
         }
     }
 }

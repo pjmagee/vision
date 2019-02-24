@@ -34,4 +34,8 @@
     
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\vendor\handlebars\" />
+  </ItemGroup>
+
 </Project>

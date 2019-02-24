@@ -15,13 +15,10 @@ namespace Vision.Server.Controllers
     {
         private readonly VisionDbContext context;
 
-        public FrameworksController(VisionDbContext context)
-        {
-            this.context = context;
-        }
+        public FrameworksController(VisionDbContext context) => this.context = context;
 
         [HttpGet]
-        public async Task<IEnumerable<FrameworkDto>> GetAsync()
+        public async Task<IEnumerable<FrameworkDto>> GetAllAsync()
         {
             var frameworks = await context.Frameworks.ToListAsync();
 
@@ -42,8 +39,26 @@ namespace Vision.Server.Controllers
             {
                 Name = framework.Version,
                 FrameworkId = framework.Id,
-                Assets = await context.AssetFrameworks.CountAsync(af => af.FrameworkId == framework.Id)
+                Assets = await context.AssetFrameworks.CountAsync(af => af.FrameworkId == frameworkId)
             };
+        }
+
+        [HttpGet("{frameworkId}/repositories")]
+        public async Task<IEnumerable<RepositoryDto>> GetRepositoriesByFrameworkIdAsync(Guid frameworkId)
+        {
+            var framework = await context.Frameworks.FindAsync(frameworkId);
+
+            return await context.Repositories
+                     .Where(repository => context.Assets.Any(asset => asset.RepositoryId == repository.Id && context.AssetFrameworks.Any(af => af.FrameworkId == frameworkId && af.AssetId == asset.Id)))
+                     .Select(repository => new RepositoryDto
+                     {
+                         Assets = context.Assets.Count(a => a.RepositoryId == repository.Id),
+                         VersionControlId = repository.VersionControlId,
+                         WebUrl = repository.WebUrl,
+                         Url = repository.Url,
+                         RepositoryId = repository.Id
+                     })
+                     .ToListAsync();
         }
 
         [HttpGet("{frameworkId}/assets")]
@@ -56,10 +71,10 @@ namespace Vision.Server.Controllers
                 .Select(asset => new AssetDto
                 {
                     AssetId = asset.Id,
-                    Path = asset.Path,
+                    Asset = asset.Path,
                     Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id),
-                    Repository = asset.GitRepository.WebUrl,
-                    RepositoryId = asset.GitRepositoryId
+                    Repository = asset.Repository.WebUrl,
+                    RepositoryId = asset.RepositoryId
                 }).ToListAsync();
         }
     }

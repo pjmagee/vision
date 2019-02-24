@@ -1,0 +1,58 @@
+﻿@page "/assets/{Id:guid}"
+@inject HttpClient HttpClient
+@inject IJSRuntime Runtime
+
+<BreadcrumbsComponent Key="/assets/"></BreadcrumbsComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
+    </div>
+    <div class="card-body">
+        @if (Dependencies != null)
+        {
+            <DependenciesComponent Items="Dependencies"></DependenciesComponent>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Frameworks</h6>
+    </div>
+    <div class="card-body">
+        @if (Frameworks != null)
+        {
+            <FrameworksComponent Items="Frameworks"></FrameworksComponent>
+        }
+        else
+        {
+             <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
+
+
+@functions 
+{
+    [Parameter]
+    private Guid Id { get; set; }
+    
+    private DependencyDto[] Dependencies { get; set; }
+    private FrameworkDto[] Frameworks { get; set; }
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        Dependencies = await HttpClient.GetJsonAsync<DependencyDto[]>($"/api/assets/{Id}/dependencies");
+        Frameworks = await HttpClient.GetJsonAsync<FrameworkDto[]>($"/api/assets/{Id}/frameworks");
+    }
+
+    protected override async Task OnAfterRenderAsync()
+    {
+        await Runtime.InvokeAsync<object>("dataTable");
+    }
+}

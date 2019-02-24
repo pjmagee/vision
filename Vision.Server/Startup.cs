@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
+using NSwag;
 using Vision.Core;
 using Vision.Core.Services.Builds;
 using Vision.Server.Services;
@@ -45,16 +46,16 @@ namespace Vision.Server
 
             }).AddNewtonsoftJson().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
-            services.AddScoped<BitBucketService>();
-            services.AddScoped<GitlabService>();
-            services.AddScoped<NpmExtractionService>();
-            services.AddScoped<NuGetPackageExtractionService>();
+            services.AddScoped<BitBuckerChecker>();
+            services.AddScoped<GitlabChecker>();
+            services.AddScoped<NodePackagesExtractor>();
+            services.AddScoped<NuGetPackageExtractor>();
 
-            services.AddScoped<IBuildService, FakeBuildService>();
+            services.AddScoped<ICiCdChecker, FakeBuildsChecker>();
             services.AddScoped<IRefreshService, RefreshService>();
-            services.AddScoped<IGitService, AggregateGitService>();
-            services.AddScoped<IVersionService, AggregateVersionService>();
-            services.AddScoped<IExtractionService, AggregateExtractionService>();
+            services.AddScoped<IVcsChecker, AggregateVcsChecker>();
+            services.AddScoped<IVersionChecker, AggregateVersionChecker>();
+            services.AddScoped<IDependencyExtractor, AggregateExtractor>();
 
             services.AddHostedService<RefreshHostedService>();
             services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
@@ -78,13 +79,13 @@ namespace Vision.Server
                     document.Info.Title = "Vision API";
                     document.Info.Description = "Vision API for asset and dependency reporting for the organisation";
                     document.Info.TermsOfService = "None";
-                    document.Info.Contact = new NSwag.SwaggerContact
+                    document.Info.Contact = new SwaggerContact
                     {
                         Name = "Patrick Magee",
                         Email = "patrick.magee@reedbusiness.com",
                         Url = "https://github.com/pjmagee"
                     };
-                    document.Info.License = new NSwag.SwaggerLicense
+                    document.Info.License = new SwaggerLicense
                     {
                         Name = "Use under LICX",
                         Url = "https://example.com/license"

@@ -1,0 +1,40 @@
+﻿@page "/vcs/{Id:guid}"
+@inject HttpClient HttpClient
+@inject IJSRuntime Runtime
+
+<BreadcrumbsComponent Key="versioncontrol"></BreadcrumbsComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Repositories</h6>
+    </div>
+    <div class="card-body">
+        @if (Repositories != null)
+        {
+            <RepositoriesComponent Items="Repositories"></RepositoriesComponent>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
+
+
+@functions 
+{
+    [Parameter]
+    private Guid Id { get; set; }
+
+    private RepositoryDto[] Repositories { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {   
+        Repositories = await HttpClient.GetJsonAsync<RepositoryDto[]>($"/api/versioncontrols/{Id}/repositories");
+    }
+
+    protected override async Task OnAfterRenderAsync()
+    {
+        await Runtime.InvokeAsync<object>("dataTable");
+    }
+}

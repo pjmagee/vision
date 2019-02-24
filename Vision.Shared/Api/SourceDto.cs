@@ -2,10 +2,10 @@
 
 namespace Vision.Shared
 {
-    public class GitSourceDto
+    public class VersionControlDto
     {
-        public Guid SourceId { get; set; }
-        public GitKind Kind { get; set; }
+        public Guid VersionControlId { get; set; }
+        public VersionControlKind Kind { get; set; }
         public string Endpoint { get; set; }
         public string ApiKey { get; set; }
         public int Repositories { get; set; }

@@ -1,0 +1,32 @@
+﻿@inject IJSRuntime Runtime
+
+<table class="table table-striped table-bordered" style="width: 100%">
+    <thead>
+        <tr>
+            <th>Build</th>
+            <th>Web Url</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Items)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>
+                    <a href="@item.WebUrl" target="_blank">@item.WebUrl</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@functions
+{
+    [Parameter]
+    private CiCdBuildDto[] Items { get; set; }
+
+    protected override async Task OnAfterRenderAsync()
+    {
+        await Runtime.InvokeAsync<object>("dataTable");
+    }
+}

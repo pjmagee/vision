@@ -1,0 +1,40 @@
+﻿@inject IJSRuntime Runtime
+
+<table class="table table-striped table-bordered" style="width:100%">
+    <thead>
+        <tr>
+            <th>@nameof(AssetDependencyDto.Repository)</th>
+            <th>@nameof(AssetDependencyDto.Asset)</th>
+            <th>@nameof(AssetDependencyDto.Dependency)</th>
+            <th>@nameof(AssetDependencyDto.Version)</th>
+            <th>@nameof(AssetDependencyDto.IsLatest)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Items)
+        {
+            <tr>
+                <td>@item.Repository</td>
+                <td>@item.Asset</td>
+                <td>@item.Dependency</td>
+                <td>@item.Version</td>
+                <td>@item.IsLatest</td>
+                <td>
+                    <NavLink class="nav-link" href="@($"/dependencies/{item.DependencyId}")">Dependency Details</NavLink>
+                    <NavLink class="nav-link" href="@($"/assets/{item.AssetId}")">Asset Details</NavLink>
+                    <NavLink class="nav-link" href="@($"/repository/{item.RepositoryId}")">Repository Details</NavLink>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@functions {
+    [Parameter] private AssetDependencyDto[] Items { get; set; }
+
+    protected override async Task OnAfterRenderAsync()
+    {
+        await Runtime.InvokeAsync<object>("dataTable");
+    }
+}
