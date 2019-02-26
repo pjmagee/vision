@@ -73,7 +73,7 @@ namespace Vision
             foreach (var asset in context.Assets)
             {
                 var kind = asset.GetDependencyKind();
-                var assetDependencies = GetAssetDependencies(asset, context.Dependencies.Where(x => x.Kind == kind).ToList());
+                var assetDependencies = GetAssetDependencies(asset, context.Dependencies.Where(d => d.Kind == kind).ToList());
                 context.AssetDependencies.AddRange(assetDependencies);
             }
             await context.SaveChangesAsync();
@@ -132,11 +132,12 @@ namespace Vision
             var kindsOfAssetsInGitRepository = Pick<DependencyKind>.UniqueRandomList(With.Between(1).And(DependencyKinds.Count).Elements).From(DependencyKinds);
 
             return kindsOfAssetsInGitRepository.SelectMany(kind => Builder<Asset>.CreateListOfSize(GetRandom.Int(1, GetAssetsByKind(kind))).All()
-                .With(x => x.Id = Guid.NewGuid())
-                .With(x => x.Raw = "FILE CONTENTS")
-                .With((asset, fileIndex) => asset.Path = GetPathForAsset(fileOrFolderName, fileIndex, kind))
-                .With(x => x.Repository = repository)
-                .With(x => x.RepositoryId = repository.Id)
+                .With(a => a.Id = Guid.NewGuid())
+                .With(a => a.Raw = "FILE CONTENTS")
+                .With(a => a.Kind = kind)
+                .With((a, fileIndex) => a.Path = GetPathForAsset(fileOrFolderName, fileIndex, kind))
+                .With(a => a.Repository = repository)
+                .With(a => a.RepositoryId = repository.Id)
                 .Build());
         }
 
@@ -151,17 +152,17 @@ namespace Vision
 
             return Builder<Dependency>.CreateListOfSize(names.Count)
                     .All()
-                    .With(x => x.Id = Guid.NewGuid())
-                    .With(x => x.Name = namePicker.Pick().Trim())
-                    .With(x => x.Kind = kind)
-                    .With((x, i) =>
+                    .With(d => d.Id = Guid.NewGuid())
+                    .With(d => d.Name = namePicker.Pick().Trim())
+                    .With(d => d.Kind = kind)
+                    .And(d =>
                     {
                         Registry registry = registryPicker.Pick();
-                        x.Registry = registry;
-                        x.RegistryId = registry.Id;
-                        x.RepositoryUrl = registry.IsPublic ? $"{publicPicker.Pick()}/{x.Name}.git" : privatePicker.Pick().Url;
+                        d.Registry = registry;
+                        d.RegistryId = registry.Id;
+                        d.RepositoryUrl = registry.IsPublic ? $"{publicPicker.Pick()}/{d.Name}.git" : privatePicker.Pick().Url;
                     })
-                    .With(x => x.Updated = DateTime.Now.Add(new TimeSpan(GetRandom.Int(-150, 0), GetRandom.Int(0, 10), GetRandom.Int(0, 10), GetRandom.Int(0, 10), GetRandom.Int(0, 500))))
+                    .With(d => d.Updated = DateTime.Now.Add(new TimeSpan(GetRandom.Int(-150, 0), GetRandom.Int(0, 10), GetRandom.Int(0, 10), GetRandom.Int(0, 10), GetRandom.Int(0, 500))))
                     .Build()
                     .Distinct();
         }
@@ -173,11 +174,11 @@ namespace Vision
 
             return selectedFrameworks.Select(framework =>
                 Builder<AssetFramework>.CreateNew()
-                .With(x => x.Id = Guid.NewGuid())
-                .With(x => x.Asset = asset)
-                .With(x => x.AssetId = asset.Id)
-                .With(x => x.Framework = framework)
-                .With(x => x.FrameworkId = framework.Id).Build());
+                .With(af => af.Id = Guid.NewGuid())
+                .With(af => af.Asset = asset)
+                .With(af => af.AssetId = asset.Id)
+                .With(af => af.Framework = framework)
+                .With(af => af.FrameworkId = framework.Id).Build());
         }
 
         private static IEnumerable<AssetDependency> GetAssetDependencies(Asset asset, IList<Dependency> dependencies)
@@ -189,16 +190,16 @@ namespace Vision
             return selectedDependencies.Select(dependency =>             
                 Builder<AssetDependency>
                     .CreateNew()
-                    .With(x => x.Id = Guid.NewGuid())
-                    .With(x => x.AssetId = asset.Id)
-                    .With(x => x.Asset = asset)
-                    .And((x) =>
+                    .With(ad => ad.Id = Guid.NewGuid())
+                    .With(ad => ad.AssetId = asset.Id)
+                    .With(ad => ad.Asset = asset)
+                    .And((ad) =>
                     {
-                        x.Dependency = dependency;
-                        x.DependencyId = dependency.Id;
+                        ad.Dependency = dependency;
+                        ad.DependencyId = dependency.Id;
                         var pickedVersion = Pick<DependencyVersion>.RandomItemFrom(dependency.Versions.ToList());
-                        x.DependencyVersion = pickedVersion;
-                        x.DependencyVersionId = pickedVersion.Id;
+                        ad.DependencyVersion = pickedVersion;
+                        ad.DependencyVersionId = pickedVersion.Id;
                     }).Build()
             );
 
@@ -211,15 +212,15 @@ namespace Vision
 
             var chain = Builder<DependencyVersion>.CreateListOfSize(versionCount)
                 .All()
-                .With(x => x.Id = Guid.NewGuid())
-                .With(x => x.Dependency = dependency)
-                .With(x => x.DependencyId = dependency.Id)
-                .With((x, i) => x.Version = new Version(GetRandom.Int(i, 10), GetRandom.Int(i, 10), GetRandom.Int(i, 10)).ToString());
+                .With(dv => dv.Id = Guid.NewGuid())
+                .With(dv => dv.Dependency = dependency)
+                .With(dv => dv.DependencyId = dependency.Id)
+                .With((dv, index) => dv.Version = new Version(GetRandom.Int(index, 10), GetRandom.Int(index, 10), GetRandom.Int(index, 10)).ToString());
 
             if (chanceOfVulnerability)
             {
                 chain = chain.Random(1)
-                    .With(x => x.VulnerabilityUrl = "http://database.vulnerabilities.org/?id=" + x.Dependency.Name);
+                    .With(dv => dv.VulnerabilityUrl = "http://database.vulnerabilities.org/?id=" + dv.Dependency.Name);
             }
 
             var results = chain.Build();
@@ -231,14 +232,14 @@ namespace Vision
         {
             var sources = new VersionControl[]
             {
-		         CreateNewVersionControl().With(x => x.Endpoint = $"https://bitbucket.xperthr.rbxd.ds:8080/").With(x => x.Kind = VersionControlKind.Bitbucket).Build(),
-                 CreateNewVersionControl().With(x => x.Endpoint = $"https://bitbucket.accuity.rbxd.ds:8080/").With(x => x.Kind = VersionControlKind.Bitbucket).Build(),
-                 CreateNewVersionControl().With(x => x.Endpoint = $"https://bitbucket.flightglobal.rbxd.ds:8080/").With(x => x.Kind = VersionControlKind.Gitlab).Build(),
-                 CreateNewVersionControl().With(x => x.Endpoint = $"https://bitbucket.estatesgazette.rbxd.ds:8080/").With(x => x.Kind = VersionControlKind.Bitbucket).Build(),
-                 CreateNewVersionControl().With(x => x.Endpoint = $"https://gitlab.icis.rbxd.ds:8080/").With(x => x.Kind = VersionControlKind.Gitlab).Build(),
-                 CreateNewVersionControl().With(x => x.Endpoint = $"https://gitlab.proagrica.rbxd.ds:8080/").With(x => x.Kind = VersionControlKind.Gitlab).Build(),
-                 CreateNewVersionControl().With(x => x.Endpoint = $"https://bitbucket.lexisnexis.rbxd.ds:8080/").With(x => x.Kind = VersionControlKind.Bitbucket).Build(),
-                 CreateNewVersionControl().With(x => x.Endpoint = $"https://gitlab.b2b.regn.net:8080/").With(x => x.Kind = VersionControlKind.Gitlab).Build(),
+		         CreateNewVersionControl().With(vc => vc.Endpoint = $"https://bitbucket.xperthr.rbxd.ds:8080/").With(x => x.Kind = VersionControlKind.Bitbucket).Build(),
+                 CreateNewVersionControl().With(vc => vc.Endpoint = $"https://bitbucket.accuity.rbxd.ds:8080/").With(x => x.Kind = VersionControlKind.Bitbucket).Build(),
+                 CreateNewVersionControl().With(vc => vc.Endpoint = $"https://bitbucket.flightglobal.rbxd.ds:8080/").With(x => x.Kind = VersionControlKind.Gitlab).Build(),
+                 CreateNewVersionControl().With(vc => vc.Endpoint = $"https://bitbucket.estatesgazette.rbxd.ds:8080/").With(x => x.Kind = VersionControlKind.Bitbucket).Build(),
+                 CreateNewVersionControl().With(vc => vc.Endpoint = $"https://gitlab.icis.rbxd.ds:8080/").With(x => x.Kind = VersionControlKind.Gitlab).Build(),
+                 CreateNewVersionControl().With(vc => vc.Endpoint = $"https://gitlab.proagrica.rbxd.ds:8080/").With(x => x.Kind = VersionControlKind.Gitlab).Build(),
+                 CreateNewVersionControl().With(vc => vc.Endpoint = $"https://bitbucket.lexisnexis.rbxd.ds:8080/").With(x => x.Kind = VersionControlKind.Bitbucket).Build(),
+                 CreateNewVersionControl().With(vc => vc.Endpoint = $"https://gitlab.b2b.regn.net:8080/").With(x => x.Kind = VersionControlKind.Gitlab).Build(),
              };
 
             return sources;
@@ -248,14 +249,14 @@ namespace Vision
         {
             var sources = new CiCd[]
             {
-                 CreateNewCiCd().With(x => x.Endpoint = $"https://jenkins.xperthr.rbxd.ds:8080/").With(x => x.Kind = CiCdKind.Jenkins).Build(),
-                 CreateNewCiCd().With(x => x.Endpoint = $"https://jenkins.accuity.rbxd.ds:8080/").With(x => x.Kind = CiCdKind.Jenkins).Build(),
-                 CreateNewCiCd().With(x => x.Endpoint = $"https://teamcity.flightglobal.rbxd.ds:8080/").With(x => x.Kind = CiCdKind.TeamCity).Build(),
-                 CreateNewCiCd().With(x => x.Endpoint = $"https://teamcity.estatesgazette.rbxd.ds:8080/").With(x => x.Kind = CiCdKind.TeamCity).Build(),
-                 CreateNewCiCd().With(x => x.Endpoint = $"https://teamcity.icis.rbxd.ds:8080/").With(x => x.Kind = CiCdKind.Gitlab).Build(),
-                 CreateNewCiCd().With(x => x.Endpoint = $"https://teamcity.proagrica.rbxd.ds:8080/").With(x => x.Kind = CiCdKind.Gitlab).Build(),
-                 CreateNewCiCd().With(x => x.Endpoint = $"https://teamcity.lexisnexis.rbxd.ds:8080/").With(x => x.Kind = CiCdKind.TeamCity).Build(),
-                 CreateNewCiCd().With(x => x.Endpoint = $"https://gitlab.b2b.regn.net:8080/").With(x => x.Kind = CiCdKind.Gitlab).Build()
+                 CreateNewCiCd().With(ci => ci.Endpoint = $"https://jenkins.xperthr.rbxd.ds:8080/").With(x => x.Kind = CiCdKind.Jenkins).Build(),
+                 CreateNewCiCd().With(ci => ci.Endpoint = $"https://jenkins.accuity.rbxd.ds:8080/").With(x => x.Kind = CiCdKind.Jenkins).Build(),
+                 CreateNewCiCd().With(ci => ci.Endpoint = $"https://teamcity.flightglobal.rbxd.ds:8080/").With(x => x.Kind = CiCdKind.TeamCity).Build(),
+                 CreateNewCiCd().With(ci => ci.Endpoint = $"https://teamcity.estatesgazette.rbxd.ds:8080/").With(x => x.Kind = CiCdKind.TeamCity).Build(),
+                 CreateNewCiCd().With(ci => ci.Endpoint = $"https://teamcity.icis.rbxd.ds:8080/").With(x => x.Kind = CiCdKind.Gitlab).Build(),
+                 CreateNewCiCd().With(ci => ci.Endpoint = $"https://teamcity.proagrica.rbxd.ds:8080/").With(x => x.Kind = CiCdKind.Gitlab).Build(),
+                 CreateNewCiCd().With(ci => ci.Endpoint = $"https://teamcity.lexisnexis.rbxd.ds:8080/").With(x => x.Kind = CiCdKind.TeamCity).Build(),
+                 CreateNewCiCd().With(ci => ci.Endpoint = $"https://gitlab.b2b.regn.net:8080/").With(x => x.Kind = CiCdKind.Gitlab).Build()
              };
 
             return sources;
@@ -305,8 +306,8 @@ namespace Vision
 
             return netStandards.Concat(netCores).Concat(netFrameworks)
                 .Select(framework => Builder<Framework>.CreateNew()
-                    .With(x => x.Id = Guid.NewGuid())
-                    .With(x => x.Version = framework).Build());
+                    .With(f => f.Id = Guid.NewGuid())
+                    .With(f => f.Version = framework).Build());
         }
 
         private static IEnumerable<Repository> GetRepositories(VersionControl source)
@@ -316,18 +317,18 @@ namespace Vision
 
             return Builder<Repository>.CreateListOfSize(GetRandom.Int(1, repoNames.Count))
                 .All()
-                .With(x => x.Id = Guid.NewGuid())
-                .With((x, idx) =>
+                .With(r => r.Id = Guid.NewGuid())
+                .With((r, idx) =>
                 {
                     var uri = new Uri(source.Endpoint);
                     var group = GetRandom.String(2).ToUpper();
                     var name = repoPicker.Pick();
 
-                    x.Url = $"ssh://{uri.Host}:{uri.Port}/{group}/{name}.git";
-                    x.WebUrl = $"http://{uri.Host}:{uri.Port}/{group}/{name}/browse";
+                    r.Url = $"ssh://{uri.Host}:{uri.Port}/{group}/{name}.git";
+                    r.WebUrl = $"http://{uri.Host}:{uri.Port}/{group}/{name}/browse";
                 })
-                .With(x => x.VersionControl = source)
-                .With(x => x.VersionControlId= source.Id)
+                .With(r => r.VersionControl = source)
+                .With(r => r.VersionControlId= source.Id)
                 .Build();
         }
 
