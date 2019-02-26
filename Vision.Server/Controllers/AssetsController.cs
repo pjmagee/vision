@@ -9,9 +9,11 @@ using Vision.Shared;
 
 namespace Vision.Server.Controllers
 {
-
+    [ApiController]
+    [Route("api/[controller]")]
     [ResponseCache(Duration = 30)]
-    [ApiController, Route("api/[controller]"), Produces("application/json"), ApiConventionType(typeof(DefaultApiConventions))]
+    [Produces("application/json")]        
+    [ApiConventionType(typeof(DefaultApiConventions))]
     public class AssetsController : ControllerBase
     {
         private readonly VisionDbContext context;
@@ -21,54 +23,47 @@ namespace Vision.Server.Controllers
             this.context = context;
         }
 
-        [Route("metrics"), HttpGet("/metrics")]
-        public async Task<IEnumerable<AssetMetricDto>> GetAssetMetricsAsync()
+        [Route("metrics")]
+        public async Task<IEnumerable<MetricItems<AssetDto>>> GetAssetMetricsAsync()
         {
-            List<AssetMetricDto> metrics = new List<AssetMetricDto>();
+            List<MetricItems<AssetDto>> metrics = new List<MetricItems<AssetDto>>();
 
-            foreach (var kind in Enum.GetValues(typeof(DependencyKind)).Cast<DependencyKind>())
+            foreach (DependencyKind kind in Enum.GetValues(typeof(DependencyKind)).Cast<DependencyKind>())
             {
-                IQueryable<Asset> assets = context.Assets.Where(asset => context.Dependencies.Where(dependency => dependency.Kind == kind).Any(dependency => context.AssetDependencies.Any(ad => ad.AssetId == asset.Id && ad.DependencyId == dependency.Id)));
+                IQueryable<Asset> assets = context.Assets.Where(asset => asset.Kind == kind);
 
-                metrics.Add(new AssetMetricDto { Kind = MetricsKind.Info, Title = $"{kind} assets with most dependencies", Items = await assets.OrderByDescending(asset => context.AssetDependencies.Count(ad => ad.AssetId == asset.Id)).Take(10).Select(asset => new AssetDto { Repository = asset.Repository.Url, Asset = asset.Path, Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id) }).ToArrayAsync() });
-                metrics.Add(new AssetMetricDto { Kind = MetricsKind.Info, Title = $"{kind} assets with least dependencies", Items = await assets.OrderBy(asset => context.AssetDependencies.Count(ad => ad.AssetId == asset.Id)).Take(10).Select(asset => new AssetDto { Repository = asset.Repository.Url, Asset = asset.Path, Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id) }).ToArrayAsync() });
+                AssetDto[] most = await assets
+                    .OrderByDescending(asset => context.AssetDependencies.Count(ad => ad.AssetId == asset.Id))
+                    .Take(10)
+                    .Select(asset => new AssetDto { Repository = asset.Repository.Url, Asset = asset.Path, Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id) })
+                    .ToArrayAsync();
+
+                AssetDto[] least = await assets
+                    .OrderBy(asset => context.AssetDependencies.Count(ad => ad.AssetId == asset.Id))
+                    .Take(10)
+                    .Select(asset => new AssetDto { Repository = asset.Repository.Url, Asset = asset.Path, Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id) })
+                    .ToArrayAsync();
+
+                metrics.Add(new MetricItems<AssetDto>(MetricsKind.Info, $"{kind} assets with the most dependencies", most));
+                metrics.Add(new MetricItems<AssetDto>(MetricsKind.Info, $"{kind} assets with the least dependencies", least));
             }
 
             return metrics;
-
-            //var assetsOrderedByDependencies = context.Assets
-            //    .OrderByDescending(asset => context.AssetDependencies.Count(ad => ad.AssetId == asset.Id))
-            //    .Select(asset => new AssetDto
-            //    {
-            //        AssetId = asset.Id,
-            //        Asset = asset.Path,
-            //        Repository = asset.Repository.Url,
-            //        RepositoryId = asset.RepositoryId,
-            //        Dependencies = context.AssetDependencies.Count(assetDependency => assetDependency.AssetId == asset.Id)
-            //    });
-
-            //var count = assetsOrderedByDependencies.Count();
-
-            //var assets = from version in context.DependencyVersions.AsNoTracking()                         
-            //             from assetDependency in context.AssetDependencies.AsNoTracking()
-            //             from asset in context.Assets.AsNoTracking()
-            //             where assetDependency.DependencyVersionId == version.Id && assetDependency.AssetId == asset.Id
-            //             //let latest = (from assetDependency in context.AssetDependencies.AsNoTracking()
-            //             //              from version in context.DependencyVersions.AsNoTracking()
-            //             //              where version.IsLatest && assetDependency.DependencyVersionId == version.Id)
-                         
-            //             select asset;            
- 
-            //return new AssetMetricDto[]
-            //{
-            //    new AssetMetricDto(MetricsKind.Info, "Most dependencies", await assetsOrderedByDependencies.Take(5).ToArrayAsync()),
-            //    new AssetMetricDto(MetricsKind.Info, "Least dependencies", await assetsOrderedByDependencies.Skip(count - 5).Take(5).ToArrayAsync()),
-            //    //new MetricDto<AssetDto>(MetricsKind.Info, "Most updated dependencies", await assetsByDependencyCount.TakeLast(5).ToListAsync()),
-            //    //new MetricDto<AssetDto>(MetricsKind.Info, "Least updated dependencies", await assetsByDependencyCount.TakeLast(5).ToListAsync()),
-            //};
         }
 
-        [HttpGet("{assetId:guid}")]
+        [HttpGet("{assetId}/metrics")]
+        public async Task<IEnumerable<MetricItem>> GetMetricsByAssetIdAsync(Guid assetId)
+        {
+            Asset asset = await context.Assets.FindAsync(assetId);
+            List<MetricItem> metrics = new List<MetricItem>();
+
+            // the assets most updated
+            // the assets least updated
+
+            return metrics;
+        }
+
+        [HttpGet("{assetId}")]
         public async Task<AssetDto> GetAssetByIdAsync(Guid assetId)
         {
             Asset asset = await context.Assets.FindAsync(assetId);
@@ -109,7 +104,7 @@ namespace Vision.Server.Controllers
                 .ToListAsync();
         }
 
-        [HttpPost("/search")]
+        [HttpPost("search")]
         public async Task<IEnumerable<AssetDto>> GetAssetByIdAsync([FromBody] AssetSearch assetSearch)
         {
             var dependencyIds = assetSearch.DependencyIds;

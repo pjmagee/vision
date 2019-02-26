@@ -39,7 +39,7 @@ namespace Vision.Core
 
                         foreach(string file in files.Values ?? Enumerable.Empty<string>())
                         {
-                            if (AssetHelper.IsSupported(file))
+                            if (AppHelper.IsSupported(file))
                             {
                                 string contents = await HttpClient.GetStringAsync(file);
                                 results.Add(new Asset { Id = Guid.NewGuid(), Repository = repository, Path = file });

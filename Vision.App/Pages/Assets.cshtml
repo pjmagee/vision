@@ -1,6 +1,6 @@
 ﻿@page "/assets"
 @inject HttpClient HttpClient
-@using Newtonsoft.Json;
+
 
 <BreadcrumbsComponent>
     <li class="breadcrumb-item active">Assets</li>
@@ -30,11 +30,11 @@ else
 
 @functions
 {
-    private AssetMetricDto[] Items { get; set; }
+    private MetricItems<AssetDto>[] Items { get; set; }
 
     protected override async Task OnInitAsync()
     {
         string json = await HttpClient.GetStringAsync("/api/assets/metrics");
-        Items = JsonConvert.DeserializeObject<AssetMetricDto[]>(json);
+        Items = JsonConvert.DeserializeObject<MetricItems<AssetDto>[]>(json);
     }
 }

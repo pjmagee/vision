@@ -3,17 +3,15 @@ using System.Linq;
 
 namespace Vision.Shared
 {
-    public class MetricDto
+    public class Metric
     {
         public MetricsKind Kind { get; set; }
         public string Title { get; set; }
-        public string Value { get; set; }
 
-        public MetricDto(MetricsKind kind, string title, object value)
+        public Metric(MetricsKind kind, string title)
         {
             Kind = kind;
             Title = title;
-            Value = value.ToString();
         }
     }
 }

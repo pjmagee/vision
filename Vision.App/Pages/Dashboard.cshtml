@@ -6,6 +6,13 @@
     <li class="breadcrumb-item active">Dashboard</li>
 </BreadcrumbsComponent>
 
+<div class="row">
+    @foreach(var item in Items)
+    {
+        <MetricCard Item="item"></MetricCard>
+    }
+</div>
+
 <!-- Content Row -->
 <div class="row">
 
@@ -265,3 +272,13 @@
 
     </div>
 </div>
+
+@functions
+{
+    private IEnumerable<MetricItem> Items { get; set; }
+
+    protected async override Task OnInitAsync()
+    {
+        Items = await HttpClient.GetStringAsync("/api/dashboard/counts");
+    }
+}

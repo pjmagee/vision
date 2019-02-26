@@ -129,7 +129,7 @@ namespace Vision.Core
 
         private async Task AssignAssetFrameworksAsync(Extract extracted, Asset asset)
         {
-            DependencyKind kind = AssetHelper.GetDependencyKind(asset);
+            DependencyKind kind = AppHelper.GetDependencyKind(asset);
             string version = extracted.Version;
 
             Framework framework = await context.Frameworks.FirstOrDefaultAsync(d => d.Version == version) ?? new Framework { Id = Guid.NewGuid(), Version = version };
@@ -145,7 +145,7 @@ namespace Vision.Core
 
         private async Task AssignAssetDependencies(Extract extracted, Asset asset)
         {
-            DependencyKind kind = AssetHelper.GetDependencyKind(asset);
+            DependencyKind kind = AppHelper.GetDependencyKind(asset);
             string version = extracted.Version;
             string name = extracted.Name;            
 

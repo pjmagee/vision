@@ -16,13 +16,34 @@ namespace Vision.Server.Controllers
 
         public DashboardController(VisionDbContext context) => this.context = context;
 
-        
 
-        //[HttpGet("/metrics/dependencies")]
-        //public async Task <IEnumerable<MetricDto>> GetDependenciesMetrics()
-        //{
 
-        //}
+        [HttpGet("/metrics/counts")]
+        public async Task<IEnumerable<MetricItem>> GetCounts()
+        {
+            IEnumerable<Task<MetricItem>> dependencies = AppHelper.Kinds.Select(async kind => new MetricItem(MetricsKind.Info, $"{kind} Count", await context.Dependencies.CountAsync(x => x.Kind == kind)));
+            IEnumerable<Task<MetricItem>> assets = AppHelper.Kinds.Select(async kind => new MetricItem(MetricsKind.Info, $"{kind} Count", await context.Assets.CountAsync(x => x.Kind == kind)));
+
+            var otherCounts = new MetricItem[]
+            {
+                   new MetricItem(MetricsKind.Info, $"Version controls Count", await context.VersionControls.CountAsync()),
+                   new MetricItem(MetricsKind.Info, $"Repositories Count", await context.Repositories.CountAsync()),
+                   new MetricItem(MetricsKind.Info, $"Dependencies Count", await context.Dependencies.CountAsync()),
+                   new MetricItem(MetricsKind.Info, $"Registries Count", await context.Registries.CountAsync())
+            };
+
+            return (await Task.WhenAll(dependencies.Concat(assets).ToArray())).Concat(otherCounts);
+
+            //IEnumerable<Task<MetricItem>> leastTasks = AppHelper.Kinds.Select(async kind => new MetricItem(MetricsKind.Info, $"{kind} most used", await context.Dependencies.Where(d => d.Kind == kind).OrderBy(dependency => context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id)).Take(10).Select(d => d.Name).ToArrayAsync()));
+            //IEnumerable<Task<MetricItem>> mostTasks = AppHelper.Kinds.Select(async kind => new MetricItem(MetricsKind.Info, $"{kind} most used", await context.Dependencies.Where(d => d.Kind == kind).OrderByDescending(dependency => context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id)).Take(10).Select(d => d.Name).ToArrayAsync()));
+
+            //return await Task.WhenAll(countTasks.Concat(orderedTasks).ToArray());
+
+
+
+            // dependencies ordered by most used
+            // dependencies ordered by least used
+        }
 
         //[HttpGet("/metrics/frameworks")]
         //public async Task<IEnumerable<MetricDto>> GetFrameworksMetrics()

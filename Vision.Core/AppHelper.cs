@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vision.Shared;
 
 namespace Vision.Core
 {
-    public static class AssetHelper
+    public static class AppHelper
     {
         private const string CsProjFile = "csproj";
         private const string RequirementsFile = "requirements.txt";
@@ -12,6 +14,8 @@ namespace Vision.Core
         private const string DockerFile = "DockerFile";
         private const string PackagesFile = "packages.json";
         private const string GradleFile = "gradle";
+
+        public static IEnumerable<DependencyKind> Kinds { get; } = Enum.GetValues(typeof(DependencyKind)).Cast<DependencyKind>();
 
         public static DependencyKind GetDependencyKind(this Asset asset)
         {
