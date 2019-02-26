@@ -4,6 +4,8 @@
     {
         public string Value { get; set; }
 
+        public MetricItem() {  }
+
         public MetricItem(MetricsKind kind, string title, object value) : base(kind, title)
         {
             Value = value.ToString();

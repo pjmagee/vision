@@ -8,6 +8,8 @@ namespace Vision.Shared
         public MetricsKind Kind { get; set; }
         public string Title { get; set; }
 
+        public Metric() {  }
+
         public Metric(MetricsKind kind, string title)
         {
             Kind = kind;

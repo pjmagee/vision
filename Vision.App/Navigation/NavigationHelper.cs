@@ -12,7 +12,7 @@ namespace Vision.App
         {
             NavMenuItems = new List<NavMenuItem>()
             {
-                new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Dashboard", Route = "/", Icon = "fab fa-fw fa-tachometer-alt" },
+                new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Dashboard", Route = "/", Icon = "fas fa-fw fa-tachometer-alt" },
                 new NavMenuItem { Type = NavMenuItemType.Seperator, Name = "Sources" },
                 new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "VCS sources", Route = "/vcs", Icon = "fab fa-fw fa-git-square" },
                 new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "CI/CD sources", Route = "/cicds", Icon = "fab fa-fw fa-git-square" },

@@ -8,19 +8,26 @@
 
 @if (Items != null)
 {
-    foreach (var item in Items)
+    foreach (var row in Items.ChunkBy(2))
     {
-        if (item.Items != null)
-        {
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">@item.Title</h6>
+        <div class="row">
+            @foreach(var item in row)
+            {
+                <div class="col">
+                    @if (item.Items != null)
+                    {
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">@item.Title</h6>
+                            </div>
+                            <div class="card-body">
+                                <AssetsComponent Items="item.Items"></AssetsComponent>
+                            </div>
+                        </div>
+                    }
                 </div>
-                <div class="card-body">
-                    <AssetsComponent Items="item.Items"></AssetsComponent>
-                </div>
-            </div>
-        }
+            }
+        </div>
     }
 }
 else

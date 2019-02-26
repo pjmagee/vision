@@ -53,6 +53,5 @@
         Item = await HttpClient.GetJsonAsync<DependencyDto>($"/api/dependencies/{Id}");
         Assets = await HttpClient.GetJsonAsync<AssetDto[]>($"/api/dependencies/{Id}/assets");
         Versions = await HttpClient.GetJsonAsync<DependencyVersionDto[]>($"/api/dependencies/{Id}/versions");
-        StateHasChanged();
     }
 }
