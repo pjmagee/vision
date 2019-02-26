@@ -59,14 +59,14 @@ namespace Vision.Server.Controllers
 
         [HttpGet("{versionControlId}/metrics/repositories")]
         [ResponseCache(Duration = 60)]
-        public async Task<IEnumerable<MetricDto<RepositoryDto>>> GetRepositoriesMetricsByVersionControlIdAsync(Guid versionControlId)
+        public async Task<IEnumerable<RepositoryMetricDto>> GetRepositoriesMetricsByVersionControlIdAsync(Guid versionControlId)
         {
             IQueryable<Repository> orderedByLargest = context.Repositories.Where(repository => repository.VersionControlId == versionControlId).OrderBy(repository => context.Assets.Count(asset => asset.RepositoryId == repository.Id));
 
-            return new MetricDto<RepositoryDto>[]
+            return new RepositoryMetricDto[]
             {
-                new MetricDto<RepositoryDto>(MetricsKind.Info, "Top 5 smallest repositories", await orderedByLargest.TakeLast(5).Select(repository => new RepositoryDto {  }).ToListAsync()),
-                new MetricDto<RepositoryDto>(MetricsKind.Info, "Top 5 largest repositories", await orderedByLargest.Take(5).Select(repository => new RepositoryDto {  }).ToListAsync())
+                new RepositoryMetricDto(MetricsKind.Info, "Top 5 smallest repositories", await orderedByLargest.TakeLast(5).Select(repository => new RepositoryDto {  }).ToArrayAsync()),
+                new RepositoryMetricDto(MetricsKind.Info, "Top 5 largest repositories", await orderedByLargest.Take(5).Select(repository => new RepositoryDto {  }).ToArrayAsync())
             };
         }
 

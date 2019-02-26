@@ -1,14 +1,12 @@
 ﻿@page "/repositories/{Id:guid}"
 @inject HttpClient HttpClient
 
-<BreadcrumbsComponent>
-    <li class="breadcrumb-item">
-        <NavLink href="/repositories"></NavLink>
-    </li>
-    <li class="breadcrumb-item active">
-        @Item.WebUrl
-    </li>
-</BreadcrumbsComponent>
+    <BreadcrumbsComponent>
+        <li class="breadcrumb-item"><NavLink href="@($"/vcs/")">Version control sources</NavLink></li>
+        <li class="breadcrumb-item"><NavLink href="@($"/vcs/{Item.VersionControlId}")">Version control</NavLink></li>
+        <li class="breadcrumb-item"><NavLink href="/repositories">Repositories</NavLink></li>
+        <li class="breadcrumb-item active">@Item.?WebUrl</li>
+    </BreadcrumbsComponent>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
@@ -28,7 +26,7 @@
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">CI/CD Builds</h6>
+        <h6 class="m-0 font-weight-bold text-primary">CI/CD builds</h6>
     </div>
     <div class="card-body">
         @if (Builds != null)

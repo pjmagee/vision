@@ -6,6 +6,7 @@ Data annotations: https://docs.microsoft.com/en-us/aspnet/core/tutorials/getting
     
 # Github Issues
 https://github.com/aspnet/AspNetCore/issues/5562    
+
     
 	    
 # Pages
