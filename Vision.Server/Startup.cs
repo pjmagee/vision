@@ -5,14 +5,13 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Components.Services;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Net.Http.Headers;
+using Newtonsoft.Json;
 using NSwag;
 using Vision.Core;
 using Vision.Core.Services.Builds;
@@ -24,10 +23,7 @@ namespace Vision.Server
     {
         private readonly IConfiguration configuration;
 
-        public Startup(IConfiguration configuration)
-        {
-            this.configuration = configuration;
-        }
+        public Startup(IConfiguration configuration) => this.configuration = configuration;
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -45,7 +41,14 @@ namespace Vision.Server
             {
                 options.RespectBrowserAcceptHeader = false; // Only serve application/json
 
-            }).AddNewtonsoftJson().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            }).AddNewtonsoftJson(options => 
+            {
+                //options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                //options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
+                //options.SerializerSettings.Formatting = Formatting.Indented;
+                // options.SerializerSettings.Error = (sender, e) =>
+                
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             services.AddScoped<BitBuckerChecker>();
             services.AddScoped<GitlabChecker>();
@@ -92,7 +95,6 @@ namespace Vision.Server
                         Url = "https://example.com/license"
                     };
                 };
-
             });
         }
         
@@ -119,9 +121,17 @@ namespace Vision.Server
 
             app.UseMvc();
             app.UseStaticFiles();
-             // app.UseAuthentication();
+            // app.UseAuthentication();
 
             app.UseRazorComponents<App.Startup>();
+
+            //app.UseSignalR(route => route.MapHub<BlazorHub>(BlazorHub.DefaultPath, o =>
+            //{
+            //    o.ApplicationMaxBufferSize = 131072; // larger size
+            //    o.TransportMaxBufferSize = 131072; // larger size
+            //}));
+
+            // app.UseBlazor<App.Startup>();
         }
     }
 }

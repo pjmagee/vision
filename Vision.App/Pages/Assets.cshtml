@@ -1,38 +1,40 @@
 ﻿@page "/assets"
 @inject HttpClient HttpClient
-@inject IJSRuntime Runtime
+@using Newtonsoft.Json;
 
 <BreadcrumbsComponent>
     <li class="breadcrumb-item active">Assets</li>
 </BreadcrumbsComponent>
 
-<div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
-    </div>
-    <div class="card-body">
-        @if (Items != null)
-        {
-            <AssetsComponent Items="Items"></AssetsComponent>
-        }
-        else
-        {
-            <LoaderComponent></LoaderComponent>
-        }
-    </div>
-</div>
-
-@functions 
+@if (Items != null)
 {
-    private AssetDto[] Items { get; set; }
+    foreach (var item in Items)
+    {
+        if (item.Items != null)
+        {
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">@item.Title</h6>
+                </div>
+                <div class="card-body">
+                    <AssetsComponent Items="item.Items"></AssetsComponent>
+                </div>
+            </div>
+        }
+    }
+}
+else
+{
+    <LoaderComponent></LoaderComponent>
+}
+
+@functions
+{
+    private AssetMetricDto[] Items { get; set; }
 
     protected override async Task OnInitAsync()
-    {        
-        Items = await HttpClient.GetJsonAsync<AssetDto[]>("/api/assets");
-    }
-
-    protected override async Task OnAfterRenderAsync()
     {
-        await Runtime.InvokeAsync<object>("dataTable");
+        string json = await HttpClient.GetStringAsync("/api/assets/metrics");
+        Items = JsonConvert.DeserializeObject<AssetMetricDto[]>(json);
     }
 }

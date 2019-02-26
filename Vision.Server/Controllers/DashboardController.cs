@@ -16,25 +16,7 @@ namespace Vision.Server.Controllers
 
         public DashboardController(VisionDbContext context) => this.context = context;
 
-        [HttpGet("/metrics/assets")]
-        public async Task<IEnumerable<MetricDto<AssetDto>>> GetAssetMetricsAsync()
-        {
-            IQueryable<Asset> orderedByLargest = context.Assets.OrderByDescending(asset => context.AssetDependencies.Count(ad => ad.AssetId == asset.Id));
-            // orderedByLargest.TakeLast(5).Select(asset => new AssetDto { AssetId = asset.Id, Asset = asset.Path, Repository = asset.Repository.Url, RepositoryId = asset.RepositoryId })
-
-            return new MetricDto<AssetDto>[]
-            {
-                new MetricDto<AssetDto>(
-                    MetricsKind.Info,
-                    "Top 5 smallest assets",
-                    await orderedByLargest.TakeLast(5).Select(asset => new AssetDto { AssetId = asset.Id, Asset = asset.Path, Repository = asset.Repository.Url, RepositoryId = asset.RepositoryId }).ToListAsync()),
-
-                new MetricDto<AssetDto>(
-                    MetricsKind.Info,
-                    "Top 5 largest assets",
-                    await orderedByLargest.Take(5).Select(asset => new AssetDto { AssetId = asset.Id, Asset = asset.Path, Repository = asset.Repository.Url, RepositoryId = asset.RepositoryId }).ToListAsync())
-            };
-        }
+        
 
         //[HttpGet("/metrics/dependencies")]
         //public async Task <IEnumerable<MetricDto>> GetDependenciesMetrics()
