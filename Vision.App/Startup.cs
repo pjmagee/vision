@@ -10,10 +10,7 @@ namespace Vision.App
             services.AddSingleton(NavigationHelper.NavMenuItems);
         }
 
-        public void Configure(IComponentsApplicationBuilder app)
-        {
-            app.AddComponent<App>("app");            
-        }
+        public void Configure(IComponentsApplicationBuilder app) => app.AddComponent<App>("app");
     }
-
 }
+

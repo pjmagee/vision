@@ -6,7 +6,12 @@
 
         public MetricItem() {  }
 
-        public MetricItem(MetricsKind kind, string title, object value) : base(kind, title)
+        public MetricItem(MetricKind alert, MetricCategoryKind target, string title, object value) : base(alert, target, null, title)
+        {
+            Value = value.ToString();
+        }
+
+        public MetricItem(MetricKind alert, MetricCategoryKind target, DependencyKind? kind, string title, object value) : base(alert, target, kind, title)
         {
             Value = value.ToString();
         }

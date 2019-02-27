@@ -6,19 +6,20 @@
     <li class="breadcrumb-item active">Dashboard</li>
 </BreadcrumbsComponent>
 
-<div class="row justify-content-center">
-    @if (Items != null)
+@if (Items != null)
+{
+    foreach (var row in Items.ChunkBy(4))
     {
-        foreach (var item in Items)
-        {
-            <MetricCardComponent Item="item"></MetricCardComponent>
-        }
+        <div class="row mb-4">
+            @foreach (var item in row)
+            {
+                <div class="col">
+                    <MetricCardComponent Item="item"></MetricCardComponent>
+                </div>
+            }
+        </div>
     }
-    else
-    {
-        <LoaderComponent></LoaderComponent>
-    }
-</div>
+}
 
 @functions
 {
@@ -26,6 +27,7 @@
 
     protected async override Task OnInitAsync()
     {
-        Items = await HttpClient.GetJsonAsync<MetricItem[]>("/api/dashboard/counts");
+        string json = await HttpClient.GetStringAsync("/api/dashboard/metrics/counts");
+        Items = JsonConvert.DeserializeObject<MetricItem[]>(json);
     }
 }

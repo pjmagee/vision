@@ -14,13 +14,14 @@ namespace Vision.App
             {
                 new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Dashboard", Route = "/", Icon = "fas fa-fw fa-tachometer-alt" },
                 new NavMenuItem { Type = NavMenuItemType.Seperator, Name = "Sources" },
-                new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "VCS sources", Route = "/vcs", Icon = "fab fa-fw fa-git-square" },
-                new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "CI/CD sources", Route = "/cicds", Icon = "fab fa-fw fa-git-square" },
-                new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Registry sources", Route = "/registries",  Icon = "fas fa-fw fa-warehouse" },
+                new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Version control systems", Route = "/vcs", Icon = "fas fa-fw fa-code-branch" },
+                new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Build pipelines", Route = "/cicds", Icon = "fas fa-fw fa-cogs" },
+                new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Dependency registries", Route = "/registries",  Icon = "fas fa-fw fa-archive" },
                 new NavMenuItem { Type = NavMenuItemType.Seperator, Name = "Data" },
                 new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Assets", Route = "/assets",  Icon = "fas fa-fw fa-table" },
                 new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Dependencies", Route = "/dependencies",  Icon = "fas fa-fw fa-cloud-download-alt" },
-                new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Frameworks", Route = "/frameworks",  Icon = "fas fa-fw fa-table" },                
+                new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Frameworks", Route = "/frameworks",  Icon = "fas fa-fw fa-table" },
+                new NavMenuItem { Type = NavMenuItemType.Seperator, Name = "Admin" },
                 new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Tasks", Route = "/tasks",  Icon = "fas fa-fw fa-table" }
             };
         }                   

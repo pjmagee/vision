@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using AutoMapper;
+using NSwag;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Components.Services;
@@ -11,11 +12,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using NSwag;
 using Vision.Core;
 using Vision.Core.Services.Builds;
 using Vision.Server.Services;
+using System.Net.Mime;
 
 namespace Vision.Server
 {
@@ -70,7 +70,7 @@ namespace Vision.Server
             {
                 options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
                 {
-                    System.Net.Mime.MediaTypeNames.Application.Octet,
+                    MediaTypeNames.Application.Octet,
                     WasmMediaTypeNames.Application.Wasm,
                 });
             });

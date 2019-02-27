@@ -1,12 +1,11 @@
 ﻿@page "/repositories/{Id:guid}"
 @inject HttpClient HttpClient
 
-    <BreadcrumbsComponent>
-        <li class="breadcrumb-item"><NavLink href="@($"/vcs/")">Version control sources</NavLink></li>
-        <li class="breadcrumb-item"><NavLink href="@($"/vcs/{Item.VersionControlId}")">Version control</NavLink></li>
-        <li class="breadcrumb-item"><NavLink href="/repositories">Repositories</NavLink></li>
-        <li class="breadcrumb-item active">@Item.?WebUrl</li>
-    </BreadcrumbsComponent>
+<BreadcrumbsComponent>
+    <li class="breadcrumb-item">Data</li>
+    <li class="breadcrumb-item"><NavLink href="/repositories">Repositories</NavLink></li>
+    <li class="breadcrumb-item active">@Item?.WebUrl</li>
+</BreadcrumbsComponent>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
@@ -73,6 +72,5 @@
         Builds = await HttpClient.GetJsonAsync<CiCdBuildDto[]>($"/api/repositories/{Id}/cicds");
         Assets = await HttpClient.GetJsonAsync<AssetDto[]>($"/api/repositories/{Id}/assets");
         Frameworks = await HttpClient.GetJsonAsync<FrameworkDto[]>($"/api/repositories/{Id}/frameworks");
-        StateHasChanged();
     }
 }

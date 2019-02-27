@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -59,14 +60,14 @@ namespace Vision.Server.Controllers
 
         [HttpGet("{versionControlId}/metrics/repositories")]
         [ResponseCache(Duration = 60)]
-        public async Task<IEnumerable<RepositoryMetricDto>> GetRepositoriesMetricsByVersionControlIdAsync(Guid versionControlId)
+        public async Task<IEnumerable<MetricItems<RepositoryDto>>> GetRepositoriesMetricsByVersionControlIdAsync(Guid versionControlId)
         {
             IQueryable<Repository> orderedByLargest = context.Repositories.Where(repository => repository.VersionControlId == versionControlId).OrderBy(repository => context.Assets.Count(asset => asset.RepositoryId == repository.Id));
 
-            return new RepositoryMetricDto[]
+            return new MetricItems<RepositoryDto>[]
             {
-                new RepositoryMetricDto(MetricsKind.Info, "Top 5 smallest repositories", await orderedByLargest.TakeLast(5).Select(repository => new RepositoryDto {  }).ToArrayAsync()),
-                new RepositoryMetricDto(MetricsKind.Info, "Top 5 largest repositories", await orderedByLargest.Take(5).Select(repository => new RepositoryDto {  }).ToArrayAsync())
+                new MetricItems<RepositoryDto>(MetricKind.Standard, MetricCategoryKind.Repositories, "Top 5 smallest repositories", await orderedByLargest.TakeLast(5).Select(repository => new RepositoryDto {  }).ToArrayAsync()),
+                new MetricItems<RepositoryDto>(MetricKind.Standard, MetricCategoryKind.Repositories, "Top 5 largest repositories", await orderedByLargest.Take(5).Select(repository => new RepositoryDto {  }).ToArrayAsync())
             };
         }
 

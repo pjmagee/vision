@@ -3,6 +3,7 @@ using System;
 
 namespace Vision.App
 {
+
     public class NavMenuItem
     {
         public string Name { get; set; }
@@ -11,11 +12,5 @@ namespace Vision.App
         public string Icon { get; set; }
         public NavMenuItemType Type { get; set; }
         public bool IsActive { get; set; }
-    }
-
-    public enum NavMenuItemType
-    {
-        Seperator,
-        Data
     }
 }

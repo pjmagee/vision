@@ -2,8 +2,9 @@
 @inject HttpClient HttpClient
 
 <BreadcrumbsComponent>
+    <li class="breadcrumb-item">Data</li>
     <li class="breadcrumb-item"><NavLink href="/dependencies">Dependencies</NavLink></li>
-    <li class="breadcrumb-item active">@Item.Name</li>
+    <li class="breadcrumb-item active">@Item?.Name</li>
 </BreadcrumbsComponent>
 
 <div class="card shadow mb-4">

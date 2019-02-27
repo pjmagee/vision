@@ -44,8 +44,8 @@ namespace Vision.Server.Controllers
                     .Select(asset => new AssetDto { Repository = asset.Repository.Url, Asset = asset.Path, Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id) })
                     .ToArrayAsync();
 
-                metrics.Add(new MetricItems<AssetDto>(MetricsKind.Info, $"{kind} assets with the most dependencies", most));
-                metrics.Add(new MetricItems<AssetDto>(MetricsKind.Info, $"{kind} assets with the least dependencies", least));
+                metrics.Add(new MetricItems<AssetDto>(MetricKind.Standard, MetricCategoryKind.Assets, $"{kind} assets with the most dependencies", most));
+                metrics.Add(new MetricItems<AssetDto>(MetricKind.Standard, MetricCategoryKind.Assets, $"{kind} assets with the least dependencies", least));
             }
 
             return metrics;

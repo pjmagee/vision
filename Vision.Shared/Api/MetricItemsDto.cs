@@ -4,7 +4,7 @@
     {
         public T[] Items { get; set; }
 
-        public MetricItems(MetricsKind kind, string title, T[] items) : base(kind, title)
+        public MetricItems(MetricKind alert, MetricCategoryKind target, string title, T[] items) : base(alert, target, title)
         {
             Items = items;
         }

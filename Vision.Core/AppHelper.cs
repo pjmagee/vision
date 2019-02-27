@@ -15,7 +15,7 @@ namespace Vision.Core
         private const string PackagesFile = "packages.json";
         private const string GradleFile = "gradle";
 
-        public static IEnumerable<DependencyKind> Kinds { get; } = Enum.GetValues(typeof(DependencyKind)).Cast<DependencyKind>();
+        public static IEnumerable<DependencyKind> DependencyKinds { get; } = Enum.GetValues(typeof(DependencyKind)).Cast<DependencyKind>();
 
         public static DependencyKind GetDependencyKind(this Asset asset)
         {
