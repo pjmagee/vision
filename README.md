@@ -3,49 +3,73 @@
 NSwag: https://docs.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-nswag?view=aspnetcore-2.2&tabs=visual-studio%2Cvisual-studio-xml    
 API Conventions: https://docs.microsoft.com/en-us/aspnet/core/web-api/advanced/conventions?view=aspnetcore-2.2    
 Data annotations: https://docs.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-nswag?view=aspnetcore-2.2&tabs=visual-studio%2Cvisual-studio-code-xml#data-annotations    
-    
-# Github Issues
-https://github.com/aspnet/AspNetCore/issues/5562    
 
-    
-	    
-# Pages
+## Github issues
 
-/vcs/ [DONE]    
-/vcs/{id} [DONE]     
-/repositories/{id}    
-/registries/ [DONE]    
-/registries/{id} [DONE]    
-/cicds/ [DONE]    
-/dependencies/ [DONE]    
-/dependencies/{id} [DONE]    
-/frameworks/ [DONE]    
-/frameworks/{id} [DONE]    
-/assets/ [DONE]    
-/assets/{id} [DONE]    
-/versions/{id} [DONE]    
+https://github.com/aspnet/AspNetCore/issues/5562  
+ 
+## Current pages
 
-# Shared components
-    
-FrameworksComponent [DONE]    
-AssetsComponent [DONE]     
-CiCdsComponent [DONE]    
-DependenciesComponent [DONE]    
-MetricsComponent [TODO]    
+/vcs/ **DONE**  
+/vcs/{id} **DONE**  
+/repositories/{id}  **DONE**  
+/registries/ **DONE**  
+/registries/{id} **DONE**  
+/cicds/ **DONE**  
+/dependencies/ **DONE**  
+/dependencies/{id} **DONE**  
+/frameworks/ **DONE**  
+/frameworks/{id} **DONE**  
+/assets/ **DONE**  
+/assets/{id} **DONE**  
+/versions/{id} **DONE**  
 
-# API Endpoints
-/versioncontrols/{id}/metrics [TODO]    
-/registries/{id}/metrics [TODO]    
-/repositories/{id}/metrics [TODO]    
-/dependencies/{id}/metrics [TODO]    
-/frameworks/{id}/metrics [TODO]    
-/versions/{id}/metrics [TODO]    
-/assets/{id}/metrics [TODO]    
-    
+## Source pages (next phase)
 
-/tasks/    
-/tasks/update/assets/{id}    
-/tasks/update/dependencies/{id}    
-/tasks/update/frameworks/{id}    
-/tasks/update/repositories/{id}       
+/sources/vcs **TODO**  
+/sources/vcs/{vId} - edit **TODO**  
+/sources/cicds  **TODO**  
+/sources/cicds/{cId} - edit **TODO**  
+/sources/registries  **TODO**  
+/sources/registries/{rId} - edit **TODO**  
+
+## Data pages (next phase)
+
+/data/vcs/ - display all version control systems **TODO**   
+/data/vcs/{id} - display [repositories] of [vcs]  **TODO**  
+/data/vcs/{id}/repositories/{id}/ - display [assets, frameworks, metrics] of [repository]  **TODO**  
+/data/vcs/{id}/repositories/{id}/assets/{id} - displays [dependencies, frameworks, metrics] of [asset]  **TODO**  
+/data/vcs/{id}/repositories/{id}/frameworks/{id} - displays [assets, metrics] of [framework]**TODO**    
+/data/dependencies/ - displays all [dependencies, metrics]  **TODO**  
+/data/dependencies/{id} - displays [assets, versions, metrics] of [dependency]  **TODO**  
+/data/dependencies/{id}/versions/{id}/ - displays [assets, metrics] of [version]  **TODO**  
+/data/frameworks/ - displays all frameworks  **TODO**  
+/data/frameworks/{id} - displays all [assets] of [framework]  **TODO**  
+/data/registries - displays all dependency registries  **TODO**  
+/data/registries/{id}  - displays [dependencies] of [registry]  **TODO**  
+/data/cicds  **TODO**  
+/data/security  **TODO**  
+
+### Shared components
+
+FrameworksComponent **DONE**  
+AssetsComponent **DONE**  
+CiCdsComponent **DONE**  
+DependenciesComponent **DONE**  
+MetricsComponent **DONE**  
+
+## API - Metrics
+
+/versioncontrols/{id}/metrics **TODO**  
+/registries/{id}/metrics ***TODO**  
+/repositories/{id}/metrics ***TODO**  
+/dependencies/{id}/metrics ***TODO**  
+/frameworks/{id}/metrics ***TODO**  
+/versions/{id}/metrics ***TODO**  
+/assets/{id}/metrics ***TODO**  
+/tasks/ ***TODO**  
+/tasks/update/assets/{id} ***TODO**  
+/tasks/update/dependencies/{id} ***TODO**  
+/tasks/update/frameworks/{id} ***TODO**  
+/tasks/update/repositories/{id} ***TODO**  
 

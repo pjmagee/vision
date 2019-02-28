@@ -1,6 +1,4 @@
-﻿@inject IUriHelper UriHelper
-
-<nav aria-label="breadcrumb">
+﻿<nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         @ChildContent
     </ol>
@@ -8,6 +6,5 @@
 
 @functions 
 {
-    [Parameter]
-    private RenderFragment ChildContent { get; set; }
+    [Parameter] private RenderFragment ChildContent { get; set; }
 }
