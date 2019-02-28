@@ -1,0 +1,77 @@
+﻿@page "/data/vcs/{VersionControlId:guid}/repositories/{RepositoryId:guid}"
+
+@inject HttpClient HttpClient
+
+<BreadcrumbsComponent>
+    <li class="breadcrumb-item">Data</li>
+    <li class="breadcrumb-item"><NavLink href="/repositories">Repositories</NavLink></li>
+    <li class="breadcrumb-item active">@Item?.WebUrl</li>
+</BreadcrumbsComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
+    </div>
+    <div class="card-body">
+        @if (Assets != null)
+        {
+            <AssetsComponent Items="Assets"></AssetsComponent>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">CI/CD builds</h6>
+    </div>
+    <div class="card-body">
+        @if (Builds != null)
+        {
+            <CiCdBuildsComponent Items="Builds"></CiCdBuildsComponent>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Frameworks</h6>
+    </div>
+    <div class="card-body">
+        @if (Frameworks != null)
+        {
+            <FrameworksComponent Items="Frameworks"></FrameworksComponent>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
+
+
+@functions
+{
+    [Parameter] private Guid VersionControlId { get; set; }
+    [Parameter] private Guid RepositoryId { get; set; }
+
+    private RepositoryDto Item { get; set; }
+    private CiCdBuildDto[] Builds { get; set; }
+    private AssetDto[] Assets { get; set; }
+    private FrameworkDto[] Frameworks { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Item = await HttpClient.GetJsonAsync<RepositoryDto>($"/api/repositories/{RepositoryId}");
+        Builds = await HttpClient.GetJsonAsync<CiCdBuildDto[]>($"/api/repositories/{RepositoryId}/cicds");
+        Assets = await HttpClient.GetJsonAsync<AssetDto[]>($"/api/repositories/{RepositoryId}/assets");
+        Frameworks = await HttpClient.GetJsonAsync<FrameworkDto[]>($"/api/repositories/{RepositoryId}/frameworks");
+    }
+}

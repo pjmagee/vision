@@ -1,0 +1,39 @@
+﻿@inject IJSRuntime Runtime
+
+<table class="table table-striped table-bordered table-sm" style="width: 100%">
+    <thead>
+        <tr>
+            <th>Version</th>
+            <th>Latest</th>
+            <th>Vulnerability</th>
+            <th>Assets</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Items)
+        {
+            <tr>
+                <td>@item.Version</td>
+                <td>@item.IsLatest</td>
+                <td>@item.VulnerabilityUrl</td>
+                <td>@item.Assets</td>
+                <td>
+                    <nav class="nav">
+                        <NavLink class="nav-link" href="@($"/data/dependencies/{item.DependencyId}/versions/{item.DependencyVersionId}")">Details</NavLink>
+                    </nav>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@functions
+{
+    [Parameter] private DependencyVersionDto[] Items { get; set; }
+
+    protected override async Task OnAfterRenderAsync()
+    {
+        await Runtime.InvokeAsync<object>("dataTable");
+    }
+}

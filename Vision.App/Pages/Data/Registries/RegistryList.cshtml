@@ -1,0 +1,33 @@
+﻿@page "/data/registries"
+@inject HttpClient HttpClient
+
+<BreadcrumbsComponent>
+    <li class="breadcrumb-item">Sources</li>
+    <li class="breadcrumb-item active">Dependency registries</li>
+</BreadcrumbsComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Dependency registry sources</h6>
+    </div>
+    <div class="card-body">
+        @if (Items != null)
+        {
+            <RegistriesComponent Items="Items"></RegistriesComponent>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
+
+@functions
+{
+    private RegistryDto[] Items { get; set; }
+
+    protected override async Task OnInitAsync()
+    {
+        Items = await HttpClient.GetJsonAsync<RegistryDto[]>("/api/registries");     
+    }
+}

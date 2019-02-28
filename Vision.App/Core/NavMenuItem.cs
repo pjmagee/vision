@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components.Routing;
-using System;
 
 namespace Vision.App
 {
-
     public class NavMenuItem
     {
         public string Name { get; set; }

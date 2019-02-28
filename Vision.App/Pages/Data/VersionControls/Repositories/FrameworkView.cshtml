@@ -1,0 +1,61 @@
+﻿@page "/data/vcs/{VersionControlId:guid}/repositories/{RepositoryId:guid}/frameworks/{FrameworkId:guid}"
+
+@inject HttpClient HttpClient
+@inject IJSRuntime Runtime
+
+<BreadcrumbsComponent>
+    <li class="breadcrumb-item">Data</li>
+    <li class="breadcrumb-item"><NavLink href="/frameworks">Frameworks</NavLink></li>
+    <li class="breadcrumb-item active">@Item?.Name</li>
+</BreadcrumbsComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
+    </div>
+    <div class="card-body">
+        @if (Assets != null)
+        {
+            <AssetsComponent Items="Assets"></AssetsComponent>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Repositories</h6>
+    </div>
+    <div class="card-body">
+        @if (Repositories != null)
+        {
+            <RepositoriesComponent Items="Repositories"></RepositoriesComponent>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
+
+@functions 
+{
+    [Parameter] private Guid FameworkId { get; set; }
+    [Parameter] private Guid RepositoryId { get; set; }
+    [Parameter] private Guid VersionControlId { get; set; }
+
+    private AssetDto[] Assets { get; set; }
+    private RepositoryDto[] Repositories { get; set; }
+    private FrameworkDto Item { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Item = await HttpClient.GetJsonAsync<FrameworkDto>($"/api/frameworks/{FameworkId}");
+        Repositories = await HttpClient.GetJsonAsync<RepositoryDto[]>($"/api/frameworks/{FameworkId}/repositories");
+        Assets = await HttpClient.GetJsonAsync<AssetDto[]>($"/api/frameworks/{FameworkId}/assets");
+        StateHasChanged();
+    }
+}

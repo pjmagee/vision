@@ -1,0 +1,34 @@
+﻿@page "/data/vcs"
+
+@inject HttpClient HttpClient
+
+<BreadcrumbsComponent>
+    <li class="breadcrumb-item">Sources</li>
+    <li class="breadcrumb-item active" aria-current="page">Version control systems</li>
+</BreadcrumbsComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Version control sources</h6>
+    </div>
+    <div class="card-body">
+        @if (Items != null)
+        {
+            <VersionControlsComponent Items="Items"></VersionControlsComponent>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
+
+@functions {
+
+    private VersionControlDto[] Items { get; set; }
+
+    protected override async Task OnInitAsync()
+    {
+        Items = await HttpClient.GetJsonAsync<VersionControlDto[]>("/api/versioncontrols");     
+    }
+}

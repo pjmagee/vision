@@ -1,0 +1,40 @@
+﻿@page "/data/dependencies/{DependencyId:guid}/versions/{VersionId:guid}"
+
+@inject HttpClient HttpClient
+
+<BreadcrumbsComponent>
+    <li class="breadcrumb-item">Data</li>
+    <li class="breadcrumb-item">Versions</li>
+    <li class="breadcrumb-item active">@Item?.Name</li>
+</BreadcrumbsComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
+    </div>
+    <div class="card-body">
+        @if (Assets != null)
+        {
+            <AssetsComponent Items="Assets"></AssetsComponent>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
+
+@functions
+{
+    [Parameter] private Guid VersionId { get; set; }
+    [Parameter] private Guid DependencyId { get; set; }
+
+    private DependencyDto Item { get; set; }
+    private AssetDto[] Assets { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Item = await HttpClient.GetJsonAsync<DependencyDto>($"/api/dependencyversions/{VersionId}");
+        Assets = await HttpClient.GetJsonAsync<AssetDto[]>($"/api/dependencyversions/{VersionId}/assets");
+    }
+}
