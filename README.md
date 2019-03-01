@@ -4,6 +4,18 @@ NSwag: https://docs.microsoft.com/en-us/aspnet/core/tutorials/getting-started-wi
 API Conventions: https://docs.microsoft.com/en-us/aspnet/core/web-api/advanced/conventions?view=aspnetcore-2.2    
 Data annotations: https://docs.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-nswag?view=aspnetcore-2.2&tabs=visual-studio%2Cvisual-studio-code-xml#data-annotations    
 
+## Technologies / Frameworks
+
+* .NET Core 3.0 Preview 2
+* .NET Core Web API
+* Entity Framework Core
+* Razor components (SPA like framework)
+* Libman (front end library manager by microsoft)
+* Bootstrap 4 (scss + custom with bootstrap admin 2 theme)
+* Bootstrap admin 2 theme (open source theme based on bootstrap 4)
+* Font awesome 5
+* Various js libraries (jQuery, datatables, chart.js, jquery easing)
+
 ## Github issues
 
 https://github.com/aspnet/AspNetCore/issues/5562  
