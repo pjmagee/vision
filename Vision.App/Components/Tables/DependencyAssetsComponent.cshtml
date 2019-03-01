@@ -13,8 +13,8 @@
         @foreach (var item in Items)
         {
             <tr>
-                <td><a class="nav-link" href="@($"/data/assets/{item.AssetId}")">@item.Asset</a></td>
-                <td><a class="nav-link" href="@($"/data/dependencies/{item.DependencyId}/versions/{item.DependencyVersionId}")">@item.Version</a></td>
+                <td><a href="@($"/data/assets/{item.AssetId}")">@item.Asset</a></td>
+                <td><a href="@($"/data/dependencies/{item.DependencyId}/versions/{item.DependencyVersionId}")">@item.Version</a></td>
                 <td>@item.IsLatest</td>
                 <td></td>
             </tr>

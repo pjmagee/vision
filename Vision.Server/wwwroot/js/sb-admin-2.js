@@ -1,6 +1,5 @@
 window.register = function () {
-
-
+    
     $("#sidebarToggle, #sidebarToggleTop").on('click', function (e) {
         $("body").toggleClass("sidebar-toggled");
         $(".sidebar").toggleClass("toggled");

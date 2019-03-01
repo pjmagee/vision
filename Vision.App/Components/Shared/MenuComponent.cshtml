@@ -47,12 +47,7 @@
 
     protected override void OnInit()
     {
-        Helper.OnLocationChanged += (sender, o) =>
-        {
-            Console.WriteLine("location: {0}", o);
-            NavMenuItems.ForEach(x => x.IsActive = false);            
-            this.StateHasChanged();
-        };
+        Helper.OnLocationChanged += (sender, o) => Console.WriteLine("location: {0}", o);
     }
 
     private void Select(NavMenuItem item)

@@ -65,6 +65,19 @@ Docker **TODO**
 Maven **TODO**  
 Gradle **TODO**  
 
+NuGet #004880
+Jenkins #D24939
+Docker #1488C6
+NPM #CB3837
+Gitlab #E24329
+Bitbucket #0052CC
+Github #181717
+Java #007396
+Python #3776AB
+AppVeyor #00B3E0
+Angular #DD0031
+Ruby #CC342D
+
 ### Shared components
 
 FrameworksComponent **DONE**  

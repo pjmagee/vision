@@ -25,7 +25,7 @@ namespace Vision.Server.Controllers
 
             return new DependencyVersionDto
             {
-                Assets = context.AssetDependencies.Count(ad => ad.DependencyId == version.DependencyId),
+                Assets = context.AssetDependencies.Count(assetDependency => assetDependency.DependencyId == version.DependencyId),
                 DependencyId = version.DependencyId,
                 DependencyVersionId = version.Id,
                 IsLatest = version.IsLatest,

@@ -2,11 +2,11 @@
 
 namespace Vision.App
 {
-    public static class IconHelper
+    public static class FontAwesomeIconHelper
     {
-        public static string GetCiCdIcon(this CiCdDto cicd)
+        public static string GetFontAwesomeClass(this CiCdKind kind)
         {
-            switch(cicd.Kind)
+            switch(kind)
             {
                 case CiCdKind.Gitlab: return "fab fa-gitlab";
                 case CiCdKind.Jenkins: return "fab fa-jenkins";
@@ -15,7 +15,7 @@ namespace Vision.App
             }
         }
 
-        public static string GetMetricKindIcon(this MetricCategoryKind kind)
+        public static string GetFontAwesomeClass(this MetricCategoryKind kind)
         {
             switch(kind)
             {
@@ -33,7 +33,7 @@ namespace Vision.App
             }
         }
 
-        public static string GetDependencyKindIcon(this DependencyKind kind)
+        public static string GetFontAwesomeClass(this DependencyKind kind)
         {
             switch(kind)
             {
@@ -47,10 +47,11 @@ namespace Vision.App
                 default: return string.Empty;
             }
         }
+               
 
-        public static string GetMetricColour(this Metric metric)
+        public static string GetMetricColour(this MetricKind kind)
         {
-            switch(metric.Kind)
+            switch(kind)
             {
                 case MetricKind.Standard: return "primary";
                 case MetricKind.Good: return "success";
@@ -60,14 +61,14 @@ namespace Vision.App
             }
         }
 
-        public static string GetFontAwesomeIcon(this Metric metric)
+        public static string GetFontAwesomeClass(this Metric metric)
         {
             if (metric.DependencyKind.HasValue)
             {
-                return metric.DependencyKind.Value.GetDependencyKindIcon();
+                return metric.DependencyKind.Value.GetFontAwesomeClass();
             }
 
-            return metric.CategoryKind.GetMetricKindIcon();
+            return metric.CategoryKind.GetFontAwesomeClass();
         }
     }
 }

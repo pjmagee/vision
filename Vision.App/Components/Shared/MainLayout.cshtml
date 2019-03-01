@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@inject SvgHelper svgHelper
 
 <div id="wrapper">
     <MenuComponent></MenuComponent>
@@ -32,3 +33,11 @@
 </a>
 
 <LogoutComponent></LogoutComponent>
+
+@functions 
+{    
+    protected async override Task OnInitAsync()
+    {
+         await svgHelper.LoadIconsAsync();
+    }
+}

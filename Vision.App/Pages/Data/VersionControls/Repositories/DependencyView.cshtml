@@ -7,8 +7,8 @@
 <BreadcrumbsComponent>
     <li class="breadcrumb-item">Data</li>
     <li class="breadcrumb-item">Version control systems</li>
-    <li class="breadcrumb-item"><NavLink href="@($"/vcs/{VersionControlId}/repositories/{RepositoryId}")">Repositories</NavLink></li>
-    <li class="breadcrumb-item"><NavLink href="@($"/vcs/{VersionControlId}/repositories/{RepositoryId}/dependencies")">Dependencies</NavLink></li>
+    <li class="breadcrumb-item"><a href="@($"/vcs/{VersionControlId}/repositories/{RepositoryId}")">Repositories</a></li>
+    <li class="breadcrumb-item"><a href="@($"/vcs/{VersionControlId}/repositories/{RepositoryId}/dependencies")">Dependencies</a></li>
     <li class="breadcrumb-item active">@Dependency?.Name</li>
 </BreadcrumbsComponent>
 

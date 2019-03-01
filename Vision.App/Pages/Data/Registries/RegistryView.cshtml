@@ -1,0 +1,41 @@
+﻿@page "/data/registries/{RegistryId:guid}/"
+
+@inject HttpClient HttpClient
+
+<BreadcrumbsComponent>
+    <li class="breadcrumb-item">Data</li>
+    <li class="breadcrumb-item"><a href="/data/registries">Dependency registries</a></li>
+    <li class="breadcrumb-item active"><a href="@($"/data/registries/{RegistryId}")">@Registry?.Endpoint</a></li>
+    
+</BreadcrumbsComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
+    </div>
+    <div class="card-body">
+        @if (Dependencies != null)
+        {
+            <DependenciesComponent Items="Dependencies"></DependenciesComponent>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
+
+@functions
+{
+    [Parameter] private Guid RegistryId { get; set; }    
+        
+    private RegistryDto Registry  { get; set; }
+
+    private DependencyDto[] Dependencies { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Registry = await HttpClient.GetJsonAsync<RegistryDto>($"/api/registries/{RegistryId}");        
+        Dependencies = await HttpClient.GetJsonAsync<DependencyDto[]>($"/api/registries/{RegistryId}/dependencies");
+    }
+}

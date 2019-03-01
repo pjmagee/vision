@@ -15,10 +15,13 @@ namespace Vision.Server.Controllers
     {
         private readonly VisionDbContext context;
 
-        public RegistriesController(VisionDbContext context) => this.context = context;
+        public RegistriesController(VisionDbContext context)
+        {
+            this.context = context;
+        }
 
         [HttpGet]
-        public async Task<IEnumerable<RegistryDto>> GetAllRegistriesAsync()
+        public async Task<IEnumerable<RegistryDto>> GetAllAsync()
         {
             return await context.Registries.Select(registry => new RegistryDto
             {
@@ -31,20 +34,35 @@ namespace Vision.Server.Controllers
             .ToListAsync();
         }
 
+        [HttpGet("{registryId}")]
+        public async Task<RegistryDto> GetRegistryByIdAsync(Guid registryId)
+        {
+            Registry registry = await context.Registries.FindAsync(registryId);
+
+            return new RegistryDto
+            {
+                ApiKey = registry.ApiKey,
+                Dependencies = context.Dependencies.Count(d => d.RegistryId == registry.Id),
+                Endpoint = registry.Endpoint,
+                Kind = registry.Kind,
+                RegistryId = registry.Id
+            };
+        }
+
         [HttpGet("{registryId}/dependencies")]
-        public async Task<IEnumerable<DependencyDto>> GetDependenciesByRegistry(Guid registryId)
+        public async Task<IEnumerable<DependencyDto>> GetDependencyesByRegistryIdAsync(Guid registryId)
         {
             return await context.Dependencies
-                    .Where(d => d.RegistryId == registryId)
-                    .Select(d => new DependencyDto
-                    {
-                        Name = d.Name,
-                        RepositoryUrl = d.RepositoryUrl,
-                        Versions = context.DependencyVersions.Count(x => x.DependencyId == d.Id),
-                        Assets = context.AssetDependencies.Count(x => x.DependencyId == d.Id),
-                        DependencyId = d.Id,
-                        Kind = d.Kind                    
-                    }).ToListAsync();
+                .Where(d => d.RegistryId == registryId)
+                .Select(d => new DependencyDto
+                {
+                    Name = d.Name,
+                    RepositoryUrl = d.RepositoryUrl,
+                    Versions = context.DependencyVersions.Count(x => x.DependencyId == d.Id),
+                    Assets = context.AssetDependencies.Count(x => x.DependencyId == d.Id),
+                    DependencyId = d.Id,
+                    Kind = d.Kind
+                }).ToListAsync();
         }
     }
 }

@@ -5,7 +5,7 @@
         public const string VersionControlSystems = "Version control systems";
         public const string Repositories = "Repositories";
 
-        public const string BuildPiplines = "CI/CD";
+        public const string BuildPiplines = "Contionus integration &amp; Continious delivery";
         public const string DependencyRegistries = "Dependency registries";
 
         public const string Dependencies = "Dependencies";

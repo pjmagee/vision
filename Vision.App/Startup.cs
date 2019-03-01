@@ -8,6 +8,7 @@ namespace Vision.App
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton(NavigationHelper.NavMenuItems);
+            services.AddScoped<SvgHelper>();
         }
 
         public void Configure(IComponentsApplicationBuilder app)

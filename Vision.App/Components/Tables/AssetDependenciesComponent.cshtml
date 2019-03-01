@@ -14,10 +14,10 @@
         {
             <tr>
                 <td>                    
-                    <a class="nav-link" href="@($"/data/dependencies/{item.DependencyId}")">@item.Dependency</a>
+                    <a href="@($"/data/dependencies/{item.DependencyId}")">@item.Dependency</a>
                 </td>
                 <td>
-                    <a class="nav-link" href="@($"/data/dependencies/{item.DependencyId}/versions/{item.DependencyVersionId}")">@item.Version</a>
+                    <a href="@($"/data/dependencies/{item.DependencyId}/versions/{item.DependencyVersionId}")">@item.Version</a>
                 </td>
                 <td>@item.IsLatest</td>
                 <td>

@@ -20,14 +20,13 @@ namespace Vision.Server.Controllers
         [HttpGet]
         public async Task<IEnumerable<FrameworkDto>> GetAllAsync()
         {
-            var frameworks = await context.Frameworks.ToListAsync();
-
-            return await Task.WhenAll(frameworks.Select(async framework => new FrameworkDto
+            return await context.Frameworks.Select(framework => new FrameworkDto
             {
                 Name = framework.Version,
                 FrameworkId = framework.Id,
-                Assets = await context.AssetFrameworks.CountAsync(af => af.FrameworkId == framework.Id)
-            }));
+                Assets = context.AssetFrameworks.Count(af => af.FrameworkId == framework.Id)
+            })
+            .ToListAsync();
         }
 
         [HttpGet("{frameworkId}")]
@@ -49,25 +48,23 @@ namespace Vision.Server.Controllers
             var framework = await context.Frameworks.FindAsync(frameworkId);
 
             return await context.Repositories
-                     .Where(repository => context.Assets.Any(asset => asset.RepositoryId == repository.Id && context.AssetFrameworks.Any(af => af.FrameworkId == frameworkId && af.AssetId == asset.Id)))
-                     .Select(repository => new RepositoryDto
-                     {
-                         Assets = context.Assets.Count(asset => asset.RepositoryId == repository.Id),
-                         VersionControlId = repository.VersionControlId,
-                         WebUrl = repository.WebUrl,
-                         Url = repository.Url,
-                         RepositoryId = repository.Id
-                     })
-                     .ToListAsync();
+                .Where(repository => context.Assets.Any(asset => asset.RepositoryId == repository.Id && context.AssetFrameworks.Any(assetFramework => assetFramework.FrameworkId == frameworkId && assetFramework.AssetId == asset.Id)))
+                .Select(repository => new RepositoryDto
+                {
+                    Assets = context.Assets.Count(asset => asset.RepositoryId == repository.Id),
+                    VersionControlId = repository.VersionControlId,
+                    WebUrl = repository.WebUrl,
+                    Url = repository.Url,
+                    RepositoryId = repository.Id
+                })
+                .ToListAsync();
         }
 
         [HttpGet("{frameworkId}/assets")]
         public async Task<IEnumerable<AssetDto>> GetAssetsByFrameworkIdAsync(Guid frameworkId)
         {
-            List<Guid> assetIds = await context.AssetFrameworks.Where(assetFramework => assetFramework.FrameworkId == frameworkId).Select(x => x.AssetId).ToListAsync();
-
             return await context.Assets
-                .Where(asset => assetIds.Contains(asset.Id))
+                .Where(asset => context.AssetFrameworks.Any(af => af.AssetId == asset.Id && af.FrameworkId == frameworkId))
                 .Select(asset => new AssetDto
                 {
                     AssetId = asset.Id,
@@ -75,7 +72,8 @@ namespace Vision.Server.Controllers
                     Dependencies = context.AssetDependencies.Count(assetDependency => assetDependency.AssetId == asset.Id),
                     Repository = asset.Repository.WebUrl,
                     RepositoryId = asset.RepositoryId
-                }).ToListAsync();
+                })
+                .ToListAsync();
         }
     }
 }

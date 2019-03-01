@@ -6,7 +6,7 @@ namespace Vision.Core
     public class DependencyVersion : Entity
     {
         public string Version { get; set; }
-        public string VulnerabilityUrl { get; set; }        
+        public string VulnerabilityUrl { get; set; }
         public bool IsLatest { get; set; }
         public virtual Dependency Dependency { get; set; }
         public Guid DependencyId { get; set; }
