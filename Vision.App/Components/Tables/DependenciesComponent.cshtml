@@ -14,13 +14,13 @@
         @foreach (var item in Items)
         {
             <tr>
-                <td>@item.Name</td>
+                <td>
+                    <a class="nav-link" href="@($"/data/dependencies/{item.DependencyId}")">@item.Name</a>
+                </td>
                 <td>@item.Kind.ToString()</td>
                 <td>@item.Assets</td>
                 <td>@item.Versions</td>
-                <td>
-                    <NavLink class="nav-link" href="@($"/data/dependencies/{item.DependencyId}")">Details</NavLink>
-                </td>
+                <td></td>
             </tr>
         }
     </tbody>

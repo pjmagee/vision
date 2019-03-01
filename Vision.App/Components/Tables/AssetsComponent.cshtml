@@ -4,6 +4,7 @@
     <thead>
         <tr>
             <th>@nameof(AssetDto.Asset)</th>
+            <th>@nameof(AssetDto.Repository)</th>
             <th>@nameof(AssetDto.Dependencies)</th>
             <th>Actions</th>
         </tr>
@@ -11,16 +12,16 @@
     <tbody>
         @foreach (var item in Items)
         {
-            <tr>
-                <td>@item.Asset</td>
-                <td>@item.Dependencies</td>
-                <td>
-                    <nav class="nav">
-                        <NavLink class="nav-link" href="@($"/data/assets/{item.AssetId}")">Asset</NavLink>
-                        <NavLink class="nav-link" href="@($"/data/repositories/{item.RepositoryId}")">Repository</NavLink>
-                    </nav>
-                </td>
-            </tr>
+        <tr>
+            <td>
+                <a class="nav-link" href="@($"/data/assets/{item.AssetId}")">@item.Asset</a>
+            </td>
+            <td>
+                <a class="nav-link" href="@($"/data/repositories/{item.RepositoryId}")">@item.Repository</a>
+            </td>
+            <td>@item.Dependencies</td>
+            <td></td>
+        </tr>
         }
     </tbody>
 </table>

@@ -50,6 +50,21 @@ https://github.com/aspnet/AspNetCore/issues/5562
 /data/cicds  **TODO**  
 /data/security  **TODO**  
 
+### Icon SVG and Icon Component for Kinds
+
+Download all Brand/Kind/Type Icons required  
+  
+TeamCity **TODO**  
+Jenkins **TODO**  
+Gitlab **TODO**  
+Bitbucket **TODO**  
+GitHub **TODO**
+NPM **TODO**  
+NuGet **TODO**  
+Docker **TODO**  
+Maven **TODO**  
+Gradle **TODO**  
+
 ### Shared components
 
 FrameworksComponent **DONE**  

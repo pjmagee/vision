@@ -6,8 +6,10 @@
 
 <BreadcrumbsComponent>
     <li class="breadcrumb-item">Data</li>
-    <li class="breadcrumb-item"><NavLink href="/data/dependencies">Dependencies</NavLink></li>
-    <li class="breadcrumb-item active">@Item?.Name</li>
+    <li class="breadcrumb-item">Version control systems</li>
+    <li class="breadcrumb-item"><NavLink href="@($"/vcs/{VersionControlId}/repositories/{RepositoryId}")">Repositories</NavLink></li>
+    <li class="breadcrumb-item"><NavLink href="@($"/vcs/{VersionControlId}/repositories/{RepositoryId}/dependencies")">Dependencies</NavLink></li>
+    <li class="breadcrumb-item active">@Dependency?.Name</li>
 </BreadcrumbsComponent>
 
 <div class="card shadow mb-4">
@@ -48,13 +50,13 @@
     [Parameter] private Guid RepositoryId { get; set; }
     [Parameter] private Guid VersionControlId { get; set; }
 
-    private DependencyDto Item { get; set; }
+    private DependencyDto Dependency { get; set; }
     private AssetDto[] Assets { get; set; }
     private DependencyVersionDto[] Versions { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        Item = await HttpClient.GetJsonAsync<DependencyDto>($"/api/dependencies/{DependencyId}");
+        Dependency = await HttpClient.GetJsonAsync<DependencyDto>($"/api/dependencies/{DependencyId}");
         Assets = await HttpClient.GetJsonAsync<AssetDto[]>($"/api/dependencies/{DependencyId}/assets");
         Versions = await HttpClient.GetJsonAsync<DependencyVersionDto[]>($"/api/dependencies/{DependencyId}/versions");
     }

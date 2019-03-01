@@ -5,8 +5,10 @@
 
 <BreadcrumbsComponent>
     <li class="breadcrumb-item">Data</li>
-    <li class="breadcrumb-item"><NavLink href="/frameworks">Frameworks</NavLink></li>
-    <li class="breadcrumb-item active">@Item?.Name</li>
+    <li class="breadcrumb-item">Version control systems</li>
+    <li class="breadcrumb-item"><NavLink href="@($"/vcs/{VersionControlId}/repositories/{RepositoryId}")">Repositories</NavLink></li>
+    <li class="breadcrumb-item"><NavLink href="@($"/vcs/{VersionControlId}/repositories/{RepositoryId}/frameworks")">Frameworks</NavLink></li>
+    <li class="breadcrumb-item active">@Framework?.Name</li>
 </BreadcrumbsComponent>
 
 <div class="card shadow mb-4">
@@ -49,13 +51,12 @@
 
     private AssetDto[] Assets { get; set; }
     private RepositoryDto[] Repositories { get; set; }
-    private FrameworkDto Item { get; set; }
+    private FrameworkDto Framework { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        Item = await HttpClient.GetJsonAsync<FrameworkDto>($"/api/frameworks/{FameworkId}");
+        Framework = await HttpClient.GetJsonAsync<FrameworkDto>($"/api/frameworks/{FameworkId}");
         Repositories = await HttpClient.GetJsonAsync<RepositoryDto[]>($"/api/frameworks/{FameworkId}/repositories");
         Assets = await HttpClient.GetJsonAsync<AssetDto[]>($"/api/frameworks/{FameworkId}/assets");
-        StateHasChanged();
     }
 }

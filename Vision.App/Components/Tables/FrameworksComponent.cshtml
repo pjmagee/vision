@@ -12,10 +12,12 @@
         @foreach (var item in Items)
         {
             <tr>
-                <td>@item.Name</td>
+                <td>
+                    <a class="nav-link" href="@($"/data/frameworks/{item.FrameworkId}")">@item.Name</a>
+                </td>
                 <td>@item.Assets</td>
                 <td>
-                    <NavLink class="nav-link" href="@($"/data/frameworks/{item.FrameworkId}")">Details</NavLink>
+                    
                 </td>
             </tr>
         }

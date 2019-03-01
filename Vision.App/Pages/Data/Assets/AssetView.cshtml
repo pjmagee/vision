@@ -4,6 +4,7 @@
 @inject IJSRuntime Runtime
 
 <BreadcrumbsComponent>
+    <li class="breadcrumb-item">Data</li>
     <li class="breadcrumb-item"><NavLink href="/assets">Assets</NavLink></li>
     <li class="breadcrumb-item active">@Item?.Asset</li>
 </BreadcrumbsComponent>
@@ -15,7 +16,7 @@
     <div class="card-body">
         @if (Dependencies != null)
         {
-            <DependenciesComponent Items="Dependencies"></DependenciesComponent>
+            <AssetDependenciesComponent Items="Dependencies"></AssetDependenciesComponent>
         }
         else
         {
@@ -43,17 +44,16 @@
 
 @functions
 {
-    [Parameter]
-    private Guid AssetId { get; set; }
+    [Parameter] private Guid AssetId { get; set; }
 
-    private DependencyDto[] Dependencies { get; set; }
+    private AssetDependencyDto[] Dependencies { get; set; }
     private FrameworkDto[] Frameworks { get; set; }
     private AssetDto Item { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
         Item = await HttpClient.GetJsonAsync<AssetDto>($"/api/assets/{AssetId}");
-        Dependencies = await HttpClient.GetJsonAsync<DependencyDto[]>($"/api/assets/{AssetId}/dependencies");
+        Dependencies = await HttpClient.GetJsonAsync<AssetDependencyDto[]>($"/api/assets/{AssetId}/dependencies");
         Frameworks = await HttpClient.GetJsonAsync<FrameworkDto[]>($"/api/assets/{AssetId}/frameworks");
     }
 

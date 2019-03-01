@@ -89,6 +89,7 @@ namespace Vision.Server.Controllers
                     {
                         Asset = asset.Path,
                         AssetId = asset.Id,
+                        Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id),
                         Repository = asset.Repository.Url,
                         RepositoryId = asset.RepositoryId
                     })

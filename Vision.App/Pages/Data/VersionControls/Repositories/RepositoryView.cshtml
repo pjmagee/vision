@@ -4,8 +4,9 @@
 
 <BreadcrumbsComponent>
     <li class="breadcrumb-item">Data</li>
-    <li class="breadcrumb-item"><NavLink href="/repositories">Repositories</NavLink></li>
-    <li class="breadcrumb-item active">@Item?.WebUrl</li>
+    <li class="breadcrumb-item">Version control systems</li>
+    <li class="breadcrumb-item"><NavLink href="@($"/data/vcs/{VersionControlId}")">Repositories</NavLink></li>
+    <li class="breadcrumb-item active">@Repository?.WebUrl</li>
 </BreadcrumbsComponent>
 
 <div class="card shadow mb-4">
@@ -26,7 +27,7 @@
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">CI/CD builds</h6>
+        <h6 class="m-0 font-weight-bold text-primary">Contionus integration &amp; Continious delivery builds</h6>
     </div>
     <div class="card-body">
         @if (Builds != null)
@@ -62,14 +63,15 @@
     [Parameter] private Guid VersionControlId { get; set; }
     [Parameter] private Guid RepositoryId { get; set; }
 
-    private RepositoryDto Item { get; set; }
+    private RepositoryDto Repository { get; set; }
+
     private CiCdBuildDto[] Builds { get; set; }
     private AssetDto[] Assets { get; set; }
     private FrameworkDto[] Frameworks { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        Item = await HttpClient.GetJsonAsync<RepositoryDto>($"/api/repositories/{RepositoryId}");
+        Repository = await HttpClient.GetJsonAsync<RepositoryDto>($"/api/repositories/{RepositoryId}");
         Builds = await HttpClient.GetJsonAsync<CiCdBuildDto[]>($"/api/repositories/{RepositoryId}/cicds");
         Assets = await HttpClient.GetJsonAsync<AssetDto[]>($"/api/repositories/{RepositoryId}/assets");
         Frameworks = await HttpClient.GetJsonAsync<FrameworkDto[]>($"/api/repositories/{RepositoryId}/frameworks");

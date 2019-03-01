@@ -18,6 +18,22 @@ namespace Vision.Server.Controllers
 
         public DependencyVersionsController(VisionDbContext context) => this.context = context;
 
+        [HttpGet("{dependencyVersionId}")]
+        public async Task<DependencyVersionDto> GetVersionByIdAsync(Guid dependencyVersionId)
+        {
+            DependencyVersion version = await context.DependencyVersions.FindAsync(dependencyVersionId);
+
+            return new DependencyVersionDto
+            {
+                Assets = context.AssetDependencies.Count(ad => ad.DependencyId == version.DependencyId),
+                DependencyId = version.DependencyId,
+                DependencyVersionId = version.Id,
+                IsLatest = version.IsLatest,
+                Version = version.Version,
+                VulnerabilityUrl = version.VulnerabilityUrl
+            };
+        }
+
         [HttpGet("{dependencyVersionId}/assets")]
         public async Task<IEnumerable<AssetDto>> GetAssetsByDependencyVersionIdAsync(Guid dependencyVersionId)
         {

@@ -49,6 +49,8 @@
     {
         Helper.OnLocationChanged += (sender, o) =>
         {
+            Console.WriteLine("location: {0}", o);
+            NavMenuItems.ForEach(x => x.IsActive = false);            
             this.StateHasChanged();
         };
     }

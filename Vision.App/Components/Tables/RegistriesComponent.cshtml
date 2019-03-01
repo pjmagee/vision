@@ -15,14 +15,14 @@
         @foreach (var item in Items)
         {
         <tr>
-            <td>@item.Endpoint.</td>
+            <td>                
+                <a class="nav-link" href="@($"/data/registries/{item.RegistryId}")">@item.Endpoint</a>
+            </td>
             <td>@item.ApiKey</td>
             <td>@item.Dependencies</td>
             <td>@item.Kind.ToString()</td>
             <td>@item.IsPublic</td>
-            <td>
-                <NavLink class="nav-link" href="@($"/data/registries/{item.RegistryId}")">Details</NavLink>
-            </td>
+            <td></td>
         </tr>
         }
     </tbody>

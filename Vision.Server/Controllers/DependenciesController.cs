@@ -52,15 +52,17 @@ namespace Vision.Server.Controllers
         [HttpGet("{dependencyId}/assets")]
         public async Task<IEnumerable<AssetDependencyDto>> GetAssetsByDependencyIdAsync(Guid dependencyId)
         {
-            return await context.AssetDependencies.Where(assetDependency => assetDependency.DependencyId == dependencyId).Select(assetDependency => new AssetDependencyDto
-            {
-                DependencyId = dependencyId,
+            return await context.AssetDependencies.Where(ad => ad.DependencyId == dependencyId).Select(assetDependency => new AssetDependencyDto
+            {   
                 AssetId = assetDependency.AssetId,
-                Asset = assetDependency.Asset.Path,
-                Dependency = assetDependency.Dependency.Name,
                 Version = assetDependency.DependencyVersion.Version,
                 DependencyVersionId = assetDependency.DependencyVersionId,
-                Repository = assetDependency.Asset.Repository.WebUrl
+                DependencyId = assetDependency.DependencyId,
+                Repository = assetDependency.Asset.Repository.WebUrl,
+                Asset = assetDependency.Asset.Path,
+                IsLatest = assetDependency.DependencyVersion.IsLatest,
+                Dependency = assetDependency.Dependency.Name,
+                RepositoryId = assetDependency.Asset.RepositoryId                
             })
             .ToListAsync();
         }

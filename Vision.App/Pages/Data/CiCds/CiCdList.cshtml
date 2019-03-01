@@ -4,17 +4,17 @@
 
 <BreadcrumbsComponent>
     <li class="breadcrumb-item">Data</li>
-    <li class="breadcrumb-item active">CI/CD sources</li>
+    <li class="breadcrumb-item active">Contionus integration &amp; Continious delivery</li>
 </BreadcrumbsComponent>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">CI/CD sources</h6>
+        <h6 class="m-0 font-weight-bold text-primary">Contionus integration & Continious delivery sources</h6>
     </div>
     <div class="card-body">
-        @if (Items != null)
+        @if (CiCds != null)
         {
-            <CiCdsComponent Items="Items"></CiCdsComponent>
+            <CiCdsComponent Items="CiCds"></CiCdsComponent>
         }
         else
         {
@@ -25,10 +25,10 @@
 
 @functions 
 {
-    private CiCdDto[] Items { get; set; }
+    private CiCdDto[] CiCds { get; set; }
 
     protected override async Task OnInitAsync()
     {
-        Items = await HttpClient.GetJsonAsync<CiCdDto[]>("/api/cicds");
+        CiCds = await HttpClient.GetJsonAsync<CiCdDto[]>("/api/cicds");
     }
 }

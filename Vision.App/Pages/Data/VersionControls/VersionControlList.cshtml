@@ -3,7 +3,7 @@
 @inject HttpClient HttpClient
 
 <BreadcrumbsComponent>
-    <li class="breadcrumb-item">Sources</li>
+    <li class="breadcrumb-item">Data</li>
     <li class="breadcrumb-item active" aria-current="page">Version control systems</li>
 </BreadcrumbsComponent>
 
@@ -12,9 +12,9 @@
         <h6 class="m-0 font-weight-bold text-primary">Version control sources</h6>
     </div>
     <div class="card-body">
-        @if (Items != null)
+        @if (VersionControls != null)
         {
-            <VersionControlsComponent Items="Items"></VersionControlsComponent>
+            <VersionControlsComponent Items="VersionControls"></VersionControlsComponent>
         }
         else
         {
@@ -25,10 +25,10 @@
 
 @functions {
 
-    private VersionControlDto[] Items { get; set; }
+    private VersionControlDto[] VersionControls { get; set; }
 
     protected override async Task OnInitAsync()
     {
-        Items = await HttpClient.GetJsonAsync<VersionControlDto[]>("/api/versioncontrols");     
+        VersionControls = await HttpClient.GetJsonAsync<VersionControlDto[]>("/api/versioncontrols");
     }
 }

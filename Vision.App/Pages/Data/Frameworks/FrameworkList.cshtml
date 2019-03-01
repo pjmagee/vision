@@ -13,7 +13,7 @@
         <h6 class="m-0 font-weight-bold text-primary">Frameworks</h6>
     </div>
     <div class="card-body">
-        @if (Items != null)
+        @if (Frameworks != null)
         {
             <table class="table table-striped table-bordered" style="width:100%">
                 <thead>
@@ -24,7 +24,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Items)
+                    @foreach (var item in Frameworks)
                     {
                         <tr>
                             <td>@item.Name</td>
@@ -47,11 +47,11 @@
 @functions
 {
 
-    private FrameworkDto[] Items { get; set; }
+    private FrameworkDto[] Frameworks { get; set; }
 
     protected override async Task OnInitAsync()
     {
-        Items = await HttpClient.GetJsonAsync<FrameworkDto[]>("/api/frameworks");
+        Frameworks = await HttpClient.GetJsonAsync<FrameworkDto[]>("/api/frameworks");
         StateHasChanged();
     }
 
