@@ -33,6 +33,21 @@ namespace Vision.Server.Controllers
             .ToListAsync();
         }
 
+        [HttpPost]
+        public async Task<IEnumerable<DependencyDto>> GetAllByKindsAsync([FromBody] DependencyKind[] kinds)
+        {
+            return await context.Dependencies.Where(dependency => kinds.Contains(dependency.Kind)).Select(dependency => new DependencyDto
+            {
+                DependencyId = dependency.Id,
+                Name = dependency.Name,
+                Kind = dependency.Kind,
+                Versions = context.DependencyVersions.Count(dv => dv.DependencyId == dependency.Id),
+                Assets = context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id),
+                RepositoryUrl = dependency.RepositoryUrl
+            })
+            .ToListAsync();
+        }
+
         [HttpGet("{dependencyId}")]
         public async Task<DependencyDto> GetDependencyByIdAsync(Guid dependencyId)
         {
@@ -48,6 +63,7 @@ namespace Vision.Server.Controllers
                 Versions = await context.DependencyVersions.CountAsync(dependencyVersion => dependencyVersion.DependencyId == dependencyId),
             };
         }
+
 
         [HttpGet("{dependencyId}/assets")]
         public async Task<IEnumerable<AssetDependencyDto>> GetAssetsByDependencyIdAsync(Guid dependencyId)

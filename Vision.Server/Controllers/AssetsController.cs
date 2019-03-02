@@ -35,13 +35,13 @@ namespace Vision.Server.Controllers
                 AssetDto[] most = await assets
                     .OrderByDescending(asset => context.AssetDependencies.Count(ad => ad.AssetId == asset.Id))
                     .Take(10)
-                    .Select(asset => new AssetDto { Repository = asset.Repository.Url, Asset = asset.Path, Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id) })
+                    .Select(asset => new AssetDto { AssetId = asset.Id, Repository = asset.Repository.Url, Asset = asset.Path, Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id) })
                     .ToArrayAsync();
 
                 AssetDto[] least = await assets
                     .OrderBy(asset => context.AssetDependencies.Count(ad => ad.AssetId == asset.Id))
                     .Take(10)
-                    .Select(asset => new AssetDto { Repository = asset.Repository.Url, Asset = asset.Path, Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id) })
+                    .Select(asset => new AssetDto { AssetId = asset.Id, Repository = asset.Repository.Url, Asset = asset.Path, Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id) })
                     .ToArrayAsync();
 
                 metrics.Add(new MetricItems<AssetDto>(MetricKind.Standard, MetricCategoryKind.Assets, $"{kind} assets with the most dependencies", most));

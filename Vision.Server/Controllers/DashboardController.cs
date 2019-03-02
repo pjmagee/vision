@@ -27,11 +27,12 @@ namespace Vision.Server.Controllers
 
             var otherCounts = new MetricItem[]
             {
-                new MetricItem(MetricKind.Standard, MetricCategoryKind.VersionControls, $"VCS sources", await context.VersionControls.CountAsync()),
+                new MetricItem(MetricKind.Standard, MetricCategoryKind.VersionControls, $"Version control systems", await context.VersionControls.CountAsync()),
                 new MetricItem(MetricKind.Standard, MetricCategoryKind.Registries, $"Registry sources", await context.Registries.CountAsync()),
                 new MetricItem(MetricKind.Standard, MetricCategoryKind.CiCds, $"CI/CD sources", await context.CiCds.CountAsync()),
                 new MetricItem(MetricKind.Standard, MetricCategoryKind.Repositories, $"Repositories", await context.Repositories.CountAsync()),
-                new MetricItem(MetricKind.Standard, MetricCategoryKind.Dependencies, $"Dependencies", await context.Dependencies.CountAsync()),
+                new MetricItem(MetricKind.Standard, MetricCategoryKind.Assets, $"Assets", await context.Assets.CountAsync()),
+                new MetricItem(MetricKind.Standard, MetricCategoryKind.Dependencies, $"Dependencies", await context.Dependencies.CountAsync()),                
                 new MetricItem(MetricKind.Standard, MetricCategoryKind.Frameworks, $"Frameworks", await context.Frameworks.CountAsync()),
             };
 

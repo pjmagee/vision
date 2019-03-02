@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components.Routing;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Components.Routing;
 
 namespace Vision.App
 {
@@ -10,5 +11,6 @@ namespace Vision.App
         public string Icon { get; set; }
         public NavMenuItemType Type { get; set; }
         public bool IsActive { get; set; }
+        public List<NavMenuItem> Children { get; set; } = new List<NavMenuItem>();
     }
 }
