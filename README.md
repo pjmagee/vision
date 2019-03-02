@@ -67,15 +67,6 @@ https://github.com/aspnet/AspNetCore/issues/5562
 Download all Brand/Kind/Type Icons required  
   
 TeamCity **TODO**  
-Jenkins **TODO**  
-Gitlab **TODO**  
-Bitbucket **TODO**  
-GitHub **TODO**
-NPM **TODO**  
-NuGet **TODO**  
-Docker **TODO**  
-Maven **TODO**  
-Gradle **TODO**  
 
 NuGet #004880
 Jenkins #D24939
@@ -89,6 +80,9 @@ Python #3776AB
 AppVeyor #00B3E0
 Angular #DD0031
 Ruby #CC342D
+.NET #5C2D91
+Vue.js #4FC08D
+
 
 ### Shared components
 

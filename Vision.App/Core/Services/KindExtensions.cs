@@ -2,8 +2,15 @@
 
 namespace Vision.App
 {
-    public static class FontAwesomeIconHelper
+    public static class KindExtensions
     {
+        public static string GetIconClass(this CiCdKind kind) => $"icon {kind.ToString()}";
+        public static string GetIconClass(this MetricCategoryKind kind) => $"icon {kind.ToString()}";
+        public static string GetIconClass(this DependencyKind kind) => $"icon {kind.ToString()}";
+        public static string GetIconClass(this MetricKind kind) => $"icon {kind.ToString()}";
+        public static string GetIconClass(this VersionControlKind kind) => $"icon {kind.ToString()}";
+
+
         public static string GetFontAwesomeClass(this CiCdKind kind)
         {
             switch(kind)

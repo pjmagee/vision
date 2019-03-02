@@ -19,8 +19,8 @@
                 <td>
                     <a href="@($"/data/dependencies/{item.DependencyId}")">@item.Name</a>
                 </td>
-                <td>
-                    @svgHelper.GetDependencySvg(item.Kind)
+                <td class="@item.Kind.GetIconClass()">
+                    @svgHelper.GetSvg(item.Kind)
                 </td>
                 <td>@item.Assets</td>
                 <td>@item.Versions</td>

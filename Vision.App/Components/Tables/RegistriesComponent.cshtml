@@ -1,4 +1,5 @@
 ﻿@inject IJSRuntime Runtime
+@inject SvgHelper SvgHelper
 
 <table class="table table-striped table-bordered table-sm" style="width: 100%">
     <thead>
@@ -20,7 +21,9 @@
             </td>
             <td>@item.ApiKey</td>
             <td>@item.Dependencies</td>
-            <td>@item.Kind.ToString()</td>
+            <td class="@item.Kind.GetIconClass()">
+                @SvgHelper.GetSvg(item.Kind)
+            </td>
             <td>@item.IsPublic</td>
             <td></td>
         </tr>

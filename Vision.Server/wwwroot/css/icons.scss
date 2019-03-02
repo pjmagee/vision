@@ -1,0 +1,57 @@
+﻿td {
+    &.icon {
+        text-align: center;
+    
+        svg {        
+            height: 2.5rem;
+            width: 2.5rem;
+        }
+        
+        &.Docker {
+            svg {
+                fill: #1488C6;
+            }        
+        }
+        &.Jenkins {
+            svg {
+                fill: #D24939;
+            }        
+        }
+        &.Gitlab {
+            svg {
+                fill: #E24329;
+            }        
+        }
+        &.Github {
+            svg {
+                fill: #181717;
+            }
+        }
+        &.Maven,
+        &.Gradle {
+            svg {
+                fill: #007396;
+            }
+        }
+        &.RubyGem {
+            svg {
+                fill: #CC342D;
+            }
+        }
+        &.PyPi {
+            svg {
+                fill: #3776AB;
+            }
+        }
+        &.NuGet {
+            svg {
+                fill: #004880;
+            }
+        }
+        &.Npm {
+            svg {
+                fill: #CB3837;
+            }
+        }
+    }
+}

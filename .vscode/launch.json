@@ -21,7 +21,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/VisioN.Server//bin/Debug/netcoreapp3.0/VisioN.Server.dll",
+            "program": "${workspaceFolder}/VisioN.Server/bin/Debug/netcoreapp3.0/VisioN.Server.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,

@@ -22,7 +22,7 @@ namespace Vision.App
 
         private MarkupString Empty = new MarkupString();               
 
-        public MarkupString GetDependencySvg(DependencyKind kind)
+        public MarkupString GetSvg(DependencyKind kind)
         {
             switch (kind)
             {
@@ -37,7 +37,7 @@ namespace Vision.App
             }
         }
 
-        public MarkupString GetVersionControlSvg(VersionControlKind kind)
+        public MarkupString GetSvg(VersionControlKind kind)
         {
             switch(kind)
             {
@@ -48,7 +48,7 @@ namespace Vision.App
             }
         }
 
-        public MarkupString GetCiCdSvg(CiCdKind kind)
+        public MarkupString GetSvg(CiCdKind kind)
         {
             switch(kind)
             {

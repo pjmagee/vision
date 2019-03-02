@@ -180,7 +180,7 @@ namespace Vision.Core
 
         public async Task NextRefreshTaskAsync()
         {
-            SystemTask task = await context.Tasks.OrderByDescending(task => task.Created).FirstOrDefaultAsync(task => task.Status == Shared.TaskStatus.Pending);
+            SystemTask task = await context.Tasks.OrderByDescending(t => t.Created).FirstOrDefaultAsync(t => t.Status == Shared.TaskStatus.Pending);
 
             if (task == null)
             {

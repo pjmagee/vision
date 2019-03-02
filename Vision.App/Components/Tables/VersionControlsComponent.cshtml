@@ -20,8 +20,8 @@
                 </td>
                 <td>@item.ApiKey</td>
                 <td>@item.Repositories</td>
-                <td>
-                    @svgHelper.GetVersionControlSvg(item.Kind)
+                <td class="@item.Kind.GetIconClass()">
+                    @svgHelper.GetSvg(item.Kind)
                 </td>
                 <td></td>
             </tr>
