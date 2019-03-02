@@ -22,84 +22,30 @@ https://github.com/aspnet/AspNetCore/issues/5562
  
 ## Current pages
 
-/vcs/ **DONE**  
-/vcs/{id} **DONE**  
-/repositories/{id}  **DONE**  
-/registries/ **DONE**  
-/registries/{id} **DONE**  
-/cicds/ **DONE**  
-/dependencies/ **DONE**  
-/dependencies/{id} **DONE**  
-/frameworks/ **DONE**  
-/frameworks/{id} **DONE**  
-/assets/ **DONE**  
-/assets/{id} **DONE**  
-/versions/{id} **DONE**  
-
-## Source pages (next phase)
-
-/sources/vcs **TODO**  
-/sources/vcs/{vId} - edit **TODO**  
-/sources/cicds  **TODO**  
-/sources/cicds/{cId} - edit **TODO**  
-/sources/registries  **TODO**  
-/sources/registries/{rId} - edit **TODO**  
-
-## Data pages (next phase)
-
-/data/vcs/ - display all version control systems **TODO**   
-/data/vcs/{id} - display [repositories] of [vcs]  **TODO**  
-/data/vcs/{id}/repositories/{id}/ - display [assets, frameworks, metrics] of [repository]  **TODO**  
-/data/vcs/{id}/repositories/{id}/assets/{id} - displays [dependencies, frameworks, metrics] of [asset]  **TODO**  
-/data/vcs/{id}/repositories/{id}/frameworks/{id} - displays [assets, metrics] of [framework]**TODO**    
-/data/dependencies/ - displays all [dependencies, metrics]  **TODO**  
-/data/dependencies/{id} - displays [assets, versions, metrics] of [dependency]  **TODO**  
-/data/dependencies/{id}/versions/{id}/ - displays [assets, metrics] of [version]  **TODO**  
-/data/frameworks/ - displays all frameworks  **TODO**  
-/data/frameworks/{id} - displays all [assets] of [framework]  **TODO**  
-/data/registries - displays all dependency registries  **TODO**  
-/data/registries/{id}  - displays [dependencies] of [registry]  **TODO**  
-/data/cicds  **TODO**  
-/data/security  **TODO**  
+* Refactor all links so that assets via navigation always go via /data/vcs/{VersionControlId}/repositories/{RepositoryId}/assets/{AssetId}
+* Remove /data/assets/ as a way of navigation and linking
+* Add an edit feature for each source entity to enable/disable/modify that entity  
 
 ### Icon SVG and Icon Component for Kinds
 
-Download all Brand/Kind/Type Icons required  
-  
-TeamCity **TODO**  
+TeamCity **TODO** 
+AppVeyor #00B3E0 **TODO**  
+Angular #DD0031 **TODO**  
+.NET #5C2D91  **TODO**  
+Vue.js #4FC08D  **TODO**  
 
-NuGet #004880
-Jenkins #D24939
-Docker #1488C6
-NPM #CB3837
-Gitlab #E24329
-Bitbucket #0052CC
-Github #181717
-Java #007396
-Python #3776AB
-AppVeyor #00B3E0
-Angular #DD0031
-Ruby #CC342D
-.NET #5C2D91
-Vue.js #4FC08D
+## API - Insights
 
-### Shared components
+Insights or Metrics? 
+Controllers will get pretty chunky if they take ownership of the entity + all logic around them, split into controllers of features?
 
-FrameworksComponent **DONE**  
-AssetsComponent **DONE**  
-CiCdsComponent **DONE**  
-DependenciesComponent **DONE**  
-MetricsComponent **DONE**  
 
-## API - Metrics
-
-/versioncontrols/{id}/metrics **TODO**  
-/registries/{id}/metrics ***TODO**  
-/repositories/{id}/metrics ***TODO**  
-/dependencies/{id}/metrics ***TODO**  
-/frameworks/{id}/metrics ***TODO**  
-/versions/{id}/metrics ***TODO**  
-/assets/{id}/metrics ***TODO**  
+/insights/assets/{dependencyKind}  
+/insights/dependencies/{dependencyKind}  
+/insights/registries/  
+/insights/repositories/  
+/insights/frameworks/  
+/insights/versions/{vId}  
 
 ## API - Tasks
 
