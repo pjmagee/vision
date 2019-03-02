@@ -1,6 +1,6 @@
 ﻿namespace Vision.Shared
 {
-    public enum MetricKind
+    public enum MetricAlertKind
     {        
         Standard,
         Good,

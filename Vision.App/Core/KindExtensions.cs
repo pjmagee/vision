@@ -7,7 +7,7 @@ namespace Vision.App
         public static string GetIconClass(this CiCdKind kind) => $"icon {kind.ToString()}";
         public static string GetIconClass(this MetricCategoryKind kind) => $"icon {kind.ToString()}";
         public static string GetIconClass(this DependencyKind kind) => $"icon {kind.ToString()}";
-        public static string GetIconClass(this MetricKind kind) => $"icon {kind.ToString()}";
+        public static string GetIconClass(this MetricAlertKind kind) => $"icon {kind.ToString()}";
         public static string GetIconClass(this VersionControlKind kind) => $"icon {kind.ToString()}";
 
 
@@ -30,7 +30,7 @@ namespace Vision.App
                 case MetricCategoryKind.CiCds: return "fas fa-cogs";
                 case MetricCategoryKind.Data: return "far fa-data";
                 case MetricCategoryKind.Sources: return "fas fa-code-branch";
-                case MetricCategoryKind.VersionControls: return "far fa-code-branch";
+                case MetricCategoryKind.VersionControls: return "fas fa-code-branch";
                 case MetricCategoryKind.Repositories: return "far fa-folder";
                 case MetricCategoryKind.Dependencies: return "far fa-file-archive";
                 case MetricCategoryKind.Frameworks: return "fas fa-cubes";
@@ -56,14 +56,14 @@ namespace Vision.App
         }
                
 
-        public static string GetMetricColour(this MetricKind kind)
+        public static string GetMetricColour(this MetricAlertKind kind)
         {
             switch(kind)
             {
-                case MetricKind.Standard: return "primary";
-                case MetricKind.Good: return "success";
-                case MetricKind.Warning: return "warning";                
-                case MetricKind.Bad: return "danger";
+                case MetricAlertKind.Standard: return "primary";
+                case MetricAlertKind.Good: return "success";
+                case MetricAlertKind.Warning: return "warning";                
+                case MetricAlertKind.Bad: return "danger";
                 default: return string.Empty;
             }
         }

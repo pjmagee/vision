@@ -8,9 +8,13 @@
 
 @if (Items != null)
 {
-    <div class="row mb-4">Summary</div>
+    <div class="row mb-1">
+        <div class="col">
+            <h3>Summary</h3>
+        </div>
+    </div>
     <div class="row mb-4">
-        @foreach (var item in Items.Where(k => !k.DependencyKind.HasValue))
+        @foreach (var item in Items.Where(metric => !metric.DependencyKind.HasValue))
         {
             <div class="col-xl-3 col-md-6 mb-4">
                 <MetricCardComponent Item="item"></MetricCardComponent>
@@ -20,9 +24,13 @@
 
     <div class="row mb-4">
         <div class="col-md-6">
-            <div class="row mb-4">Assets</div>
+            <div class="row mb-1">
+                <div class="col">
+                    <h3>Assets</h3>
+                </div>
+            </div>
             <div class="row mb-4">
-                @foreach (var item in Items.Where(k => k.CategoryKind == MetricCategoryKind.Assets))
+                @foreach (var item in Items.Where(metric => metric.CategoryKind == MetricCategoryKind.Assets))
                 {
                     <div class="col-xl-3 col-md-6 mb-4">
                         <MetricCardComponent Item="item"></MetricCardComponent>
@@ -31,9 +39,13 @@
             </div>
         </div>    
         <div class="col-md-6">
-            <div class="row mb-4">Dependencies</div>
-            <div class="row mb-4">                
-                @foreach (var item in Items.Where(k => k.CategoryKind == MetricCategoryKind.Dependencies))
+            <div class="row mb-1">
+                <div class="col">
+                    <h3>Dependencies</h3>
+                </div>
+            </div>
+            <div class="row mb-4">
+                @foreach (var item in Items.Where(metric => metric.CategoryKind == MetricCategoryKind.Dependencies))
                 {
                     <div class="col-xl-3 col-md-6 mb-4">
                         <MetricCardComponent Item="item"></MetricCardComponent>

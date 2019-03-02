@@ -30,11 +30,11 @@
                 }                
                 else
                 {    <li class="nav-item">
-                        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#@item.Name" aria-expanded="true" aria-controls="@item.Name">
+                        <a class="nav-link collapsed" href="" data-toggle="collapse" data-target="#@item.Name" aria-expanded="true" aria-controls="@item.Name">
                             <i class="@item.Icon"></i>
                             <span>@item.Name</span>
                         </a>
-                        <div id="#@item.Name" class="collapse" aria-labelledby="heading@(item.Name)" data-parent="#accordionSidebar">
+                        <div id="@item.Name" class="collapse" aria-labelledby="heading@(item.Name)" data-parent="#accordionSidebar">
                             <div class="bg-white py-2 collapse-inner rounded">
                                 @foreach (var childItem in item.Children)
                                 {

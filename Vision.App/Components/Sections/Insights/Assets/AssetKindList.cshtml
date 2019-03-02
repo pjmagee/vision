@@ -1,0 +1,16 @@
+﻿@page "/insights/assets/{DependencyKind:int}"
+
+@inject HttpClient HttpClient
+
+<BreadcrumbsComponent>
+    <li class="breadcrumb-item">Insights</li>
+    <li class="breadcrumb-item">Assets</li>
+    <li class="breadcrumb-item active">@DependencyKind.ToString()</li>
+</BreadcrumbsComponent>
+
+<AssetMetricItemsComponent DependencyKind="@DependencyKind"></AssetMetricItemsComponent>
+
+@functions
+{
+    [Parameter] DependencyKind DependencyKind { get; set; }    
+}
