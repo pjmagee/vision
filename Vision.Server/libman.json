@@ -13,6 +13,7 @@
       "files": [
         "js/jquery.dataTables.min.js",
         "js/dataTables.bootstrap4.min.js",
+        "css/jquery.dataTables.min.css",
         "css/dataTables.bootstrap4.min.css"
       ]
     },
@@ -29,7 +30,24 @@
     {
       "library": "font-awesome@5.7.2",
       "destination": "wwwroot/@lib/font-awesome/",
-      "files": [ "css/all.min.css" ]
+      "files": [
+        "css/all.min.css",
+        "webfonts/fa-brands-400.eot",
+        "webfonts/fa-brands-400.svg",
+        "webfonts/fa-brands-400.ttf",
+        "webfonts/fa-brands-400.woff",
+        "webfonts/fa-brands-400.woff2",
+        "webfonts/fa-regular-400.eot",
+        "webfonts/fa-regular-400.svg",
+        "webfonts/fa-regular-400.ttf",
+        "webfonts/fa-regular-400.woff",
+        "webfonts/fa-regular-400.woff2",
+        "webfonts/fa-solid-900.eot",
+        "webfonts/fa-solid-900.svg",
+        "webfonts/fa-solid-900.ttf",
+        "webfonts/fa-solid-900.woff", 
+        "webfonts/fa-solid-900.woff2"
+      ]
     },
     {
       "provider": "jsdelivr",

@@ -13,7 +13,7 @@
         @foreach (var item in Items)
         {
             <tr>
-                <td class="@item.Kind.ToString()">
+                <td class="@item.Kind.GetIconClass()">
                     @SvgHelper.GetSvg(item.Kind)
                 </td>
                 <td>@item.Name</td>

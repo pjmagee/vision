@@ -12,13 +12,9 @@
         @foreach (var item in Items)
         {
             <tr>
-                <td>
-                    <a href="@($"/data/frameworks/{item.FrameworkId}")">@item.Name</a>
-                </td>
+                <td><a href="@($"/data/frameworks/{item.FrameworkId}")">@item.Name</a></td>
                 <td>@item.Assets</td>
-                <td>
-                    
-                </td>
+                <td></td>
             </tr>
         }
     </tbody>

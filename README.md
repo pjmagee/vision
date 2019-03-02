@@ -83,7 +83,6 @@ Ruby #CC342D
 .NET #5C2D91
 Vue.js #4FC08D
 
-
 ### Shared components
 
 FrameworksComponent **DONE**  
@@ -101,6 +100,9 @@ MetricsComponent **DONE**
 /frameworks/{id}/metrics ***TODO**  
 /versions/{id}/metrics ***TODO**  
 /assets/{id}/metrics ***TODO**  
+
+## API - Tasks
+
 /tasks/ ***TODO**  
 /tasks/update/assets/{id} ***TODO**  
 /tasks/update/dependencies/{id} ***TODO**  
