@@ -1,15 +1,15 @@
 {
   "version": "1.0",
   "defaultProvider": "cdnjs",
-  "defaultDestination": "wwwroot/@lib/",
+  "defaultDestination": "wwwroot/lib/",
   "libraries": [
     {
       "library": "jquery@3.3.1",
-      "destination": "wwwroot/@lib/jquery"
+      "destination": "wwwroot/lib/jquery"
     },
     {
       "library": "datatables@1.10.19",
-      "destination": "wwwroot/@lib/datatables/",
+      "destination": "wwwroot/lib/datatables/",
       "files": [
         "js/jquery.dataTables.min.js",
         "js/dataTables.bootstrap4.min.js",
@@ -19,17 +19,17 @@
     },
     {
       "library": "Chart.js@2.7.3",
-      "destination": "wwwroot/@lib/Chart.js/",
+      "destination": "wwwroot/lib/Chart.js/",
       "files": [ "Chart.min.js" ]
     },
     {
       "library": "jquery-easing@1.4.1",
-      "destination": "wwwroot/@lib/jquery-easing/",
+      "destination": "wwwroot/lib/jquery-easing/",
       "files": [ "jquery.easing.min.js" ]
     },
     {
       "library": "font-awesome@5.7.2",
-      "destination": "wwwroot/@lib/font-awesome/",
+      "destination": "wwwroot/lib/font-awesome/",
       "files": [
         "css/all.min.css",
         "webfonts/fa-brands-400.eot",
@@ -52,7 +52,7 @@
     {
       "provider": "jsdelivr",
       "library": "bootstrap@4.3.1",
-      "destination": "wwwroot/@lib/bootstrap/"
+      "destination": "wwwroot/lib/bootstrap/"
     }
   ]
 }

@@ -42,7 +42,6 @@ namespace Vision.Core
         {
             if (string.IsNullOrEmpty(path)) throw new Exception("Path is null");
             if (path.Contains("node_modules")) return false;
-
             if (path.EndsWith(CsProjFile)) return true;
             if (path.EndsWith(RequirementsFile)) return true;
             if (path.EndsWith(PomFile)) return true;

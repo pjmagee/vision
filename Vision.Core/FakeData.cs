@@ -213,6 +213,7 @@ namespace Vision
             var chain = Builder<DependencyVersion>.CreateListOfSize(versionCount)
                 .All()
                 .With(dv => dv.Id = Guid.NewGuid())
+                .With(dv => dv.VulnerabilityUrl = string.Empty)
                 .With(dv => dv.Dependency = dependency)
                 .With(dv => dv.DependencyId = dependency.Id)
                 .With((dv, index) => dv.Version = new Version(GetRandom.Int(index, 10), GetRandom.Int(index, 10), GetRandom.Int(index, 10)).ToString());

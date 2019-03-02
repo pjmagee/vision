@@ -9,6 +9,7 @@ using Vision.Shared;
 
 namespace Vision.Server.Controllers
 {
+
     [ApiController]
     [Route("api/[controller]")]
     [ResponseCache(Duration = 30)]

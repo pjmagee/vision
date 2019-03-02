@@ -34,21 +34,8 @@ namespace Vision.Server
                     .UseLazyLoadingProxies()
                     .UseSqlServer(configuration["ConnectionStrings:Home"])
                     .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)), ServiceLifetime.Transient, ServiceLifetime.Transient);
-
-            // services.AddResponseCaching();
-
-            services.AddMvc(options => 
-            {
-                options.RespectBrowserAcceptHeader = false; // Only serve application/json
-
-            }).AddNewtonsoftJson(options => 
-            {
-                //options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-                //options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
-                //options.SerializerSettings.Formatting = Formatting.Indented;
-                // options.SerializerSettings.Error = (sender, e) =>
-                
-            }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            
+            services.AddMvc().AddNewtonsoftJson().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             services.AddScoped<BitBuckerChecker>();
             services.AddScoped<GitlabChecker>();
@@ -110,28 +97,9 @@ namespace Vision.Server
             app.UseSwagger();
             app.UseSwaggerUi3();
 
-            //app.UseResponseCaching();
-
-            //app.Use(async (context, next) =>
-            //{
-            //    context.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue() { Public = true, MaxAge = TimeSpan.FromSeconds(10) };
-            //    context.Response.Headers[HeaderNames.Vary] = new string[] { "Accept-Encoding" };
-            //    await next();
-            //});
-
             app.UseMvc();
             app.UseStaticFiles();
-            // app.UseAuthentication();
-
             app.UseRazorComponents<App.Startup>();
-
-            //app.UseSignalR(route => route.MapHub<BlazorHub>(BlazorHub.DefaultPath, o =>
-            //{
-            //    o.ApplicationMaxBufferSize = 131072; // larger size
-            //    o.TransportMaxBufferSize = 131072; // larger size
-            //}));
-
-            // app.UseBlazor<App.Startup>();
         }
     }
 }
