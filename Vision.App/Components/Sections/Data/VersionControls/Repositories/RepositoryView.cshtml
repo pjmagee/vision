@@ -57,6 +57,22 @@
     </div>
 </div>
 
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Dependencies</h6>
+    </div>
+    <div class="card-body">
+        @if (Frameworks != null)
+        {
+            <DependenciesComponent Items="Dependencies"></DependenciesComponent>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
+
 
 @functions
 {
@@ -68,6 +84,7 @@
 
     private CiCdBuildDto[] Builds { get; set; }
     private AssetDto[] Assets { get; set; }
+    private DependencyDto[] Dependencies { get; set; }
     private FrameworkDto[] Frameworks { get; set; }
 
     protected override async Task OnParametersSetAsync()
@@ -75,6 +92,7 @@
         VersionControl = await HttpClient.GetJsonAsync<VersionControlDto>($"/api/versioncontrols/{VersionControlId}");
         Repository = await HttpClient.GetJsonAsync<RepositoryDto>($"/api/repositories/{RepositoryId}");
         Builds = await HttpClient.GetJsonAsync<CiCdBuildDto[]>($"/api/repositories/{RepositoryId}/cicds");
+        Dependencies = await HttpClient.GetJsonAsync<DependencyDto[]>($"/api/repositories/{RepositoryId}/dependencies");
         Assets = await HttpClient.GetJsonAsync<AssetDto[]>($"/api/repositories/{RepositoryId}/assets");
         Frameworks = await HttpClient.GetJsonAsync<FrameworkDto[]>($"/api/repositories/{RepositoryId}/frameworks");
     }

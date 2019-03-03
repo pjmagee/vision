@@ -60,9 +60,25 @@ namespace Vision.App
                         Icon = "fas fa-fw fa-table"
                     }).ToList()
                 },
-                new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Frameworks",              Route = "/insights/frameworks",  Icon = "fas fa-fw fa-table" },
+                new NavMenuItem
+                {
+                    Type = NavMenuItemType.Data,
+                    Match = NavLinkMatch.Prefix,
+                    Name = "Repositories",
+                    Route = "/insights/repositories",
+                    Icon = "fas fa-fw fa-cloud-download-alt",
+                    Children = Enum.GetValues(typeof(DependencyKind)).Cast<DependencyKind>().Select(kind => new NavMenuItem
+                    {
+                        Type = NavMenuItemType.Data,
+                        Match = NavLinkMatch.Prefix,
+                        Name = kind.ToString(),
+                        Route = $"/insights/repositories/{(int)kind}",
+                        Icon = "fas fa-fw fa-table"
+                    }).ToList()
+                },                
+                new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Frameworks", Route = "/insights/frameworks", Icon = "fas fa-fw fa-table" },
                 new NavMenuItem { Type = NavMenuItemType.Seperator, Name = "Admin" },
-                new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Tasks",                   Route = "/admin/tasks",  Icon = "fas fa-fw fa-table" }
+                new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Tasks",      Route = "/admin/tasks", Icon = "fas fa-fw fa-table" }
             };
         }
     }

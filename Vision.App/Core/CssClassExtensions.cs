@@ -2,7 +2,7 @@
 
 namespace Vision.App
 {
-    public static class KindExtensions
+    public static class CssClassExtensions
     {
         public static string GetIconClass(this CiCdKind kind) => $"icon {kind.ToString()}";
         public static string GetIconClass(this MetricCategoryKind kind) => $"icon {kind.ToString()}";

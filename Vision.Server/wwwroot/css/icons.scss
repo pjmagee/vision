@@ -1,26 +1,45 @@
 ﻿td {
     &.icon {
         text-align: center;
-    
-        svg {        
+
+        svg {
             height: 2.5rem;
             width: 2.5rem;
         }
-        
+        &.Teamcity {
+            svg {
+
+            }
+        }
+        &.VueJs {
+            svg {
+                fill: #4FC08D;
+            }
+        }
+        &.DotNet {
+            svg {
+                fill: #5C2D91;
+            }
+        }
+        &.Angular {
+            svg {
+                fill: #DD0031;
+            }
+        }
         &.Docker {
             svg {
                 fill: #1488C6;
-            }        
+            }
         }
         &.Jenkins {
             svg {
                 fill: #D24939;
-            }        
+            }
         }
         &.Gitlab {
             svg {
                 fill: #E24329;
-            }        
+            }
         }
         &.Github {
             svg {

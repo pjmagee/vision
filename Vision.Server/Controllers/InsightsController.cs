@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -40,6 +41,20 @@ namespace Vision.Server.Controllers
             {
                 new MetricItems<AssetDto>(MetricAlertKind.Standard, MetricCategoryKind.Assets, $"{dependencyKind} assets with the most dependencies", most),
                 new MetricItems<AssetDto>(MetricAlertKind.Standard, MetricCategoryKind.Assets, $"{dependencyKind} assets with the least dependencies", least)
+            };
+        }
+
+        [HttpGet("repositories/{dependencyKind:int}")]
+        public async Task<IEnumerable<MetricItems<RepositoryDto>>> GetPublishingRepositoriesByDependencyKind(DependencyKind dependencyKind)
+        {
+            RepositoryDto[] published = await context.Repositories.AsNoTracking()
+                .Where(repository => context.Dependencies.Where(dependency => dependency.Kind == dependencyKind).Any(dependency => string.Equals(dependency.RepositoryUrl, dependency.RepositoryUrl) || string.Equals(dependency.RepositoryUrl, repository.WebUrl)))
+                .Select(repository => new RepositoryDto { Assets = context.Assets.Count(a => a.RepositoryId == repository.Id), RepositoryId = repository.Id, Url = repository.Url, WebUrl = repository.WebUrl, VersionControlId = repository.VersionControlId })
+                .ToArrayAsync();
+
+            return new[]
+            {
+                new MetricItems<RepositoryDto>(MetricAlertKind.Standard, MetricCategoryKind.Dependencies, $"Repositories that publish {dependencyKind} dependencies", published)
             };
         }
 

@@ -20,6 +20,8 @@ namespace Vision.App
         private MarkupString Python { get; set; }
         private MarkupString Ruby { get; set; }
 
+        private MarkupString TeamCity { get; set; }
+
         private MarkupString Empty = new MarkupString();               
 
         public MarkupString GetSvg(DependencyKind kind)
@@ -54,7 +56,7 @@ namespace Vision.App
             {
                 case CiCdKind.Gitlab: return Gitlab;
                 case CiCdKind.Jenkins: return Jenkins;
-                case CiCdKind.TeamCity: return Jenkins;
+                case CiCdKind.TeamCity: return TeamCity;
                 default: return Empty;
             }             
         }
@@ -76,6 +78,7 @@ namespace Vision.App
             NuGet = new MarkupString(await httpClient.GetStringAsync("img/nuget.svg"));
             Python = new MarkupString(await httpClient.GetStringAsync("img/python.svg"));
             Ruby = new MarkupString(await httpClient.GetStringAsync("img/ruby.svg"));
+            TeamCity = new MarkupString(await httpClient.GetStringAsync("img/teamcity.svg"));
         }
     }
 }
