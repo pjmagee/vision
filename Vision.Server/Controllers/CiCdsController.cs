@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,17 @@ namespace Vision.Server.Controllers
         private readonly VisionDbContext context;
 
         public CiCdsController(VisionDbContext context) => this.context = context;
+
+        [HttpPost, Route("create")]
+        public async Task<IActionResult> PostCiCdAsync([FromBody] CiCdDto post)
+        {
+            CiCd cicd = new CiCd { Id = Guid.NewGuid(), ApiKey = post.ApiKey, Endpoint = post.Endpoint, Kind = post.Kind };
+
+            context.CiCds.Add(cicd);
+            await context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(PostCiCdAsync), new CiCdDto { Endpoint = post.Endpoint, ApiKey = post.ApiKey, Kind = post.Kind, CiCdId = post.CiCdId });
+        }
 
         [HttpGet]
         public async Task<IEnumerable<CiCdDto>> GetAllAsync()

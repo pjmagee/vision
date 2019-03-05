@@ -9,7 +9,7 @@
     <li class="breadcrumb-item active">@Item?.Asset</li>
 </BreadcrumbsComponent>
 
-<button onclick="@AddRefreshTaskAsync" class="btn btn-primary">Refresh Asset</button>
+<RefreshComponent Target="TaskScope.Asset" Id="@AssetId"></RefreshComponent>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
@@ -57,10 +57,5 @@
         Item = await HttpClient.GetJsonAsync<AssetDto>($"/api/assets/{AssetId}");
         Dependencies = await HttpClient.GetJsonAsync<AssetDependencyDto[]>($"/api/assets/{AssetId}/dependencies");
         Frameworks = await HttpClient.GetJsonAsync<FrameworkDto[]>($"/api/assets/{AssetId}/frameworks");
-    }
-
-    private async Task AddRefreshTaskAsync()
-    {
-        await HttpClient.GetAsync($"/api/tasks/update/assets/{AssetId}");
     }
 }

@@ -31,7 +31,8 @@ namespace Vision.Server.Controllers
             }).ToListAsync();
         }
 
-        [HttpPost]
+
+        [HttpPost, Route("create")]
         public async Task<ActionResult<VersionControlDto>> PostVersionControlAsync([FromBody] VersionControlDto post)
         {
             VersionControl versionControl = new VersionControl { Id = Guid.NewGuid(), ApiKey = post.ApiKey, Endpoint = post.Endpoint, Kind = post.Kind };
@@ -39,7 +40,7 @@ namespace Vision.Server.Controllers
             context.VersionControls.Add(versionControl);
             await context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(PostVersionControlAsync), new { sourceId = versionControl.Id }, new VersionControlDto { Endpoint = versionControl.Endpoint, ApiKey = versionControl.ApiKey, Kind = versionControl.Kind, VersionControlId = versionControl.Id, Repositories = versionControl.Repositories.Count });
+            return CreatedAtAction(nameof(PostVersionControlAsync), new VersionControlDto { Endpoint = versionControl.Endpoint, ApiKey = versionControl.ApiKey, Kind = versionControl.Kind, VersionControlId = versionControl.Id });
         }
 
         [HttpGet("{versionControlId}")]

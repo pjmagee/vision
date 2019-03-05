@@ -52,30 +52,30 @@
 @functions
 {
     private IList<AlertDto> alerts = new List<AlertDto>();
-    private HubConnection connection;
+    // private HubConnection connection;
 
     protected async override Task OnInitAsync()
     {
         await SvgHelper.LoadIconsAsync();
 
-        connection = new HubConnectionBuilder().WithUrlBlazor("/notificationhub", Microsoft.AspNetCore.Http.Connections.HttpTransportType.WebSockets).Build();
+        //connection = new HubConnectionBuilder().WithUrlBlazor("/notificationhub", Microsoft.AspNetCore.Http.Connections.HttpTransportType.WebSockets).Build();
 
-        connection.KeepAliveInterval = TimeSpan.FromSeconds(1);
+        //connection.KeepAliveInterval = TimeSpan.FromSeconds(1);
 
-        this.connection.On<AlertDto>("Send", (alert) =>
-        {
-            alerts.Add(alert);
-            StateHasChanged();
-        });
+        //this.connection.On<AlertDto>("Send", (alert) =>
+        //{
+        //    alerts.Add(alert);
+        //    StateHasChanged();
+        //});
 
-        connection.Closed += async (error) =>
-        {
-            await Task.Delay(new Random().Next(0,5) * 1000);
-            await connection.StartAsync();
-        };
+        //connection.Closed += async (error) =>
+        //{
+        //    await Task.Delay(new Random().Next(0,5) * 1000);
+        //    await connection.StartAsync();
+        //};
 
-        Task.WaitAll(this.connection.StartAsync());
+        //Task.WaitAll(this.connection.StartAsync());
 
-        Console.WriteLine("Connected");
+        //Console.WriteLine("Connected");
     }
 }

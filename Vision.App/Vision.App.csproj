@@ -19,6 +19,5 @@
     <ProjectReference Include="..\Vision.Shared\Vision.Shared.csproj" />
   </ItemGroup>
 
-
 </Project>
  

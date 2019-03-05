@@ -7,7 +7,7 @@ using System.Xml.XPath;
 
 namespace Vision.Core
 {
-    public class NuGetPackageExtractor : IDependencyExtractor
+    public class NuGetPackageExtractor : IAssetExtractor
     {
         const string PackageReference = "PackageReference";
         const string DotNetCliToolReference = "DotNetCliToolReference";

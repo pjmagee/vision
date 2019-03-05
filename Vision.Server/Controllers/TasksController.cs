@@ -70,7 +70,7 @@ namespace Vision.Server.Controllers
             return CreatedAtAction(nameof(UpdateRepositoryAsync), task);
         }
 
-        [HttpPost("update/vcs/{id}")]
+        [HttpGet("update/vcs/{id}")]
         public async Task<ActionResult<SystemTask>> UpdateVersionControlAsync(Guid id)
         {
             SystemTask task = new SystemTask { Scope = TaskScope.VersionControl, Status = Shared.TaskStatus.Pending, TargetId = id };

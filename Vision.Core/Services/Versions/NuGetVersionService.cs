@@ -23,22 +23,27 @@ namespace Vision.Core
             {                
                 try
                 {
-                    client.DefaultRequestHeaders.Add("API-KEY", registry.ApiKey);
                     client.BaseAddress = new Uri(registry.Endpoint);
-                    var statusResponse = await client.GetAsync(string.Empty);
-                    var contentType = statusResponse.Headers.GetValues("Content-Type");
 
-                    if (contentType.Contains("application/xml"))
+                    if (registry.Endpoint.EndsWith("index.json"))
                     {
-                        // NuGet API V2 (XML)
-                    }
-                    else if (contentType.Contains("application/json"))
-                    {
-                        // NuGet API V3 index.json (JSON)
-                        var json = await client.GetStringAsync(new Uri($"registration3/{dependency}/index.json", UriKind.Relative));
-                        var response = JObject.Parse(json);
+                        // root API v3
+                        JObject root = JObject.Parse(await client.GetStringAsync(string.Empty));
+
+                        // RegistrationsBaseUrl Resource
+                        string endppoint = root["resources"].Single(x => x["@type"].Value<string>() == "RegistrationsBaseUrl")["@id"].Value<string>();
+                        client.BaseAddress = new Uri(endppoint);
+
+                        // Dependency Registration Response
+                        var dependencyResponse = await client.GetStringAsync(new Uri($"{dependency}/index.json", UriKind.Relative));
+
+                        var response = JObject.Parse(dependencyResponse);
                         var latest = response["items"].First["upper"].Value<string>();
                         return new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Version = latest, IsLatest = true };
+                    }
+                    else
+                    {
+                        // v2 XML API (nexus, etc)
                     }
                 }
                 catch (Exception)

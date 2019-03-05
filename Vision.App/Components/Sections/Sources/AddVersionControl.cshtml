@@ -14,31 +14,30 @@
     <div class="card-body">
         <form>
             <div class="form-group">
-                <input type="text" class="form-control" bind="NewVcs.Endpoint" placeholder="Endpoint" />
+                <input type="text" class="form-control" bind="VersionControl.Endpoint" placeholder="Endpoint" />
             </div>
             <div class="form-group">
-                <input type="text" class="form-control" bind="NewVcs.ApiKey" placeholder="API Key" />
+                <input type="text" class="form-control" bind="VersionControl.ApiKey" placeholder="API Key" />
             </div>
             <div class="form-group">
-                <select type="text" class="form-control" bind="NewVcs.Kind" placeholder="Type">
-                    @foreach (VersionControlKind kind in Enum.GetValues(typeof(VersionControlKind)).Cast<VersionControlKind>())
-                    {
-                        <option value="@kind">@kind.ToString()</option>
-                    }
+                <select type="text" class="form-control" bind="VersionControl.Kind" placeholder="Type">
+                   @foreach (VersionControlKind kind in Enum.GetValues(typeof(VersionControlKind)).Cast<VersionControlKind>())
+                   {
+                     <option value="@kind">@kind.ToString()</option>
+                   }
                 </select>
             </div>
-            <button onclick="Submit" class="btn btn-primary">Save</button>
+            <button onclick="@Submit" type="button" class="btn btn-primary">Save</button>
         </form>
     </div>
 </div>
 
-
 @functions 
 {
-    private VersionControlDto NewVcs { get; set; } = new VersionControlDto();
+    private VersionControlDto VersionControl { get; set; } = new VersionControlDto();
 
     protected async Task Submit()
     {
-        await HttpClient.PostJsonAsync<VersionControlDto>("/api/versioncontrols", NewVcs);        
+        await HttpClient.PostJsonAsync<VersionControlDto>("/api/versioncontrols/create", VersionControl);        
     }
 }

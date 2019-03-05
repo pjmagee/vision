@@ -32,7 +32,7 @@
                 <label class="form-check-label" for="defaultCheck1">Public</label>
             </div>
 
-            <button onclick="Submit" class="btn btn-primary">Save</button>
+            <button onclick="@Submit" type="button" class="btn btn-primary">Save</button>
         </form>
     </div>
 </div>
@@ -43,6 +43,6 @@
 
     protected async Task Submit()
     {
-       await HttpClient.PostJsonAsync<RegistryDto>("/api/registries", NewRegistry);
+       await HttpClient.PostJsonAsync<RegistryDto>("/api/registries/create", NewRegistry);
     }
 }

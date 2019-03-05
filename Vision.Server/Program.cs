@@ -22,7 +22,7 @@ namespace Vision.Server
 
                     if (created)
                     {
-                        await Fake.SeedAsync(context);
+                        // await Fake.SeedAsync(context);
                     }
                 }
 

@@ -28,24 +28,22 @@ namespace Vision.Server
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorComponents<App.Startup>();
+            
+            //services.AddConnections();
 
+            //services.AddSignalR().AddNewtonsoftJsonProtocol().AddHubOptions<NotificationHub>(o => 
+            //{
+            //    o.EnableDetailedErrors = true;                
+            //});
 
-            services.AddConnections();
-
-            services.AddSignalR().AddNewtonsoftJsonProtocol().AddHubOptions<NotificationHub>(o => 
-            {
-                o.EnableDetailedErrors = true;                
-            });
-
-            services.AddDbContext<VisionDbContext>(options => 
-                options
-                    .UseLazyLoadingProxies()
-                    .UseSqlServer(configuration["ConnectionStrings:Home"])
-                    .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)), ServiceLifetime.Transient, ServiceLifetime.Transient);
+            services.AddDbContext<VisionDbContext>(options => options
+                .UseLazyLoadingProxies(useLazyLoadingProxies: true)
+                .UseSqlServer(configuration["ConnectionStrings:Home"])                
+                .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)), ServiceLifetime.Transient, ServiceLifetime.Transient);
             
             services.AddMvc().AddNewtonsoftJson().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
-            services.AddScoped<BitBuckerChecker>();
+            services.AddScoped<BitBucketChecker>();
             services.AddScoped<GitlabChecker>();
             services.AddScoped<NodePackagesExtractor>();
             services.AddScoped<NuGetPackageExtractor>();
@@ -54,7 +52,7 @@ namespace Vision.Server
             services.AddScoped<IRefreshService, RefreshService>();
             services.AddScoped<IVcsChecker, AggregateVcsChecker>();
             services.AddScoped<IVersionChecker, AggregateVersionChecker>();
-            services.AddScoped<IDependencyExtractor, AggregateExtractor>();
+            services.AddScoped<IAssetExtractor, AggregateExtractor>();
 
             services.AddHostedService<RefreshHostedService>();
             services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
@@ -118,10 +116,10 @@ namespace Vision.Server
 
             app.UseCors("CorsPolicy");
 
-            app.UseSignalR(route =>
-            {
-                route.MapHub<NotificationHub>("/notificationhub");
-            });
+            //app.UseSignalR(route =>
+            //{
+            //    route.MapHub<NotificationHub>("/notificationhub");
+            //});
 
             app.UseRazorComponents<App.Startup>();
         }

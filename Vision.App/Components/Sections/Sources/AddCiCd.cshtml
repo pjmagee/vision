@@ -27,7 +27,7 @@
                     }
                 </select>
             </div>
-            <button onclick="Submit" class="btn btn-primary">Save</button>
+            <button onclick="@Submit" type="button" class="btn btn-primary">Save</button>
         </form>
     </div>
 </div>
@@ -39,6 +39,6 @@
 
     protected async Task Submit()
     {
-        await HttpClient.PostJsonAsync<CiCdDto>("/api/cicds", NewCiCd);
+        await HttpClient.PostJsonAsync<CiCdDto>("/api/cicds/create", NewCiCd);
     }
 }

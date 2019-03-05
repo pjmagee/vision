@@ -5,20 +5,20 @@ namespace Vision.Core
 {
     public class AggregateVcsChecker : IVcsChecker
     {
-        private readonly IEnumerable<IVcsChecker> gitServices;
+        private readonly IEnumerable<IVcsChecker> vcCheckers;
 
-        public AggregateVcsChecker(BitBuckerChecker bitBucketService, GitlabChecker gitlabService)
+        public AggregateVcsChecker(BitBucketChecker bitBucketService, GitlabChecker gitlabService)
         {
-            this.gitServices = new IVcsChecker[] { bitBucketService, gitlabService };
+            vcCheckers = new IVcsChecker[] { bitBucketService, gitlabService };
         }
 
         public async Task<IEnumerable<Asset>> GetAssetsAsync(Repository repository)
         {
             List<Asset> results = new List<Asset>();
 
-            foreach (var gitService in gitServices)
+            foreach (IVcsChecker vcsChecker in vcCheckers)
             {
-                IEnumerable<Asset> assets = await gitService.GetAssetsAsync(repository);
+                IEnumerable<Asset> assets = await vcsChecker.GetAssetsAsync(repository);
                 results.AddRange(assets);
             }
 
@@ -29,9 +29,9 @@ namespace Vision.Core
         {
             List<Repository> results = new List<Repository>();
 
-            foreach (var gitService in gitServices)
+            foreach (IVcsChecker vcsChecker in vcCheckers)
             {
-                IEnumerable<Repository> repositories = await gitService.GetRepositoriesAsync(source);
+                IEnumerable<Repository> repositories = await vcsChecker.GetRepositoriesAsync(source);
                 results.AddRange(repositories);
             }
 

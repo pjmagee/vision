@@ -4,10 +4,12 @@ using Newtonsoft.Json.Linq;
 
 namespace Vision.Core
 {
-    public class NodePackagesExtractor : IDependencyExtractor
+    public class NodePackagesExtractor : IAssetExtractor
     {
         public IEnumerable<Extract> ExtractDependencies(Asset asset)
-        {            
+        {
+            yield break; 
+
             var package = JObject.Parse(asset.Raw);
 
             foreach (string dependency in package["dependencies"].Concat(package["devDependencies"]).Select((JToken token) => token.ToString()).Distinct())

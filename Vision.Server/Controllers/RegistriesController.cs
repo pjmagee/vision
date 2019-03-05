@@ -20,6 +20,17 @@ namespace Vision.Server.Controllers
             this.context = context;
         }
 
+        [HttpPost, Route("create")]
+        public async Task<ActionResult<RegistryDto>> PostRegistryAsync([FromBody] RegistryDto post)
+        {
+            Registry registry = new Registry { Id = Guid.NewGuid(), ApiKey = post.ApiKey, Endpoint = post.Endpoint, Kind = post.Kind, IsPublic = post.IsPublic };
+
+            context.Registries.Add(registry);
+            await context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(PostRegistryAsync), new RegistryDto { Endpoint = registry.Endpoint, ApiKey = registry.ApiKey, Kind = registry.Kind, RegistryId = registry.Id, IsPublic = post.IsPublic });
+        }
+
         [HttpGet]
         public async Task<IEnumerable<RegistryDto>> GetAllAsync()
         {

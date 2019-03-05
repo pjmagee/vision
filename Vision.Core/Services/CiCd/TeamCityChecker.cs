@@ -43,10 +43,9 @@ namespace Vision.Core.Services.Builds
 
             try
             {
-                BuildsClient.BaseAddress = new Uri(cicd.Endpoint);
+                BuildsClient.BaseAddress = new Uri(cicd.Endpoint + "guestAuth/app/rest/");
 
-                // API auth ??
-                var vcsRootsResponse = await BuildsClient.GetAsync("/app/rest/vcs-roots");
+                var vcsRootsResponse = await BuildsClient.GetAsync("vcs-roots");
                 var vcsRootsDocument = XDocument.Parse(await vcsRootsResponse.Content.ReadAsStringAsync());
 
                 foreach (var vcsRootElement in vcsRootsDocument.Root.Elements("vcs-root"))

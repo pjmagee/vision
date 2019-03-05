@@ -21,8 +21,6 @@ namespace Vision.Core.Services.Builds
 
         public async Task<IEnumerable<CiCdBuildDto>> GetBuildsByRepositoryIdAsync(Guid repositoryId)
         {
-            await Task.Delay(2000); // simulate network latency
-
             Repository repository = await context.Repositories.FindAsync(repositoryId);
             List<string> assets = await context.Assets.Where(x => x.RepositoryId == repositoryId).Select(x => x.Path).ToListAsync();
             assets.ForEach(asset => asset = Path.GetFileNameWithoutExtension(asset));

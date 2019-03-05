@@ -3,13 +3,13 @@ using System.Linq;
 
 namespace Vision.Core
 {
-    public class AggregateExtractor : IDependencyExtractor
+    public class AggregateExtractor : IAssetExtractor
     {
-        private readonly IEnumerable<IDependencyExtractor> extractionServices;        
+        private readonly IEnumerable<IAssetExtractor> extractionServices;        
 
         public AggregateExtractor(NodePackagesExtractor npmExtractionService, NuGetPackageExtractor nuGetPackageExtractionService)
         {
-            extractionServices = new IDependencyExtractor[] 
+            extractionServices = new IAssetExtractor[] 
             {
                 npmExtractionService,
                 nuGetPackageExtractionService

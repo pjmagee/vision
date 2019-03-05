@@ -4,15 +4,13 @@ using Atlassian.Stash.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Vision.Shared;
 
 namespace Vision.Core
 {
-    public class BitBuckerChecker : IVcsChecker
+    public class BitBucketChecker : IVcsChecker
     {        
-        private static readonly HttpClient HttpClient = new HttpClient();
         private static readonly RequestOptions Options = new RequestOptions { Limit = 10000 };
 
         public async Task<IEnumerable<Asset>> GetAssetsAsync(Repository repository)
@@ -20,8 +18,7 @@ namespace Vision.Core
             if (repository.VersionControl.Kind != VersionControlKind.Bitbucket) return Enumerable.Empty<Asset>();
             List<Asset> results = new List<Asset>();
 
-            var base64 = repository.VersionControl.ApiKey;
-            var client = new StashClient(repository.VersionControl.Endpoint, base64, usePersonalAccessTokenForAuthentication: true);
+            StashClient client = new StashClient(repository.VersionControl.Endpoint, repository.VersionControl.ApiKey, usePersonalAccessTokenForAuthentication: true);
 
             ResponseWrapper<Project> projects = await client.Projects.Get();
 
@@ -35,14 +32,14 @@ namespace Vision.Core
 
                     if (isRepositoryFound)
                     {
-                        ResponseWrapper<string> files = await client.Repositories.GetFiles(project.Key, bitBucketRepository.Slug, Options);
+                        ResponseWrapper<string> filePaths = await client.Repositories.GetFiles(project.Key, bitBucketRepository.Slug, Options);
 
-                        foreach(string file in files.Values ?? Enumerable.Empty<string>())
+                        foreach(string path in filePaths.Values ?? Enumerable.Empty<string>())
                         {
-                            if (AppHelper.IsSupported(file))
+                            if (AppHelper.IsSupported(path))
                             {
-                                string contents = await HttpClient.GetStringAsync(file);
-                                results.Add(new Asset { Id = Guid.NewGuid(), Repository = repository, Path = file });
+                                Atlassian.Stash.Entities.File file  = await client.Repositories.GetFileContents(project.Key, bitBucketRepository.Slug, path, new FileContentsOptions { Content = true });
+                                results.Add(new Asset { Id = Guid.NewGuid(), Repository = repository, Path = path, Raw = string.Join(Environment.NewLine, file.FileContents) });
                             }
                         }
                     }
@@ -55,9 +52,8 @@ namespace Vision.Core
         public async Task<IEnumerable<Repository>> GetRepositoriesAsync(VersionControl versionControl)
         {
             if (versionControl.Kind != VersionControlKind.Bitbucket) return Enumerable.Empty<Repository>();
-            
-            var base64 = versionControl.ApiKey;
-            var client = new StashClient(versionControl.Endpoint, base64, usePersonalAccessTokenForAuthentication: true);
+
+            StashClient client = new StashClient(versionControl.Endpoint, versionControl.ApiKey, usePersonalAccessTokenForAuthentication: true);
 
             List<Repository> results = new List<Repository>();
 
@@ -74,8 +70,8 @@ namespace Vision.Core
                         Id = Guid.NewGuid(),
                         VersionControl = versionControl,
                         VersionControlId = versionControl.Id,
-                        WebUrl = "TODO",
-                        Url = "TODO"
+                        WebUrl = repository.Links.Self[0].Href.ToString(),
+                        Url = repository.Links.Clone[0].Href.ToString()
                     });
                 }
             }
