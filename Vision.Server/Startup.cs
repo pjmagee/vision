@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using AutoMapper;
 using NSwag;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Server;
@@ -16,6 +15,7 @@ using Vision.Core;
 using Vision.Core.Services.Builds;
 using Vision.Server.Services;
 using System.Net.Mime;
+using Vision.Server.Hubs;
 
 namespace Vision.Server
 {
@@ -28,6 +28,14 @@ namespace Vision.Server
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorComponents<App.Startup>();
+
+
+            services.AddConnections();
+
+            services.AddSignalR().AddNewtonsoftJsonProtocol().AddHubOptions<NotificationHub>(o => 
+            {
+                o.EnableDetailedErrors = true;                
+            });
 
             services.AddDbContext<VisionDbContext>(options => 
                 options
@@ -61,6 +69,14 @@ namespace Vision.Server
                     WasmMediaTypeNames.Application.Wasm,
                 });
             });
+
+            services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
+            {
+                builder.AllowAnyMethod()
+                       .AllowAnyHeader()
+                       .AllowAnyOrigin()
+                       .AllowCredentials();
+            }));
 
             services.AddSwaggerDocument(config => 
             {
@@ -99,6 +115,14 @@ namespace Vision.Server
 
             app.UseMvc();
             app.UseStaticFiles();
+
+            app.UseCors("CorsPolicy");
+
+            app.UseSignalR(route =>
+            {
+                route.MapHub<NotificationHub>("/notificationhub");
+            });
+
             app.UseRazorComponents<App.Startup>();
         }
     }

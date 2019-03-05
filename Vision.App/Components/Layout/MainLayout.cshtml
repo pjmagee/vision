@@ -1,5 +1,8 @@
 ﻿@inherits LayoutComponentBase
-@inject SvgHelper svgHelper
+@inject SvgHelper SvgHelper
+@inject IJSRuntime Runtime
+@using Microsoft.AspNetCore.SignalR.Client
+@using BlazorSignalR
 
 <div id="wrapper">
     <MenuComponent></MenuComponent>
@@ -21,6 +24,18 @@
                 </form>
             </nav>
             <div class="container-fluid">
+                @foreach(var alert in alerts.ToList())
+                {
+                    alerts.Remove(alert);
+
+                    <div class="alert alert-@alert.Kind.GetMetricColour() alert-dismissible fade show" role="alert">
+                        @alert.Message
+                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                         </button>
+                    </div>
+                }
+
                 @Body
             </div>
         </div>
@@ -34,10 +49,33 @@
 
 <LogoutComponent></LogoutComponent>
 
-@functions 
-{    
+@functions
+{
+    private IList<AlertDto> alerts = new List<AlertDto>();
+    private HubConnection connection;
+
     protected async override Task OnInitAsync()
     {
-         await svgHelper.LoadIconsAsync();
+        await SvgHelper.LoadIconsAsync();
+
+        connection = new HubConnectionBuilder().WithUrlBlazor("/notificationhub", Microsoft.AspNetCore.Http.Connections.HttpTransportType.WebSockets).Build();
+
+        connection.KeepAliveInterval = TimeSpan.FromSeconds(1);
+
+        this.connection.On<AlertDto>("Send", (alert) =>
+        {
+            alerts.Add(alert);
+            StateHasChanged();
+        });
+
+        connection.Closed += async (error) =>
+        {
+            await Task.Delay(new Random().Next(0,5) * 1000);
+            await connection.StartAsync();
+        };
+
+        Task.WaitAll(this.connection.StartAsync());
+
+        Console.WriteLine("Connected");
     }
 }

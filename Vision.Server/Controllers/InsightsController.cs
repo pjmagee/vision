@@ -48,7 +48,7 @@ namespace Vision.Server.Controllers
         public async Task<IEnumerable<MetricItems<RepositoryDto>>> GetPublishingRepositoriesByDependencyKind(DependencyKind dependencyKind)
         {
             RepositoryDto[] published = await context.Repositories.AsNoTracking()
-                .Where(repository => context.Dependencies.Where(dependency => dependency.Kind == dependencyKind).Any(dependency => string.Equals(dependency.RepositoryUrl, dependency.RepositoryUrl) || string.Equals(dependency.RepositoryUrl, repository.WebUrl)))
+                .Where(repository => context.Dependencies.Any(dependency => dependency.Kind == dependencyKind && (string.Equals(dependency.RepositoryUrl, dependency.RepositoryUrl) || string.Equals(dependency.RepositoryUrl, repository.WebUrl))))
                 .Select(repository => new RepositoryDto { Assets = context.Assets.Count(a => a.RepositoryId == repository.Id), RepositoryId = repository.Id, Url = repository.Url, WebUrl = repository.WebUrl, VersionControlId = repository.VersionControlId })
                 .ToArrayAsync();
 

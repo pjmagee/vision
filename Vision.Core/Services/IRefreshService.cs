@@ -192,29 +192,31 @@ namespace Vision.Core
             {
                 task.Status = Shared.TaskStatus.Processing;
                 context.Tasks.Update(task);
+
                 await context.SaveChangesAsync();
+
                 logger.LogInformation($"Refresh task {task.Id} processing...");
 
-                using (IDbContextTransaction transaction = await context.Database.BeginTransactionAsync())
-                {
-                    switch (task.Scope)
-                    {
-                        case TaskScope.Asset:
-                            await RefreshAssetAsync(task.TargetId);
-                            break;
-                        case TaskScope.Dependency:
-                            await RefreshDependencyAsync(task.TargetId);
-                            break;
-                        case TaskScope.Repository:
-                            await RefreshGitRepositoryId(task.TargetId);
-                            break;
-                        case TaskScope.VersionControl:
-                            await RefreshGitSourceAsync(task.TargetId);
-                            break;
-                    }
+                //using (IDbContextTransaction transaction = await context.Database.BeginTransactionAsync())
+                //{
+                //    switch (task.Scope)
+                //    {
+                //        case TaskScope.Asset:
+                //            await RefreshAssetAsync(task.TargetId);
+                //            break;
+                //        case TaskScope.Dependency:
+                //            await RefreshDependencyAsync(task.TargetId);
+                //            break;
+                //        case TaskScope.Repository:
+                //            await RefreshGitRepositoryId(task.TargetId);
+                //            break;
+                //        case TaskScope.VersionControl:
+                //            await RefreshGitSourceAsync(task.TargetId);
+                //            break;
+                //    }
 
-                    transaction.Commit();
-                }
+                //    transaction.Commit();
+                //}
             }
             finally
             {

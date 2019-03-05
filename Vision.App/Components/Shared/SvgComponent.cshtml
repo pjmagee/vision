@@ -1,0 +1,20 @@
+﻿@inject HttpClient HttpClient
+
+@if (Cache.ContainsKey(Svg))
+{
+    @Cache[Svg]
+}
+
+@functions
+{
+    private static Dictionary<string, MarkupString> Cache { get; set; } = new Dictionary<string, MarkupString>();
+
+    [Parameter]
+    private string Svg { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!Cache.ContainsKey(Svg))
+            Cache[Svg] = new MarkupString(await HttpClient.GetStringAsync($"img/{Svg}"));
+    }
+}

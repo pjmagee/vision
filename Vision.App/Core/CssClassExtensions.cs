@@ -31,7 +31,7 @@ namespace Vision.App
                 case MetricCategoryKind.Data: return "far fa-data";
                 case MetricCategoryKind.Sources: return "fas fa-code-branch";
                 case MetricCategoryKind.VersionControls: return "fas fa-code-branch";
-                case MetricCategoryKind.Repositories: return "far fa-folder";
+                case MetricCategoryKind.Repositories: return "far fa-code-branch";
                 case MetricCategoryKind.Dependencies: return "far fa-file-archive";
                 case MetricCategoryKind.Frameworks: return "fas fa-cubes";
                 case MetricCategoryKind.Registries: return "fas fa-archive";
@@ -50,7 +50,7 @@ namespace Vision.App
                 case DependencyKind.Npm: return "fab fa-npm";
                 case DependencyKind.NuGet: return "fab fa-microsoft";
                 case DependencyKind.PyPi: return "fab fa-python";
-                case DependencyKind.RubyGem: return "fab fa-gem";
+                case DependencyKind.RubyGem: return "fas fa-gem";
                 default: return string.Empty;
             }
         }

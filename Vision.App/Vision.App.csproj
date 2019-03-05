@@ -5,13 +5,14 @@
     <LangVersion>8.0</LangVersion>
     <AssemblyName>Vision.App</AssemblyName>
     <RootNamespace>Vision.App</RootNamespace>
-    <BlazorLinkOnBuild>False</BlazorLinkOnBuild>
+    <BlazorLinkOnBuild>false</BlazorLinkOnBuild>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup>    
     <PackageReference Include="Microsoft.AspNetCore.Components.Browser" Version="3.0.0-preview-19075-0444" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Build" Version="3.0.0-preview-19075-0444" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Build" Version="3.0.0-preview-19075-0444" PrivateAssets="all" />    
     <PackageReference Include="NewtonSoft.Json" Version="12.0.1" />
+    <PackageReference Include="BlazorSignalR" Version="0.4.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,3 +21,4 @@
 
 
 </Project>
+ 

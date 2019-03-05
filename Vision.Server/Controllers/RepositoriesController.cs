@@ -69,6 +69,24 @@ namespace Vision.Server.Controllers
             .ToListAsync();
         }
 
+        [HttpGet("{repositoryId}/dependents")]
+        public async Task<IEnumerable<AssetDto>> GetDependentsByRepositoryId(Guid repositoryId)
+        {
+            Repository repository = await context.Repositories.FindAsync(repositoryId);
+
+            return await context.Assets
+                .Where(asset => context.AssetDependencies.Where(ad => ad.AssetId == asset.Id).Any(ad => context.Dependencies.Any(d => ad.DependencyId == d.Id && string.Equals(d.RepositoryUrl, repository.Url) || string.Equals(d.RepositoryUrl, repository.WebUrl))))
+                .Select(asset => new AssetDto
+                {
+                    AssetId = asset.Id,
+                    Repository = asset.Repository.Url,
+                    Dependencies = context.AssetDependencies.Count(assetDependency => assetDependency.AssetId == asset.Id),
+                    Asset = asset.Path,
+                    RepositoryId = asset.RepositoryId
+                })
+                .ToListAsync();
+        }
+
         [HttpGet("{repositoryId}/frameworks")]
         public async Task<IEnumerable<FrameworkDto>> GetFrameworksByRepositoryId(Guid repositoryId)
         {

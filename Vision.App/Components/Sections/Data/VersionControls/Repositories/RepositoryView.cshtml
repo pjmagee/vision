@@ -73,6 +73,21 @@
     </div>
 </div>
 
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Dependents</h6>
+    </div>
+    <div class="card-body">
+        @if (Dependents != null)
+        {
+            <AssetsComponent Items="Dependents"></AssetsComponent>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
 
 @functions
 {
@@ -84,6 +99,7 @@
 
     private CiCdBuildDto[] Builds { get; set; }
     private AssetDto[] Assets { get; set; }
+    private AssetDto[] Dependents { get; set; }
     private DependencyDto[] Dependencies { get; set; }
     private FrameworkDto[] Frameworks { get; set; }
 
@@ -94,6 +110,7 @@
         Builds = await HttpClient.GetJsonAsync<CiCdBuildDto[]>($"/api/repositories/{RepositoryId}/cicds");
         Dependencies = await HttpClient.GetJsonAsync<DependencyDto[]>($"/api/repositories/{RepositoryId}/dependencies");
         Assets = await HttpClient.GetJsonAsync<AssetDto[]>($"/api/repositories/{RepositoryId}/assets");
+        Dependents = await HttpClient.GetJsonAsync<AssetDto[]>($"/api/repositories/{RepositoryId}/dependents");
         Frameworks = await HttpClient.GetJsonAsync<FrameworkDto[]>($"/api/repositories/{RepositoryId}/frameworks");
     }
 }

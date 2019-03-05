@@ -9,6 +9,8 @@
     <li class="breadcrumb-item active">@Item?.Asset</li>
 </BreadcrumbsComponent>
 
+<button onclick="@AddRefreshTaskAsync" class="btn btn-primary">Refresh Asset</button>
+
 <div class="card shadow mb-4">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">Dependencies</h6>
@@ -57,8 +59,8 @@
         Frameworks = await HttpClient.GetJsonAsync<FrameworkDto[]>($"/api/assets/{AssetId}/frameworks");
     }
 
-    protected override async Task OnAfterRenderAsync()
+    private async Task AddRefreshTaskAsync()
     {
-        await Runtime.InvokeAsync<object>("dataTable");
+        await HttpClient.GetAsync($"/api/tasks/update/assets/{AssetId}");
     }
 }
