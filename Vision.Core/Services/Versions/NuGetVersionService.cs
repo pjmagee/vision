@@ -10,6 +10,7 @@ using Vision.Shared;
 
 namespace Vision.Core
 {
+
     public class NuGetVersionService : IVersionChecker
     {
         private readonly VisionDbContext context;

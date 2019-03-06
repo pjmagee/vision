@@ -23,8 +23,7 @@ namespace Vision.Core
             {
                 try
                 {
-                    client.BaseAddress = new Uri(registry.Endpoint);
-                    var response = await client.GetStringAsync($"/{dependency}");
+                    var response = await client.GetStringAsync($"{registry.Endpoint }/{dependency}");
                     var resp = JObject.Parse(response);
                     var latest = resp["dist-tags"]["latest"].ToString();
                     return new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id,Version = latest };
@@ -35,7 +34,7 @@ namespace Vision.Core
                 }
             }
 
-            throw new Exception($"Could not find latest version for {dependency.Name}");
+            return new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Version = "UNKNOWN", IsLatest = false };
         }
     }
 }
