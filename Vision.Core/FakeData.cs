@@ -16,6 +16,14 @@ namespace Vision
         public int GetHashCode(Dependency a) => a.Name.GetHashCode() ^ a.Kind.GetHashCode();
     }
 
+    class VersionComparer : IComparer<DependencyVersion>
+    {
+        public int Compare(DependencyVersion x, DependencyVersion y)
+        {
+            return new Version(x.Version).CompareTo(new Version(y.Version));
+        }
+    }
+
     public static class Fake
     {
         private readonly static IList<DependencyKind> DependencyKinds = Enum.GetValues(typeof(DependencyKind)).Cast<DependencyKind>().ToList();
@@ -53,24 +61,26 @@ namespace Vision
             await context.SaveChangesAsync();
 
             // DEPENDENCIES
-            var repositories = context.Repositories.ToList();
-            var registries = context.Registries.ToList();
+            List<Repository> repositories = context.Repositories.ToList();
+            List<Registry> registries = context.Registries.ToList();
 
-            foreach (var kind in DependencyKinds)
+            foreach (DependencyKind kind in DependencyKinds)
             {
                 context.Dependencies.AddRange(GetDependencies(registries, repositories, kind));
             }
+
             await context.SaveChangesAsync();
 
             // DEPENDENCY VERSIONS
-            foreach (var dependency in context.Dependencies)
+            foreach (Dependency dependency in context.Dependencies)
             {
                 context.DependencyVersions.AddRange(GetDependencyVersions(dependency));
             }
+
             await context.SaveChangesAsync();
 
             // ASSET DEPENDENCIES
-            foreach (var asset in context.Assets)
+            foreach (Asset asset in context.Assets)
             {
                 var kind = asset.GetDependencyKind();
                 var assetDependencies = GetAssetDependencies(asset, context.Dependencies.Where(d => d.Kind == kind).ToList());
@@ -79,14 +89,14 @@ namespace Vision
             await context.SaveChangesAsync();
             
             // ASSET FRAMEWORKS
-            foreach (var asset in context.Assets)
+            foreach (Asset asset in context.Assets)
             {
-                var kind = asset.GetDependencyKind();
+                DependencyKind kind = asset.GetDependencyKind();
 
                 if (kind != DependencyKind.NuGet)
                     continue;
 
-                var assetFrameworks = GetAssetFrameworks(asset, context.Frameworks.ToList());
+                IEnumerable<AssetFramework> assetFrameworks = GetAssetFrameworks(asset, context.Frameworks.ToList());
                 context.AssetFrameworks.AddRange(assetFrameworks);
             }
             await context.SaveChangesAsync();
@@ -120,16 +130,15 @@ namespace Vision
                 case DependencyKind.RubyGem:
                 case DependencyKind.PyPi: return GetRandom.Int(2, 10);
             }
-
             throw new Exception("Unhandled kind for number of dependencies to return");
         } 
 
 
         private static IEnumerable<Asset> GetAssets(Repository repository)
         {
-            var items = repository.WebUrl.Split('/');
-            var fileOrFolderName = items[items.Length - 2];
-            var kindsOfAssetsInGitRepository = Pick<DependencyKind>.UniqueRandomList(With.Between(1).And(DependencyKinds.Count).Elements).From(DependencyKinds);
+            string[] items = repository.WebUrl.Split('/');
+            string fileOrFolderName = items[items.Length - 2];
+            IList<DependencyKind> kindsOfAssetsInGitRepository = Pick<DependencyKind>.UniqueRandomList(With.Between(1).And(DependencyKinds.Count).Elements).From(DependencyKinds);
 
             return kindsOfAssetsInGitRepository.SelectMany(kind => Builder<Asset>.CreateListOfSize(GetRandom.Int(1, GetAssetsByKind(kind))).All()
                 .With(a => a.Id = Guid.NewGuid())
@@ -197,9 +206,12 @@ namespace Vision
                     {
                         ad.Dependency = dependency;
                         ad.DependencyId = dependency.Id;
-                        var pickedVersion = Pick<DependencyVersion>.RandomItemFrom(dependency.Versions.ToList());
+
+                        DependencyVersion pickedVersion = Pick<DependencyVersion>.RandomItemFrom(dependency.Versions.ToList());
+
                         ad.DependencyVersion = pickedVersion;
                         ad.DependencyVersionId = pickedVersion.Id;
+
                     }).Build()
             );
 
@@ -208,25 +220,24 @@ namespace Vision
         private static IEnumerable<DependencyVersion> GetDependencyVersions(Dependency dependency)
         {
             var versionCount = GetRandom.Int(1, 10);
-            var chanceOfVulnerability = GetRandom.Int(1, 100) <= 10;
 
-            var chain = Builder<DependencyVersion>.CreateListOfSize(versionCount)
+            var versions = Builder<DependencyVersion>.CreateListOfSize(versionCount)
                 .All()
+                .With(dv => dv.IsLatest = false)
                 .With(dv => dv.Id = Guid.NewGuid())
-                .With(dv => dv.VulnerabilityUrl = string.Empty)
                 .With(dv => dv.Dependency = dependency)
                 .With(dv => dv.DependencyId = dependency.Id)
-                .With((dv, index) => dv.Version = new Version(GetRandom.Int(index, 10), GetRandom.Int(index, 10), GetRandom.Int(index, 10)).ToString());
+                .With((dv, index) => 
+                {
+                    dv.Version = new Version(GetRandom.Int(index, 10), GetRandom.Int(index, 10), GetRandom.Int(index, 10)).ToString();
+                })
+                .Build().ToList();
 
-            if (chanceOfVulnerability)
-            {
-                chain = chain.Random(1)
-                    .With(dv => dv.VulnerabilityUrl = "http://database.vulnerabilities.org/?id=" + dv.Dependency.Name);
-            }
+            versions.Sort(new VersionComparer());
 
-            var results = chain.Build();
+            versions[versions.Count - 1].IsLatest = true;
 
-            return results;
+            return versions;
         }
 
         private static IEnumerable<VersionControl> GetVersionControls()
@@ -271,19 +282,19 @@ namespace Vision
         {
             return DependencyKinds.SelectMany(kind => new Registry[]
             {
-                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.xperthr.rbxd.ds/{kind}/")       .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
-                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.flight.rbxd.ds/{kind}/")        .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
-                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.estatesgazette.rbxd.ds/{kind}/").With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
-                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.proagrica.rbxd.ds/{kind}/")     .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
-                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.icis.rbxd.ds/{kind}/")          .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
-                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.iog.rbxd.ds/{kind}/")           .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
-                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.lexisnexis.rbxd.ds/{kind}/")    .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
-                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.flight.rbxd.ds/{kind}/")        .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
-                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.estatesgazette.rbxd.ds/{kind}/").With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
-                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.proagrica.rbxd.ds/{kind}/")     .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
-                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.icis.rbxd.ds/{kind}/")          .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
-                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.iog.rbxd.ds/{kind}/")           .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
-                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.lexisnexis.rbxd.ds/{kind}/")    .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),                
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.xperthr.rbxd.ds/{kind}/".ToLower())       .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.flight.rbxd.ds/{kind}/".ToLower())        .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.estatesgazette.rbxd.ds/{kind}/".ToLower()).With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.proagrica.rbxd.ds/{kind}/".ToLower())     .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.icis.rbxd.ds/{kind}/".ToLower())          .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.iog.rbxd.ds/{kind}/".ToLower())           .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.lexisnexis.rbxd.ds/{kind}/".ToLower())    .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.flight.rbxd.ds/{kind}/".ToLower())        .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.estatesgazette.rbxd.ds/{kind}/".ToLower()).With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.proagrica.rbxd.ds/{kind}/".ToLower())     .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.icis.rbxd.ds/{kind}/".ToLower())          .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.iog.rbxd.ds/{kind}/".ToLower())           .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.lexisnexis.rbxd.ds/{kind}/".ToLower())    .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),                
             })
             .Concat(new[] 
             {

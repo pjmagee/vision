@@ -3,19 +3,20 @@ using System.Collections.Generic;
 
 namespace Vision.Core
 {
-    public class DependencyVersion : Entity
+    public class DependencyVersion : Entity, IComparable<DependencyVersion>
     {
         public string Version { get; set; }
-        public string VulnerabilityUrl { get; set; }
         public bool IsLatest { get; set; }
         public virtual Dependency Dependency { get; set; }
         public Guid DependencyId { get; set; }
-
         public virtual ICollection<AssetDependency> Assets { get; set; }
-
-        public DependencyVersion()
+        
+        public int CompareTo(DependencyVersion other)
         {
-            Id = Guid.NewGuid();
+            // this does NOT support semantic versioning AT ALL.
+            // quick fix
+
+            return new Version(Version).CompareTo(new Version(other.Version));
         }
     }
 }

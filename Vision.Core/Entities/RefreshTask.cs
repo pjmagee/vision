@@ -7,14 +7,9 @@ namespace Vision.Core
     {
         public TaskScope Scope { get; set; }
         public TaskStatus Status { get; set; }
-        public DateTime Created { get; set; }
+        public DateTime Created { get; set; } = DateTime.Now;
         public DateTime? Completed { get; set; }
         public Guid TargetId { get; set; }
 
-        public SystemTask()
-        {
-            Id = Guid.NewGuid();
-            Created = DateTime.Now;
-        }
     }
 }

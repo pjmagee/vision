@@ -8,11 +8,9 @@
 
 @functions
 {
-    [Parameter]
-    private Guid Id { get; set; }
+    [Parameter] private Guid Id { get; set; }
 
-    [Parameter]
-    private TaskScope Target { get; set; }
+    [Parameter] private TaskScope Target { get; set; }
 
     private async Task RefreshAsync()
     {

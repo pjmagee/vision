@@ -94,8 +94,7 @@ namespace Vision.Server.Controllers
                     IsLatest = dependencyVersion.IsLatest,                    
                     DependencyId = dependencyVersion.DependencyId,
                     DependencyVersionId = dependencyVersion.Id,
-                    Version = dependencyVersion.Version,
-                    VulnerabilityUrl = dependencyVersion.VulnerabilityUrl
+                    Version = dependencyVersion.Version
                 }).ToListAsync();
         }
     }
