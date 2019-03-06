@@ -8,19 +8,13 @@ namespace Vision.Core
     {
         public IEnumerable<Extract> ExtractDependencies(Asset asset)
         {
-            yield break; 
-
-            var package = JObject.Parse(asset.Raw);
+            JObject package = JObject.Parse(asset.Raw);
 
             foreach (string dependency in package["dependencies"].Concat(package["devDependencies"]).Select((JToken token) => token.ToString()).Distinct())
             {
                 string[] pair = dependency.Split(':');
 
-                yield return new Extract
-                {
-                    Name = pair[0].Replace("\"", "").Trim(),
-                    Version = pair[1].Replace("\"", "").Trim()
-                };
+                yield return new Extract(pair[0].Replace("\"", "").Trim(), pair[1].Replace("\"", "").Trim());
             }            
         }
 

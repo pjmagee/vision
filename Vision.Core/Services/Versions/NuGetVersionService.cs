@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Xml.Linq;
+using System.Xml.XPath;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Vision.Shared;
@@ -23,19 +25,18 @@ namespace Vision.Core
             {                
                 try
                 {
-                    client.BaseAddress = new Uri(registry.Endpoint);
-
                     if (registry.Endpoint.EndsWith("index.json"))
                     {
                         // root API v3
-                        JObject root = JObject.Parse(await client.GetStringAsync(string.Empty));
+                        JObject root = JObject.Parse(await client.GetStringAsync(registry.Endpoint));
 
                         // RegistrationsBaseUrl Resource
-                        string endppoint = root["resources"].Single(x => x["@type"].Value<string>() == "RegistrationsBaseUrl")["@id"].Value<string>();
-                        client.BaseAddress = new Uri(endppoint);
+                        string registration = root["resources"].Single(x => x["@type"].Value<string>() == "RegistrationsBaseUrl")["@id"].Value<string>().TrimEnd('/');
 
                         // Dependency Registration Response
-                        var dependencyResponse = await client.GetStringAsync(new Uri($"{dependency}/index.json", UriKind.Relative));
+                        var endpoint = $"{registration}/{dependency.Name.ToLower()}/index.json";
+
+                        var dependencyResponse = await client.GetStringAsync(endpoint);
 
                         var response = JObject.Parse(dependencyResponse);
                         var latest = response["items"].First["upper"].Value<string>();
@@ -43,16 +44,18 @@ namespace Vision.Core
                     }
                     else
                     {
-                        // v2 XML API (nexus, etc)
+                        var root = XDocument.Parse(await client.GetStringAsync($"{registry.Endpoint}/FindPackagesById()?id='{dependency.Name}'&$filter=IsLatestVersion eq true"));
+                        var latest = root.XPathSelectElement("(//*[local-name() = '" + "Version" + "'])").Value;
+                        return new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Version = latest, IsLatest = true };
                     }
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     // try next registry
                 }
             }
 
-            throw new Exception($"Could not find latest version for {dependency.Name}");
+            return new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Version = "UNKNOWN", IsLatest = false };
         }      
     }
 }

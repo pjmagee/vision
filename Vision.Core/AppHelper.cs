@@ -7,13 +7,13 @@ namespace Vision.Core
 {
     public static class AppHelper
     {
-        private const string CsProjFile = "csproj";
-        private const string RequirementsFile = "requirements.txt";
-        private const string PomFile = "pom.xml";
-        private const string GemFile = "GemFile";
-        private const string DockerFile = "DockerFile";
-        private const string PackagesFile = "packages.json";
-        private const string GradleFile = "gradle";
+        public const string CsProjFile = "csproj";
+        public const string RequirementsFile = "requirements.txt";
+        public const string PomFile = "pom.xml";
+        public const string GemFile = "GemFile";
+        public const string DockerFile = "DockerFile";
+        public const string PackagesFile = "packages.json";
+        public const string GradleFile = "gradle";
 
         public static IEnumerable<DependencyKind> DependencyKinds { get; } = Enum.GetValues(typeof(DependencyKind)).Cast<DependencyKind>();
 

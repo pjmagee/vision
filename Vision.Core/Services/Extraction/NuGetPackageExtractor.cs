@@ -12,14 +12,10 @@ namespace Vision.Core
         const string PackageReference = "PackageReference";
         const string DotNetCliToolReference = "DotNetCliToolReference";
         const string Reference = "Reference";
-        const string Unknown = "Unknown";
-        const string Pattern = "\\\\(?<package>[^\\s\\\\.][\\w-\\.]+[^\\d])\\.(?<version>[\\d\\.]+)\\\\";
-
-        static readonly Regex Regex = new Regex(Pattern, RegexOptions.Compiled);
-
+        
         public IEnumerable<Extract> ExtractDependencies(Asset asset)
         {
-            var document = XDocument.Parse(asset.Raw);
+            XDocument document = XDocument.Parse(asset.Raw);
 
             var sdkPackageReference = document
                 .XPathSelectElements("//*[local-name() = '" + PackageReference + "']")
@@ -27,9 +23,12 @@ namespace Vision.Core
                 .Select(FromNewReference)
                 .ToList();
 
+            // We don't want to pick up on standard library Includes (e.g System or System.Xml) which are in common in .NET Framework / Non .NET Core projects
+            // We also don't want to skip any packages that do not contain a hint path, and we want to make sure we don't need to specifically look out for <SpecificVersion> neither.
+            // Make it generic enough to find both the <Reference> element but it must have an Attribute of "Include" and contain the value "Version" within it.
             var oldPackageReference = document
                 .XPathSelectElements("//*[local-name() = '" + Reference + "']")
-                .Where(x => x.Elements().Any(e => e.Name.LocalName == "HintPath"))
+                .Where(x => x.HasAttributes && x.FirstAttribute.Name == "Include" && x.FirstAttribute.Value.Contains("Version"))
                 .Select(FromOldReference).ToList();
 
             return sdkPackageReference.Concat(oldPackageReference);
@@ -37,7 +36,7 @@ namespace Vision.Core
 
         public IEnumerable<Extract> ExtractFrameworks(Asset asset)
         {
-            var document = XDocument.Parse(asset.Raw);
+            XDocument document = XDocument.Parse(asset.Raw);
 
             IEnumerable<string> targetFramework = (from element in document.Descendants()
                                                    where (element.Name.LocalName == "TargetFramework" || element.Name.LocalName == "TargetFrameworkVersion")
@@ -49,26 +48,37 @@ namespace Vision.Core
                                                     from framework in multiple.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries)
                                                     select framework);
 
-            return targetFrameworks.Concat(targetFramework).Select(fw => new Extract { Version = fw });
+            return targetFrameworks.Concat(targetFramework).Select(fw => new Extract("Framework", fw));
         }
 
         private Extract FromNewReference(XElement reference)
         {
-            var package = reference?.Attribute("Include")?.Value;
-            var current = reference?.Attribute("Version")?.Value;
-            return new Extract { Name = package, Version = current };
+            var name = reference?.Attribute("Include")?.Value;
+            var version = reference?.Attribute("Version")?.Value ?? reference?.Element("Version")?.Value;
+
+            return new Extract(name?.Trim(), version?.Trim());
         }
 
         private Extract FromOldReference(XElement reference)
-        {
-            var hintPath = reference.Elements().First(x => x.Name.LocalName == "HintPath").Value;
-            var matches = Regex.Match(hintPath);
-            var package = matches.Groups["package"].Value;
-            var version = matches.Groups["version"].Value;
-            var name = string.IsNullOrEmpty(package) ? hintPath : package;
-            var current = string.IsNullOrEmpty(version) ? Unknown : version;
+        {                     
+            var include = reference.Attribute("Include")?.Value;
+            var segments = include.Split(',');
 
-            return new Extract { Name = name, Version = current };
+            string name = segments[0].Trim();
+            string version = null;
+
+            foreach(string segment in segments)
+            {
+                var pair = segment.Split('=');
+
+                if (pair[0].Trim() == "Version")
+                {
+                    version = pair[1].Trim();
+                    break;
+                }
+            }
+
+            return new Extract(name, version);
         }
     }
 }
