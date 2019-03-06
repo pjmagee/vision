@@ -44,7 +44,7 @@ namespace Vision.Server.Services
                     await refreshService.NextRefreshTaskAsync();
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(30));
+                await Task.Delay(TimeSpan.FromSeconds(10));
             }
         }
 
@@ -80,7 +80,7 @@ namespace Vision.Server.Services
         public async Task<Func<CancellationToken, Task>> DequeueAsync(CancellationToken cancellationToken)
         {
             await signal.WaitAsync(cancellationToken);
-            workItems.TryDequeue(out var workItem);
+            workItems.TryDequeue(out Func<CancellationToken, Task> workItem);
             return workItem;
         }
     }

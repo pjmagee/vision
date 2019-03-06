@@ -42,6 +42,7 @@ namespace Vision.Tests
         [InlineData("Atlassian.Stash.Api", "3.1.20")]
         public async Task NuGetV3Api(string package, string version)
         {
+            // arrange
             context.Registries.Add(new Registry { Endpoint = "https://api.nuget.org/v3/index.json", ApiKey = "", IsEnabled = true, IsPublic = true, Kind = Shared.DependencyKind.NuGet });
             context.SaveChanges();
 

@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using System.Xml.XPath;
 
 namespace Vision.Core
 {
-    public class NuGetPackageExtractor : IAssetExtractor
+    public class CSharpProjectExtractor : IAssetExtractor
     {
         const string PackageReference = "PackageReference";
         const string DotNetCliToolReference = "DotNetCliToolReference";

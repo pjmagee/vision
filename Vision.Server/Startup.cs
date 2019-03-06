@@ -46,7 +46,7 @@ namespace Vision.Server
             services.AddScoped<BitBucketChecker>();
             services.AddScoped<GitlabChecker>();
             services.AddScoped<NodePackagesExtractor>();
-            services.AddScoped<NuGetPackageExtractor>();
+            services.AddScoped<CSharpProjectExtractor>();
 
             services.AddScoped<ICiCdChecker, FakeBuildsChecker>();
             services.AddScoped<IRefreshService, RefreshService>();

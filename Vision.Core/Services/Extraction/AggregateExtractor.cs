@@ -7,7 +7,7 @@ namespace Vision.Core
     {
         private readonly IEnumerable<IAssetExtractor> extractionServices;        
 
-        public AggregateExtractor(NodePackagesExtractor npmExtractionService, NuGetPackageExtractor nuGetPackageExtractionService)
+        public AggregateExtractor(NodePackagesExtractor npmExtractionService, CSharpProjectExtractor nuGetPackageExtractionService)
         {
             extractionServices = new IAssetExtractor[] 
             {

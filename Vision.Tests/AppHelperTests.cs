@@ -16,7 +16,7 @@ namespace Vision.Tests
             // act
             var kind = AppHelper.GetDependencyKind(asset);
 
-            // asset
+            // assert
 
             Assert.Equal(DependencyKind.NuGet, kind);
         }
@@ -30,7 +30,7 @@ namespace Vision.Tests
             // act
             var kind = AppHelper.GetDependencyKind(asset);
 
-            // asset
+            // assert
             Assert.Equal(DependencyKind.Maven, kind);
         }
 
@@ -43,7 +43,7 @@ namespace Vision.Tests
             // act
             var kind = AppHelper.GetDependencyKind(asset);
 
-            // asset
+            // assert
             Assert.Equal(DependencyKind.PyPi, kind);
         }
     }

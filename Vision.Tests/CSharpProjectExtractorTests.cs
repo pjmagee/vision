@@ -7,11 +7,11 @@ using Xunit;
 namespace Vision.Tests
 {
 
-    public class NuGetExtractorTests: IClassFixture<NuGetPackageExtractor>
+    public class NuGetExtractorTests: IClassFixture<CSharpProjectExtractor>
     {
-        private readonly NuGetPackageExtractor extractor;
+        private readonly CSharpProjectExtractor extractor;
 
-        public NuGetExtractorTests(NuGetPackageExtractor extractor)
+        public NuGetExtractorTests(CSharpProjectExtractor extractor)
         {
             this.extractor = extractor;
         }
