@@ -14,7 +14,9 @@
             <td class="@item.Kind.GetIconClass()">@SvgService.GetSvg(item.Kind)</td>
             <td>@item.Endpoint</td>
             <td>@item.ApiKey</td>
-            <td></td>
+            <td>
+                <a href="@($"/sources/edit/cicds/{item.CiCdId}")">Edit</a>
+            </td>
         </tr>
         }
     </tbody>

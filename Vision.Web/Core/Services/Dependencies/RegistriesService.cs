@@ -5,38 +5,64 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.DataProtection;
-    using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
-    using Vision.Web.Core;
+    using Microsoft.Extensions.Logging;
 
     public class RegistriesService
     {
         private readonly IDataProtector protector;
         private readonly VisionDbContext context;
+        private readonly ILogger<RegistriesService> logger;
 
-        public RegistriesService(VisionDbContext context, IDataProtectionProvider providoer)
+        public RegistriesService(VisionDbContext context, IDataProtectionProvider provider, ILogger<RegistriesService> logger)
         {
-            this.protector = providoer.CreateProtector("Registry");
+            this.protector = provider.CreateProtector("Registry");
             this.context = context;
+            this.logger = logger;
         }
 
-        public async Task<ActionResult<RegistryDto>> CreateRegistryAsync(RegistryDto registryDto)
+        public async Task<RegistryDto> CreateAsync(RegistryDto dto)
         {
-            Registry registry = new Registry
+            Registry entity = new Registry
             {
-                Id = Guid.NewGuid(),
-                ApiKey = protector.Protect(registryDto.ApiKey),
-                Endpoint = registryDto.Endpoint,
-                Kind = registryDto.Kind,
-                IsPublic = registryDto.IsPublic,
-                Username = protector.Protect(registryDto.Username),
-                Password = protector.Protect(registryDto.Password)
+                Id = Guid.NewGuid(),                
+                Endpoint = dto.Endpoint,
+                Kind = dto.Kind,
+                IsPublic = dto.IsPublic,
+                IsEnabled = dto.IsEnabled,
+                ApiKey = string.IsNullOrWhiteSpace(dto.ApiKey) ? null : protector.Protect(dto.ApiKey),
+                Username = string.IsNullOrWhiteSpace(dto.Username) ? null : protector.Protect(dto.Username),
+                Password = string.IsNullOrWhiteSpace(dto.Password) ? null :  protector.Protect(dto.Password)
             };
 
-            context.Registries.Add(registry);
+            context.Registries.Add(entity);
             await context.SaveChangesAsync();
 
-            return new RegistryDto { Endpoint = registry.Endpoint, ApiKey = registry.ApiKey, Kind = registry.Kind, RegistryId = registry.Id, IsPublic = registryDto.IsPublic };
+            logger.LogInformation("Created registry {0}", entity.Id);
+
+            return new RegistryDto { Endpoint = entity.Endpoint, ApiKey = entity.ApiKey, Kind = entity.Kind, RegistryId = entity.Id, IsPublic = dto.IsPublic, IsEnabled = dto.IsEnabled };
+        }
+
+        public async Task<RegistryDto> UpdateAsync(RegistryDto dto)
+        {
+            Registry entity = new Registry
+            {
+                Id = dto.RegistryId,               
+                Endpoint = dto.Endpoint,
+                Kind = dto.Kind,
+                IsPublic = dto.IsPublic,
+                IsEnabled = dto.IsEnabled,
+                ApiKey = string.IsNullOrWhiteSpace(dto.ApiKey) ? null : protector.Protect(dto.ApiKey),
+                Username = string.IsNullOrWhiteSpace(dto.Username) ? null : protector.Protect(dto.Username),
+                Password = string.IsNullOrWhiteSpace(dto.Password) ? null : protector.Protect(dto.Password)
+            };
+
+            context.Registries.Update(entity);
+            await context.SaveChangesAsync();
+
+            logger.LogInformation("Updated registry {0}", entity.Id);
+
+            return new RegistryDto { Endpoint = entity.Endpoint, ApiKey = entity.ApiKey, Kind = entity.Kind, RegistryId = entity.Id, IsPublic = dto.IsPublic, IsEnabled = dto.IsEnabled };
         }
 
         public async Task<IEnumerable<RegistryDto>> GetAllAsync()
@@ -48,6 +74,8 @@
                 Username = protector.Unprotect(registry.Username),
                 Dependencies = context.Dependencies.Count(d => d.RegistryId == registry.Id),
                 Endpoint = registry.Endpoint,
+                IsEnabled = registry.IsEnabled,
+                IsPublic = registry.IsPublic,
                 Kind = registry.Kind,
                 RegistryId = registry.Id                
             })
@@ -56,17 +84,19 @@
 
         public async Task<RegistryDto> GetRegistryByIdAsync(Guid registryId)
         {
-            Registry registry = await context.Registries.FindAsync(registryId);
+            Registry entity = await context.Registries.FindAsync(registryId);
 
             return new RegistryDto
             {
-                ApiKey = protector.Unprotect(registry.ApiKey),
-                Password = protector.Unprotect(registry.Password),
-                Username = protector.Unprotect(registry.Username),
-                Dependencies = context.Dependencies.Count(d => d.RegistryId == registry.Id),
-                Endpoint = registry.Endpoint,
-                Kind = registry.Kind,
-                RegistryId = registry.Id
+                ApiKey = protector.Unprotect(entity.ApiKey),
+                Password = protector.Unprotect(entity.Password),
+                Username = protector.Unprotect(entity.Username),
+                Dependencies = context.Dependencies.Count(d => d.RegistryId == entity.Id),
+                Endpoint = entity.Endpoint,
+                IsEnabled = entity.IsEnabled,
+                IsPublic = entity.IsPublic,
+                Kind = entity.Kind,
+                RegistryId = entity.Id
             };
         }
 
@@ -74,14 +104,14 @@
         {
             return await context.Dependencies
                 .Where(d => d.RegistryId == registryId)
-                .Select(d => new DependencyDto
+                .Select(entity => new DependencyDto
                 {
-                    Name = d.Name,
-                    RepositoryUrl = d.RepositoryUrl,
-                    Versions = context.DependencyVersions.Count(x => x.DependencyId == d.Id),
-                    Assets = context.AssetDependencies.Count(x => x.DependencyId == d.Id),
-                    DependencyId = d.Id,
-                    Kind = d.Kind
+                    Name = entity.Name,
+                    RepositoryUrl = entity.RepositoryUrl,
+                    Versions = context.DependencyVersions.Count(x => x.DependencyId == entity.Id),
+                    Assets = context.AssetDependencies.Count(x => x.DependencyId == entity.Id),
+                    DependencyId = entity.Id,
+                    Kind = entity.Kind
                 }).ToListAsync();
         }
     }

@@ -1,0 +1,80 @@
+﻿@page "/sources/edit/registries/{RegistryId:guid}"
+
+<BreadcrumbsComponent>
+    <li class="breadcrumb-item">Sources</li>
+    <li class="breadcrumb-item">Edit</li>
+    <li class="breadcrumb-item active">Registry</li>
+</BreadcrumbsComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Update</h6>
+    </div>
+    <div class="card-body">
+        @if (Registry != null)
+        {
+            <EditForm EditContext="@context">
+                <ValidationSummary></ValidationSummary>
+                <div class="form-group">
+                    <input type="text" class="form-control" bind="Registry.Endpoint" placeholder="http://registry.com:8000/v1/" />
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" bind="Registry.ApiKey" placeholder="@Guid.NewGuid()" />
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" bind="Registry.Username" placeholder="Basic Auth Username" />
+                </div>
+                <div class="form-group">
+                    <input type="password" class="form-control" bind="Registry.Password" placeholder="Basic Auth Password" />
+                </div>
+                <div class="form-group">
+                    <select type="text" class="form-control" bind="Registry.Kind" placeholder="Type">
+                        @foreach (var kind in Enum.GetValues(typeof(DependencyKind)).Cast<DependencyKind>())
+                        {
+                            <option value="@kind">@kind.ToString()</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" bind="Registry.IsPublic" id="isPublic" />
+                    <label class="form-check-label" for="isPublic">Public</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" bind="Registry.IsEnabled" id="isEnabled" />
+                    <label class="form-check-label" for="isEnabled">Enabled</label>
+                </div>
+
+                <button onclick="@Update" type="button" class="btn btn-primary">Update</button>
+            </EditForm>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
+
+@functions
+{
+    [Parameter] Guid RegistryId { get; set; }
+
+    [Inject] RegistriesService RegistriesService { get; set; }
+
+    RegistryDto Registry { get; set; }
+    EditContext context { get; set; }
+
+    protected async Task Update()
+    {
+        if (context.Validate())
+        {
+            await RegistriesService.UpdateAsync(Registry);
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Registry = await RegistriesService.GetRegistryByIdAsync(RegistryId);
+        context = new EditContext(Registry);
+        context.AddDataAnnotationsValidation();
+    }
+}

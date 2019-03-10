@@ -16,7 +16,9 @@
             <td><a href="@($"/data/vcs/{item.VersionControlId}")">@item.Endpoint</a></td>
             <td>@item.ApiKey</td>
             <td>@item.Repositories</td>
-            <td></td>
+            <td>
+                <a href="@($"/sources/edit/vcs/{item.VersionControlId}")">Edit</a>
+            </td>
         </tr>
         }
     </tbody>

@@ -1,0 +1,75 @@
+﻿@page "/sources/edit/cicds/{CiCdId:guid}"
+
+<BreadcrumbsComponent>
+    <li class="breadcrumb-item">Sources</li>
+    <li class="breadcrumb-item">Edit</li>
+    <li class="breadcrumb-item active">Contionus integration & Continious delivery</li>
+</BreadcrumbsComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Update</h6>
+    </div>
+    <div class="card-body">
+        @if (CiCd != null)
+        {
+            <EditForm EditContext="@context">
+                <ValidationSummary></ValidationSummary>
+                <div class="form-group">
+                    <input id="endpoint" type="text" class="form-control" bind="CiCd.Endpoint" placeholder="Endpoint" />
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" bind="CiCd.ApiKey" placeholder="API Key" />
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" bind="CiCd.Username" placeholder="Basic auth" />
+                </div>
+                <div class="form-group">
+                    <input type="password" class="form-control" bind="CiCd.Password" placeholder="Basic auth" />
+                </div>
+                <div class="form-group">
+                    <select type="text" class="form-control" bind="CiCd.Kind" placeholder="Type">
+                        @foreach (CiCdKind kind in Enum.GetValues(typeof(CiCdKind)).Cast<CiCdKind>())
+                        {
+                            <option value="@kind">@kind.ToString()</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" bind="CiCd.IsEnabled" id="isEnabled" />
+                    <label class="form-check-label" for="isEnabled">Enabled</label>
+                </div>
+
+                <button onclick="@Update" type="button" class="btn btn-primary">Update</button>
+            </EditForm>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
+
+@functions
+{
+    [Parameter] Guid CiCdId { get; set; }
+    [Inject] CiCdsService CiCdsService { get; set; }    
+
+    CiCdDto CiCd { get; set; }
+    EditContext context { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        CiCd = await CiCdsService.GetByIdAsync(CiCdId);
+        context = new EditContext(CiCd);
+        context.AddDataAnnotationsValidation();
+    }
+
+    protected async Task Update()
+    {
+        if (context.Validate())
+        {
+            await CiCdsService.UpdateAsync(CiCd);
+        }
+    }
+}

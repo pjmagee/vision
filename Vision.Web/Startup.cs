@@ -37,8 +37,7 @@ namespace Vision.Web
             services.AddMvc().AddNewtonsoftJson();
 
             services.AddScoped<FakeDataGenerator>();
-            // services.AddScoped<StringToProtectedStringConverter>();
-
+            
             services.AddScoped<BitBucketProvider>();
             services.AddScoped<GitlabProvider>();
             services.AddScoped<AggregateVersionControlService>();
@@ -47,17 +46,16 @@ namespace Vision.Web
             services.AddScoped<NuGetAssetExtractor>();
             services.AddScoped<DockerAssetExtractor>();
             services.AddScoped<AggregateAssetExtractor>();
-
-
+            
             services.AddScoped<NuGetVersionService>();
             services.AddScoped<DockerVersionService>();
             services.AddScoped<NPMVersionService>();
             services.AddScoped<AggregateVersionService>();
             
-
             services.AddScoped<ICICDBuildsService, FakeBuildsService>();
             services.AddScoped<ICICDBuildsService, TeamCityBuildsService>();
             services.AddScoped<ICICDBuildsService, JenkinsBuildsService>();
+            services.AddScoped<IRepositoryMatcher, RepositoryMatcher>();
 
             services.AddScoped<ISystemTaskService, SystemTaskService>();
 

@@ -40,7 +40,7 @@
     EditContext context { get; set; }
 
     protected override Task OnInitAsync()
-    {        
+    {
         context = new EditContext(CiCd);
         context.AddDataAnnotationsValidation();
 
@@ -51,7 +51,7 @@
     {
         if (context.Validate())
         {
-            await CiCdsService.CreateCiCd(CiCd);
+            await CiCdsService.CreateAsync(CiCd);
         }
     }
 }
