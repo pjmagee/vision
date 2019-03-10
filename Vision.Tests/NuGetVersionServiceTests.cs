@@ -8,11 +8,15 @@ using Xunit;
 
 namespace Vision.Tests
 {
-    public class StubDataProtector : IDataProtector
+    public class DataProtectionStub : IDataProtectionProvider, IDataProtector
     {
+        public DataProtectionStub()
+        {
+        }
+
         public IDataProtector CreateProtector(string purpose)
         {
-            throw new NotImplementedException();
+            return new DataProtectionStub();
         }                
 
         public byte[] Protect(byte[] plaintext)
@@ -38,7 +42,7 @@ namespace Vision.Tests
         {
             options = new DbContextOptionsBuilder<VisionDbContext>().UseInMemoryDatabase("Registries").Options;
             context = new VisionDbContext(options);
-            service = new NuGetVersionService(context, new StubDataProtector(),  new LoggerFactory().CreateLogger<NuGetVersionService>());
+            service = new NuGetVersionService(context, new DataProtectionStub(),  new LoggerFactory().CreateLogger<NuGetVersionService>());
         }
 
         [Theory]
