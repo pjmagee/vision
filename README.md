@@ -21,15 +21,16 @@ https://github.com/aspnet/AspNetCore/issues/5562
  
 ## TODO
 
-* Refactor all links so that assets via navigation always go via /data/vcs/{VersionControlId}/repositories/{RepositoryId}/assets/{AssetId}
-* Remove /data/assets/ as a way of navigation and linking
-* Add an edit feature for each source entity to enable/disable/modify that entity  
-* SVG Icon for TeamCity + Color
+* implement /sources/vcs/edit/{vcsId}
+* implement /sources/cicds/edit/{vcsId}
+* implement /sources/registry/edit/{vcsId}
+
 * implement /tasks/
 * implement /tasks/update/assets/{aId}
 * implement /tasks/update/dependencies/{dId}
 * implement /tasks/update/frameworks/{fId}
 * implement /tasks/update/repositories/{id}
+
 * implement /insights/assets/{dependencyKind}  
 * implement /insights/dependencies/{dependencyKind}  
 * implement /insights/registries/  
