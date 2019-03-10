@@ -1,0 +1,34 @@
+﻿@page "/data/registries"
+
+<BreadcrumbsComponent>
+    <li class="breadcrumb-item">Data</li>
+    <li class="breadcrumb-item active">Dependency registries</li>
+</BreadcrumbsComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Dependency registry sources</h6>
+    </div>
+    <div class="card-body">
+        @if (Registries != null)
+        {
+            <RegistriesComponent Items="Registries"></RegistriesComponent>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
+
+@functions
+{
+    IEnumerable<RegistryDto> Registries { get; set; }
+
+    [Inject] RegistriesService RegistriesService { get; set; }
+
+    protected override async Task OnInitAsync()
+    {
+        Registries = await RegistriesService.GetAllAsync();
+    }
+}

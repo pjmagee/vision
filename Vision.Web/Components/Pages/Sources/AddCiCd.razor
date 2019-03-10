@@ -1,0 +1,57 @@
+﻿@page "/sources/cicds"
+
+<BreadcrumbsComponent>
+    <li class="breadcrumb-item">Sources</li>
+    <li class="breadcrumb-item active">Contionus integration & Continious delivery</li>
+</BreadcrumbsComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Add new</h6>
+    </div>
+    <div class="card-body">
+        <EditForm EditContext="@context">
+            <ValidationSummary></ValidationSummary>
+            <div class="form-group">
+                <input id="endpoint" type="text" class="form-control" bind="CiCd.Endpoint" placeholder="Endpoint" />                
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" bind="CiCd.ApiKey" placeholder="API Key" />
+            </div>
+            <div class="form-group">
+                <select type="text" class="form-control" bind="CiCd.Kind" placeholder="Type">
+                    @foreach (CiCdKind kind in Enum.GetValues(typeof(CiCdKind)).Cast<CiCdKind>())
+                    {
+                        <option value="@kind">@kind.ToString()</option>
+                    }
+                </select>
+            </div>
+            <button onclick="@Submit" type="button" class="btn btn-primary">Save</button>
+        </EditForm>
+    </div>
+</div>
+
+@functions
+{
+    [Inject] CiCdsService CiCdsService { get; set; }
+
+    CiCdDto CiCd { get; set; } = new CiCdDto();
+
+    EditContext context { get; set; }
+
+    protected override Task OnInitAsync()
+    {        
+        context = new EditContext(CiCd);
+        context.AddDataAnnotationsValidation();
+
+        return base.OnInitAsync();
+    }
+
+    protected async Task Submit()
+    {
+        if (context.Validate())
+        {
+            await CiCdsService.CreateCiCd(CiCd);
+        }
+    }
+}

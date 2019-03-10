@@ -1,11 +1,31 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.DataProtection;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using Vision.Core;
+using Vision.Web.Core;
 using Xunit;
 
 namespace Vision.Tests
 {
+    public class StubDataProtector : IDataProtector
+    {
+        public IDataProtector CreateProtector(string purpose)
+        {
+            throw new NotImplementedException();
+        }                
+
+        public byte[] Protect(byte[] plaintext)
+        {
+            return plaintext;
+        }
+
+        public byte[] Unprotect(byte[] protectedData)
+        {
+            return protectedData;
+        }
+    }
+
     public class NuGetVersionServiceTests
     {
         private readonly NuGetVersionService service;
@@ -18,7 +38,7 @@ namespace Vision.Tests
         {
             options = new DbContextOptionsBuilder<VisionDbContext>().UseInMemoryDatabase("Registries").Options;
             context = new VisionDbContext(options);
-            service = new NuGetVersionService(context);
+            service = new NuGetVersionService(context, new StubDataProtector(),  new LoggerFactory().CreateLogger<NuGetVersionService>());
         }
 
         [Theory]
@@ -26,10 +46,10 @@ namespace Vision.Tests
         public async Task NuGetV2Api(string package, string version)
         {
             // arrange
-            context.Registries.Add(new Registry { Endpoint = "https://www.nuget.org/api/v2", ApiKey = "", IsEnabled = true, IsPublic = true, Kind = Shared.DependencyKind.NuGet });
+            context.Registries.Add(new Registry { Endpoint = "https://www.nuget.org/api/v2", ApiKey = "", IsEnabled = true, IsPublic = true, Kind = DependencyKind.NuGet });
             context.SaveChanges();
            
-            var dependency = new Dependency { Name = package, Id = Guid.NewGuid(), Kind = Shared.DependencyKind.NuGet };
+            var dependency = new Dependency { Name = package, Id = Guid.NewGuid(), Kind = DependencyKind.NuGet };
 
             // act
             var latest = await service.GetLatestVersionAsync(dependency);
@@ -43,10 +63,10 @@ namespace Vision.Tests
         public async Task NuGetV3Api(string package, string version)
         {
             // arrange
-            context.Registries.Add(new Registry { Endpoint = "https://api.nuget.org/v3/index.json", ApiKey = "", IsEnabled = true, IsPublic = true, Kind = Shared.DependencyKind.NuGet });
+            context.Registries.Add(new Registry { Endpoint = "https://api.nuget.org/v3/index.json", ApiKey = "", IsEnabled = true, IsPublic = true, Kind = DependencyKind.NuGet });
             context.SaveChanges();
 
-            var dependency = new Dependency { Name = package, Id = Guid.NewGuid(), Kind = Shared.DependencyKind.NuGet };
+            var dependency = new Dependency { Name = package, Id = Guid.NewGuid(), Kind = DependencyKind.NuGet };
 
             // act
             var latest = await service.GetLatestVersionAsync(dependency);

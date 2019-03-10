@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Linq;
 using System.Xml.Linq;
-using Vision.Core;
+using Vision.Web.Core;
 using Xunit;
 
 namespace Vision.Tests
 {
 
-    public class NuGetExtractorTests: IClassFixture<CSharpProjectExtractor>
+    public class CSharpProjectExtractorTests: IClassFixture<NuGetAssetExtractor>
     {
-        private readonly CSharpProjectExtractor extractor;
+        private readonly NuGetAssetExtractor extractor;
 
-        public NuGetExtractorTests(CSharpProjectExtractor extractor)
+        public CSharpProjectExtractorTests(NuGetAssetExtractor extractor)
         {
             this.extractor = extractor;
         }

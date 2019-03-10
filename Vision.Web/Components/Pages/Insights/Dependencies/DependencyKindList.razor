@@ -1,0 +1,14 @@
+﻿@page "/insights/dependencies/{DependencyKind:int}"
+
+<BreadcrumbsComponent>
+    <li class="breadcrumb-item">Insights</li>
+    <li class="breadcrumb-item">Dependencies</li>
+    <li class="breadcrumb-item active">@DependencyKind.ToString()</li>
+</BreadcrumbsComponent>
+
+<DependencyInsightsComponent DependencyKind="@DependencyKind"></DependencyInsightsComponent>
+
+@functions
+{
+    [Parameter] DependencyKind DependencyKind { get; set; }    
+}

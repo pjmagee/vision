@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Linq;
-using Vision.Core;
+using Vision.Web.Core;
 using Xunit;
 
 namespace Vision.Tests
 {
-    public class DockerExtractorTests : IClassFixture<DockerExtractor>
+    public class DockerExtractorTests : IClassFixture<DockerAssetExtractor>
     {
-        private readonly DockerExtractor extractor;
+        private readonly DockerAssetExtractor extractor;
 
-        public DockerExtractorTests(DockerExtractor extractor)
+        public DockerExtractorTests(DockerAssetExtractor extractor)
         {
             this.extractor = extractor;
         }

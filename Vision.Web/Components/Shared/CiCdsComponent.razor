@@ -1,0 +1,34 @@
+﻿<table class="table table-striped table-bordered table-sm" style="width: 100%">
+    <thead>
+        <tr>
+            <th>Kind</th>
+            <th>Endpoint</th>
+            <th>ApiKey</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Items)
+        {
+        <tr>
+            <td class="@item.Kind.GetIconClass()">@SvgService.GetSvg(item.Kind)</td>
+            <td>@item.Endpoint</td>
+            <td>@item.ApiKey</td>
+            <td></td>
+        </tr>
+        }
+    </tbody>
+</table>
+
+@functions
+{
+    [Parameter] IEnumerable<CiCdDto> Items { get; set; }
+        
+    [Inject] IJSRuntime JSRuntime { get; set; }
+    [Inject] SvgService SvgService { get; set; }
+
+    protected override async Task OnAfterRenderAsync()
+    {
+        await JSRuntime.InvokeAsync<object>("dataTable");
+    }
+}

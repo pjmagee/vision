@@ -1,0 +1,34 @@
+﻿@page "/data/vcs"
+
+<BreadcrumbsComponent>
+    <li class="breadcrumb-item">Data</li>
+    <li class="breadcrumb-item active" aria-current="page">Version control systems</li>
+</BreadcrumbsComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Version control sources</h6>
+    </div>
+    <div class="card-body">
+        @if (VersionControls != null)
+        {
+            <VersionControlsComponent Items="VersionControls"></VersionControlsComponent>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
+
+@functions 
+{
+    [Inject] VersionControlsService VersionControlsService { get; set; }
+
+    IEnumerable<VersionControlDto> VersionControls { get; set; }
+
+    protected override async Task OnInitAsync()
+    {
+        VersionControls = await VersionControlsService.GetAllAsync();
+    }
+}

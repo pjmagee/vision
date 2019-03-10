@@ -1,0 +1,42 @@
+﻿@if (Items != null)
+{
+    foreach (var row in Items.ChunkBy(2))
+    {
+        <div class="row mb-4">
+            @foreach (var item in row)
+            {
+                <div class="col mb-4">
+                    @if (item.Items != null)
+                    {
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">@item.Title</h6>
+                            </div>
+                            <div class="card-body">
+                                <AssetsComponent Items="item.Items"></AssetsComponent>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+}
+else
+{
+    <LoaderComponent></LoaderComponent>
+}
+
+@functions
+{
+    [Parameter] DependencyKind DependencyKind { get; set; }
+
+    [Inject] InsightsService InsightsService { get; set; }
+
+    IEnumerable<MetricItems<AssetDto>> Items { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Items = await InsightsService.GetAssetInsightsByKindAsync(DependencyKind);
+    }
+}

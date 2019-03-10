@@ -1,0 +1,10 @@
+﻿<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        @ChildContent
+    </ol>
+</nav>
+
+@functions 
+{
+    [Parameter] RenderFragment ChildContent { get; set; }
+}

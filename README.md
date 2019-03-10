@@ -1,8 +1,10 @@
 # Vision
 
+This project runs on nightly builds of .NET Core and ASP.NET Core.
+
 ## Technologies / Frameworks
 
-* [.NET Core 3.0 Preview 2](https://devblogs.microsoft.com/dotnet/announcing-net-core-3-preview-1-and-open-sourcing-windows-desktop-frameworks/)
+* [.NET Core 3.0](https://devblogs.microsoft.com/dotnet/announcing-net-core-3-preview-1-and-open-sourcing-windows-desktop-frameworks/)
 * [NSwag](https://docs.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-nswag?view=aspnetcore-2.2&tabs=visual-studio%2Cvisual-studio-xml)
 * [.NET Core Web API](https://docs.microsoft.com/en-us/aspnet/core/web-api/advanced/conventions?view=aspnetcore-2.2)
 * [Entity Framework Core](https://docs.microsoft.com/en-us/ef/core/)

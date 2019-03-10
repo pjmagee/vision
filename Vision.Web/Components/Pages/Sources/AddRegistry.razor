@@ -1,0 +1,54 @@
+﻿@page "/sources/registries"
+
+<BreadcrumbsComponent>
+    <li class="breadcrumb-item">Sources</li>
+    <li class="breadcrumb-item active">Dependency registry</li>
+</BreadcrumbsComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Add new</h6>
+    </div>
+    <div class="card-body">
+        <form>
+            <div class="form-group">
+                <input type="text" class="form-control" bind="Registry.Endpoint" placeholder="http://registry.com:8000/v1/" />
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" bind="Registry.ApiKey" placeholder="@Guid.NewGuid()" />
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" bind="Registry.Username" placeholder="Basic Auth Username" />
+            </div>
+            <div class="form-group">
+                <input type="password" class="form-control" bind="Registry.Password" placeholder="Basic Auth Password" />
+            </div>
+            <div class="form-group">
+                <select type="text" class="form-control" bind="Registry.Kind" placeholder="Type">
+                    @foreach (var kind in Enum.GetValues(typeof(DependencyKind)).Cast<DependencyKind>())
+                    {
+                        <option value="@kind">@kind.ToString()</option>
+                    }
+                </select>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" bind="Registry.IsPublic" id="isPublic" />
+                <label class="form-check-label" for="isPublic">Public</label>
+            </div>
+
+            <button onclick="@Submit" type="button" class="btn btn-primary">Save</button>
+        </form>
+    </div>
+</div>
+
+@functions
+{
+    RegistryDto Registry { get; set; } = new RegistryDto();
+
+    [Inject] RegistriesService RegistriesService { get; set; }
+
+    protected async Task Submit()
+    {
+       await RegistriesService.CreateRegistryAsync(Registry);
+    }
+}

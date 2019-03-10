@@ -1,0 +1,45 @@
+﻿@page "/data/dependencies/{DependencyId:guid}/versions/{VersionId:guid}"
+
+<BreadcrumbsComponent>
+    <li class="breadcrumb-item">Data</li>
+    <li class="breadcrumb-item"><a href="/data/dependencies">Dependencies</a></li>
+    <li class="breadcrumb-item"><a href="@($"/data/dependencies/{DependencyId}")">@Dependency?.Name</a></li>
+    <li class="breadcrumb-item">Versions</li>
+    <li class="breadcrumb-item active">@Version?.Version</li>
+</BreadcrumbsComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
+    </div>
+    <div class="card-body">
+        @if (Assets != null)
+        {
+            <AssetsComponent Items="Assets"></AssetsComponent>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
+
+@functions
+{
+    [Parameter] Guid VersionId { get; set; }
+    [Parameter] Guid DependencyId { get; set; }
+        
+    [Inject] DependenciesService DependenciesService { get; set; }
+    [Inject] DependencyVersionsService DependencyVersionsService { get; set; }
+
+    DependencyVersionDto Version { get; set; }
+    DependencyDto Dependency{ get; set; }
+    IEnumerable<AssetDto> Assets { get; set; }
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        Dependency = await DependenciesService.GetDependencyByIdAsync(DependencyId);
+        Version = await DependencyVersionsService.GetVersionByIdAsync(VersionId);
+        Assets = await DependencyVersionsService.GetAssetsByDependencyVersionIdAsync(VersionId);
+    }
+}
