@@ -10,8 +10,8 @@ namespace Vision.Web.Core
         {
             try
             {
-                Uri uri1 = new Uri(url1);
-                Uri uri2 = new Uri(url2);
+                Uri uri1 = new Uri(url1.Replace("scm/", string.Empty));
+                Uri uri2 = new Uri(url2.Replace("scm/", string.Empty));
 
                 bool sameHost = Uri.Compare(uri1, uri2, UriComponents.Host, UriFormat.SafeUnescaped, StringComparison.OrdinalIgnoreCase) == 0;
                 bool samePath = Uri.Compare(uri1, uri2, UriComponents.Path, UriFormat.SafeUnescaped, StringComparison.OrdinalIgnoreCase) == 0;
