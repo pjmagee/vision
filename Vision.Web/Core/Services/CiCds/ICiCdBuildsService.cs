@@ -6,7 +6,7 @@
 
     public interface ICICDBuildsService
     {
-        CiCdKind Kind { get; }
-        Task<IEnumerable<CiCdBuildDto>> GetBuildsByRepositoryIdAsync(Guid repositoryId);
+        bool Supports(CiCdKind Kind);
+        Task<List<CiCdBuildDto>> GetBuildsByRepositoryIdAsync(Guid repositoryId);
     }
 }

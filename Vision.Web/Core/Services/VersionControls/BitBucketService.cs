@@ -3,14 +3,24 @@
     using Atlassian.Stash;
     using Atlassian.Stash.Entities;
     using Atlassian.Stash.Helpers;
+    using Microsoft.Extensions.Logging;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    
-    public class BitBucketProvider : IVersionControlService
-    {        
+
+    public class BitBucketService : IVersionControlService
+    {
         private static readonly RequestOptions Options = new RequestOptions { Limit = 10000 };
+        private readonly IRepositoryMatcher matcher;
+        private readonly ILogger<BitBucketService> logger;
+
+        public BitBucketService(IRepositoryMatcher matcher, ILogger<BitBucketService> logger)
+        {
+            this.matcher = matcher;
+            this.logger = logger;
+        }
+
 
         public async Task<IEnumerable<Asset>> GetAssetsAsync(Repository repository)
         {
@@ -27,7 +37,7 @@
 
                 foreach(Atlassian.Stash.Entities.Repository bitBucketRepository in repositories.Values ?? Enumerable.Empty<Atlassian.Stash.Entities.Repository>())
                 {
-                    bool isRepositoryFound = bitBucketRepository.CloneUrl == repository.Url;
+                    bool isRepositoryFound = bitBucketRepository.Links.Clone.Select(c => c.Href).Concat(bitBucketRepository.Links.Self.Select(s => s.Href)).Any(link => matcher.IsSameRepository(link.ToString(), repository.Url));
 
                     if (isRepositoryFound)
                     {
@@ -36,9 +46,13 @@
                         foreach(string path in filePaths.Values ?? Enumerable.Empty<string>())
                         {
                             if (path.IsSupported())
-                            {
-                                Atlassian.Stash.Entities.File file  = await client.Repositories.GetFileContents(project.Key, bitBucketRepository.Slug, path, new FileContentsOptions { Content = true });
-                                results.Add(new Asset { Id = Guid.NewGuid(), Repository = repository, Path = path, Raw = string.Join(Environment.NewLine, file.FileContents) });
+                            {                                
+
+                                Atlassian.Stash.Entities.File file  = await client.Repositories.GetFileContents(project.Key, bitBucketRepository.Slug, path, new FileContentsOptions { Content = true, Limit = 10000 });
+
+                                logger.LogInformation($"Adding '{path}' for repository {repository.Id}");
+
+                                results.Add(new Asset { Id = Guid.NewGuid(), Repository = repository, Kind =  AppHelper.GetDependencyKind(path), Path = path, Raw = string.Join(Environment.NewLine, file.FileContents) });
                             }
                         }
                     }
@@ -74,6 +88,8 @@
                     });
                 }
             }
+
+            logger.LogInformation($"Found {results.Count} repositories for {versionControl.Endpoint}");
 
             return results;
         }

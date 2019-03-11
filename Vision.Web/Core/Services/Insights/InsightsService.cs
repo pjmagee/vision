@@ -18,14 +18,30 @@
 
             AssetDto[] most = await assets
                 .OrderByDescending(asset => context.AssetDependencies.Count(ad => ad.AssetId == asset.Id))
-                .Take(10)
-                .Select(asset => new AssetDto { AssetId = asset.Id, Repository = asset.Repository.Url, Asset = asset.Path, Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id) })
+                .Select(asset => new AssetDto
+                {
+                    AssetId = asset.Id,
+                    Repository = asset.Repository.Url,
+                    Asset = asset.Path,
+                    Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id),
+                    VersionControlId = asset.Repository.VersionControlId,
+                    Kind = asset.Kind,
+                    RepositoryId = asset.RepositoryId
+                })
                 .ToArrayAsync();
 
             AssetDto[] least = await assets
-                .OrderBy(asset => context.AssetDependencies.Count(ad => ad.AssetId == asset.Id))
-                .Take(10)
-                .Select(asset => new AssetDto { AssetId = asset.Id, Repository = asset.Repository.Url, Asset = asset.Path, Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id) })
+                .OrderBy(asset => context.AssetDependencies.Count(ad => ad.AssetId == asset.Id))                
+                .Select(asset => new AssetDto
+                {
+                    AssetId = asset.Id,
+                    Repository = asset.Repository.Url,
+                    Asset = asset.Path,
+                    Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id),
+                    VersionControlId = asset.Repository.VersionControlId,
+                    Kind = asset.Kind,
+                    RepositoryId = asset.RepositoryId
+                })
                 .ToArrayAsync();
 
             return new[]
@@ -39,7 +55,14 @@
         {
             RepositoryDto[] published = await context.Repositories.AsNoTracking()
                 .Where(repository => context.Dependencies.Any(dependency => dependency.Kind == dependencyKind && (string.Equals(dependency.RepositoryUrl, dependency.RepositoryUrl) || string.Equals(dependency.RepositoryUrl, repository.WebUrl))))
-                .Select(repository => new RepositoryDto { Assets = context.Assets.Count(a => a.RepositoryId == repository.Id), RepositoryId = repository.Id, Url = repository.Url, WebUrl = repository.WebUrl, VersionControlId = repository.VersionControlId })
+                .Select(repository => new RepositoryDto
+                {
+                    Assets = context.Assets.Count(a => a.RepositoryId == repository.Id),
+                    RepositoryId = repository.Id,
+                    Url = repository.Url,
+                    WebUrl = repository.WebUrl,
+                    VersionControlId = repository.VersionControlId,                    
+                })
                 .ToArrayAsync();
 
             return new[]
@@ -53,13 +76,29 @@
             IQueryable<Dependency> dependencies = context.Dependencies.Where(dependency => dependency.Kind == dependencyKind);
 
             DependencyDto[] most = await dependencies
-                .OrderByDescending(dependency => context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id)).Take(10)
-                .Select(dependency => new DependencyDto { DependencyId = dependency.Id, Name = dependency.Name, Kind = dependency.Kind, Assets = context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id), Versions = context.DependencyVersions.Count(dv => dv.DependencyId == dependency.Id) })
+                .OrderByDescending(dependency => context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id))
+                .Select(dependency => new DependencyDto
+                {
+                    DependencyId = dependency.Id,
+                    Name = dependency.Name,
+                    Kind = dependency.Kind,
+                    Assets = context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id),
+                    Versions = context.DependencyVersions.Count(dv => dv.DependencyId == dependency.Id),
+                    RepositoryUrl = dependency.RepositoryUrl                    
+                })
                 .ToArrayAsync();
 
             DependencyDto[] least = await dependencies
-                .OrderBy(asset => context.AssetDependencies.Count(ad => ad.AssetId == asset.Id)).Take(10)
-                .Select(dependency => new DependencyDto { DependencyId = dependency.Id, Name = dependency.Name, Kind = dependency.Kind, Assets = context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id), Versions = context.DependencyVersions.Count(dv => dv.DependencyId == dependency.Id) })
+                .OrderBy(asset => context.AssetDependencies.Count(ad => ad.AssetId == asset.Id))
+                .Select(dependency => new DependencyDto
+                {
+                    DependencyId = dependency.Id,
+                    Name = dependency.Name,
+                    Kind = dependency.Kind,
+                    Assets = context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id),
+                    Versions = context.DependencyVersions.Count(dv => dv.DependencyId == dependency.Id),
+                    RepositoryUrl = dependency.RepositoryUrl
+                })
                 .ToArrayAsync();
 
             return new[]

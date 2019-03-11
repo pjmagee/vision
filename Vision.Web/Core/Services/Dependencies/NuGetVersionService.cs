@@ -40,13 +40,34 @@ namespace Vision.Web.Core
                 var response = JObject.Parse(dependencyResponse);
                 var latest = response["items"].First["upper"].Value<string>();
 
-                return new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Version = latest, IsLatest = true };
+                logger.LogInformation($"Found latest version for {dependency.Name}: {latest}");
+
+                return new DependencyVersion { Version = latest, IsLatest = true, Dependency = dependency, DependencyId = dependency.Id };
             }
             else
             {
-                var root = XDocument.Parse(await client.GetStringAsync($"{registry.Endpoint}/FindPackagesById()?id='{dependency.Name}'&$filter=IsLatestVersion eq true"));
-                var latest = root.XPathSelectElement("(//*[local-name() = '" + "Version" + "'])").Value;
-                return new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Version = latest, IsLatest = true };
+                // THIS ONE WORKS ON OFFICAL NUGET V2 XML API, BUT NOT ON NEXUS!!!!
+                // var root = XDocument.Parse(await client.GetStringAsync($"{registry.Endpoint}/FindPackagesById()?id='{dependency.Name}'&$filter=IsLatestVersion eq true"));
+
+                try
+                {
+                    var root = XDocument.Parse(await client.GetStringAsync($"{registry.Endpoint}/FindPackagesById()?id='{dependency.Name}'&$filter=IsLatestVersion"));
+                    var latest = root.XPathSelectElement("(//*[local-name() = '" + "Version" + "'])").Value;
+
+                    if(!string.IsNullOrWhiteSpace(latest))
+                    {
+                        logger.LogInformation($"Found latest version for {dependency.Name}: {latest}");
+                        return new DependencyVersion { Version = latest, IsLatest = true, Dependency = dependency, DependencyId = dependency.Id };
+                    }                    
+                }
+                catch(NullReferenceException)
+                {
+                    // poor XML handling :-)
+                }
+                catch(HttpRequestException e)
+                {
+                    logger.LogError(e, $"HTTP Error when searching version for: {dependency.Name}");
+                }                
             }
 
             throw new Exception("Could not find dependency");

@@ -91,7 +91,8 @@
                 {
                     Assets = context.AssetFrameworks.Count(assetFramework => assetFramework.FrameworkId == framework.Id),
                     FrameworkId = framework.Id,
-                    Name = framework.Version                    
+                    Name = framework.Version,
+                    
                 })
                 .ToListAsync();
         }

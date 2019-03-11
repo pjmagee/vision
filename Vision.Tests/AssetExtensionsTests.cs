@@ -3,7 +3,6 @@ using Xunit;
 
 namespace Vision.Tests
 {
-
     public class AssetExtensionsTests
     {
         [Fact]

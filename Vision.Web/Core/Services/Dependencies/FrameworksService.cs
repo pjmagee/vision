@@ -60,9 +60,11 @@
                 {
                     AssetId = asset.Id,
                     Asset = asset.Path,
+                    Kind = asset.Kind,
                     Dependencies = context.AssetDependencies.Count(assetDependency => assetDependency.AssetId == asset.Id),
                     Repository = asset.Repository.WebUrl,
-                    RepositoryId = asset.RepositoryId
+                    RepositoryId = asset.RepositoryId,
+                    VersionControlId = asset.Repository.VersionControlId
                 })
                 .ToListAsync();
         }

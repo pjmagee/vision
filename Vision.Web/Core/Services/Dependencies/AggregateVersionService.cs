@@ -25,19 +25,25 @@ namespace Vision.Web.Core
 
         public async Task<DependencyVersion> GetLatestVersionAsync(Dependency dependency)
         {
-            foreach(IVersionService service in versionServices.Where(s => s.Kind == dependency.Kind))
+            foreach(IVersionService service in versionServices.Where(service => service.Kind == dependency.Kind))
             {
                 try
                 {
-                    return await service.GetLatestVersionAsync(dependency);
+                    var latest = await service.GetLatestVersionAsync(dependency);
+
+                    if(latest != null)
+                    {
+                        logger.LogInformation($"Aggregate version service found latest version for {dependency.Name}: {latest}");
+                        return latest;
+                    }
                 }
                 catch(Exception e)
                 {
-                    logger.LogError(e, $"Aggregate version service failed to retrieve version using {service.ToString()}");
+                    logger.LogError(e, $"Aggregate version service failed to retrieve version using {service.GetType().Name}");
                 }
             }
 
-            return new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, IsLatest = false, Version = "UNKNOWN" };
+            return new DependencyVersion { IsLatest = false, Version = "UNKNOWN", Dependency = dependency, DependencyId = dependency.Id };
         }
-    }
+    }    
 }

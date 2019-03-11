@@ -69,9 +69,9 @@
         {
             return await context.Registries.Select(registry => new RegistryDto
             {
-                ApiKey = protector.Unprotect(registry.ApiKey),
-                Password = protector.Unprotect(registry.Password),
-                Username = protector.Unprotect(registry.Username),
+                ApiKey = string.IsNullOrWhiteSpace(registry.ApiKey) ? null : protector.Unprotect(registry.ApiKey),
+                Username = string.IsNullOrWhiteSpace(registry.Username) ? null : protector.Unprotect(registry.Username),
+                Password = string.IsNullOrWhiteSpace(registry.Password) ? null : protector.Unprotect(registry.Password),
                 Dependencies = context.Dependencies.Count(d => d.RegistryId == registry.Id),
                 Endpoint = registry.Endpoint,
                 IsEnabled = registry.IsEnabled,
@@ -88,9 +88,9 @@
 
             return new RegistryDto
             {
-                ApiKey = protector.Unprotect(entity.ApiKey),
-                Password = protector.Unprotect(entity.Password),
-                Username = protector.Unprotect(entity.Username),
+                ApiKey = string.IsNullOrWhiteSpace(entity.ApiKey) ? null : protector.Unprotect(entity.ApiKey),
+                Username = string.IsNullOrWhiteSpace(entity.Username) ? null : protector.Unprotect(entity.Username),
+                Password = string.IsNullOrWhiteSpace(entity.Password) ? null : protector.Unprotect(entity.Password),
                 Dependencies = context.Dependencies.Count(d => d.RegistryId == entity.Id),
                 Endpoint = entity.Endpoint,
                 IsEnabled = entity.IsEnabled,

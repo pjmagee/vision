@@ -38,26 +38,28 @@ namespace Vision.Web
 
             services.AddScoped<FakeDataGenerator>();
             
-            services.AddScoped<BitBucketProvider>();
-            services.AddScoped<GitlabProvider>();
-            services.AddScoped<AggregateVersionControlService>();
+            services.AddScoped<BitBucketService>();
+            services.AddScoped<GitlabService>();
+
+            
 
             services.AddScoped<NPMAssetExtractor>();
             services.AddScoped<NuGetAssetExtractor>();
             services.AddScoped<DockerAssetExtractor>();
-            services.AddScoped<AggregateAssetExtractor>();
-            
             services.AddScoped<NuGetVersionService>();
             services.AddScoped<DockerVersionService>();
             services.AddScoped<NPMVersionService>();
-            services.AddScoped<AggregateVersionService>();
             
-            services.AddScoped<ICICDBuildsService, FakeBuildsService>();
-            services.AddScoped<ICICDBuildsService, TeamCityBuildsService>();
-            services.AddScoped<ICICDBuildsService, JenkinsBuildsService>();
-            services.AddScoped<IRepositoryMatcher, RepositoryMatcher>();
+            services.AddScoped<TeamCityBuildsService>();
+            services.AddScoped<JenkinsBuildsService>();
+            services.AddScoped<RepositoryMatcher>();
 
+            services.AddScoped<IRepositoryMatcher, RepositoryMatcher>();
             services.AddScoped<ISystemTaskService, SystemTaskService>();
+            services.AddScoped<IVersionControlService, AggregateVersionControlService>();
+            services.AddScoped<ICICDBuildsService, AggregateBuildsService>();
+            services.AddScoped<IAssetExtractor, AggregateAssetExtractor>();
+            services.AddScoped<IVersionService, AggregateVersionService>();
 
             services.AddScoped<AssetsService>();
             services.AddScoped<CiCdsService>();

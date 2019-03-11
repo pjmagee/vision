@@ -5,25 +5,28 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Vision.Web.Core
 {
+
     public class TeamCityBuildsService : ICICDBuildsService
     {
-        public CiCdKind Kind => CiCdKind.TeamCity;
 
         private static readonly HttpClient BuildsClient = new HttpClient(new HttpClientHandler { ServerCertificateCustomValidationCallback = delegate { return true; } });
 
         private readonly VisionDbContext context;
         private readonly IRepositoryMatcher matcher;
+        private readonly ILogger<TeamCityBuildsService> logger;
 
-        public TeamCityBuildsService(VisionDbContext context, IRepositoryMatcher matcher)
+        public TeamCityBuildsService(VisionDbContext context, IRepositoryMatcher matcher, ILogger<TeamCityBuildsService> logger)
         {
             this.context = context;
             this.matcher = matcher;
+            this.logger = logger;
         }
 
-        public async Task<IEnumerable<CiCdBuildDto>> GetBuildsByRepositoryIdAsync(Guid repositoryId)
+        public async Task<List<CiCdBuildDto>> GetBuildsByRepositoryIdAsync(Guid repositoryId)
         {
             Repository repository = await context.Repositories.FindAsync(repositoryId);
 
@@ -68,18 +71,20 @@ namespace Vision.Web.Core
                             builds.Add(new CiCdBuildDto { Name = name, WebUrl = webUri, CiCdId = cicd.Id, Kind = cicd.Kind });
                         }
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
-                       
+                        logger.LogError(e, $"Error finding build at {uri}");
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                
+                logger.LogError(e, $"Error finding builds for {repository.WebUrl} at {cicd.Endpoint}");
             }
 
             return builds;
         }
+
+        public bool Supports(CiCdKind Kind) => Kind == CiCdKind.TeamCity;
     }
 }

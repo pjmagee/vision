@@ -14,6 +14,19 @@
         public const string PackagesFile = "packages.json";
         public const string GradleFile = "gradle";
 
+        public static DependencyKind GetDependencyKind(this string path)
+        {
+            if (path.EndsWith(CsProjFile)) return DependencyKind.NuGet;
+            if (path.EndsWith(RequirementsFile)) return DependencyKind.PyPi;
+            if (path.EndsWith(PomFile)) return DependencyKind.Maven;
+            if (path.EndsWith(GradleFile)) return DependencyKind.Gradle;
+            if (path.EndsWith(GemFile)) return DependencyKind.RubyGem;
+            if (path.EndsWith(DockerFile)) return DependencyKind.Docker;
+            if (path.EndsWith(PackagesFile)) return DependencyKind.Npm;
+
+            throw new Exception("Unsupported file for kind");
+        }
+
         public static IEnumerable<DependencyKind> DependencyKinds { get; } = Enum.GetValues(typeof(DependencyKind)).Cast<DependencyKind>();
         
         public static string GetFileExtension(this DependencyKind kind)

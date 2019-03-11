@@ -18,8 +18,8 @@ namespace Vision.Web.Core
         }
 
         public IEnumerable<Extract> ExtractFrameworks(Asset asset)
-        {            
-            throw new NotSupportedException("There are no 'frameworks' in Dockerfiles");
+        {
+            yield break;
         }
 
         public bool Supports(DependencyKind kind) => kind == DependencyKind.Docker;

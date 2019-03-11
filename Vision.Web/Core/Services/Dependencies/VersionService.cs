@@ -34,14 +34,29 @@ namespace Vision.Web.Core
             {
                 try
                 {
+                    logger.LogInformation($"Searching latest version for {dependency.Name} at registry: {registry.Endpoint}.");
+
                     DependencyVersion result = await NextAsync(registry, dependency);
-                    if (result != null) return result;
+                    
+
+                    if (result != null)
+                    {
+                        logger.LogInformation($"Found latest version {result.Version} for {dependency.Name}");
+                        return result;
+                    }
+                    else
+                    {
+                        logger.LogInformation($"Did not find latest version for {dependency.Name} at registry: {registry.Endpoint}.");
+                    }
+                        
                 }
                 catch(Exception e)
                 {
-                    logger.LogInformation(e, $"Could not find {dependency.Name} in {registry.Endpoint}");
+                    logger.LogError(e, $"Error finding latest version for {dependency.Name} at registry: {registry.Endpoint}.");
                 }
             }
+
+            logger.LogWarning($"Did not find latest version for {dependency.Name} in any registry. Returning version 'UNKNOWN' and Latest = false.");
 
             return new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Version = "UNKNOWN", IsLatest = false };
         }

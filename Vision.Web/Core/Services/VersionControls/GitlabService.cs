@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Vision.Web.Core
 {
-    public class GitlabProvider : IVersionControlService
+    public class GitlabService : IVersionControlService
     {
         public async Task<IEnumerable<Asset>> GetAssetsAsync(Repository repository)
         {

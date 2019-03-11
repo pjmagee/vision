@@ -19,10 +19,11 @@ namespace Vision.Web.Core
 
         protected override async Task<DependencyVersion> NextAsync(Registry registry, Dependency dependency)
         {
-            var response = await client.GetStringAsync($"{registry.Endpoint}/{dependency}");
-            var resp = JObject.Parse(response);
-            var latest = resp["dist-tags"]["latest"].ToString();
-            return new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Version = latest };
+            string json = await client.GetStringAsync($"{registry.Endpoint}/{dependency}");
+            JObject resp = JObject.Parse(json);
+            string latest = resp["dist-tags"]["latest"].ToString();
+
+            return new DependencyVersion { Version = latest, IsLatest = true, Dependency = dependency, DependencyId = dependency.Id };
         }
     }
 }

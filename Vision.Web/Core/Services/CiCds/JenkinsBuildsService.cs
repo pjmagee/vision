@@ -8,6 +8,7 @@
     using System.Xml.Linq;
     using System.Xml.XPath;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Logging;
 
     public class JenkinsBuildsService : ICICDBuildsService
     {
@@ -15,16 +16,16 @@
 
         private readonly VisionDbContext context;
         private readonly IRepositoryMatcher matcher;
+        private readonly ILogger<JenkinsBuildsService> logger;
 
-        public CiCdKind Kind => CiCdKind.Jenkins;
-
-        public JenkinsBuildsService(VisionDbContext context, IRepositoryMatcher matcher)
+        public JenkinsBuildsService(VisionDbContext context, IRepositoryMatcher matcher, ILogger<JenkinsBuildsService> logger)
         {
             this.context = context;
             this.matcher = matcher;
+            this.logger = logger;
         }
 
-        public async Task<IEnumerable<CiCdBuildDto>> GetBuildsByRepositoryIdAsync(Guid repositoryId)
+        public async Task<List<CiCdBuildDto>> GetBuildsByRepositoryIdAsync(Guid repositoryId)
         {
             Repository repository = await context.Repositories.FindAsync(repositoryId);
 
@@ -54,10 +55,10 @@
 
                 foreach (var job in jobs)
                 {
+                    var jobUrl = job.XPathSelectElement("url").Value;
+
                     try
                     {
-                        var jobUrl = job.XPathSelectElement("url").Value;
-
                         var buildUri = new Uri(new Uri(jobUrl).PathAndQuery + "/lastBuild/api/xml", UriKind.Relative);
                         var buildXml = await HttpClient.GetStringAsync(buildUri);
                         var buildDocument = XDocument.Parse(buildXml);
@@ -70,18 +71,20 @@
                             builds.Add(new CiCdBuildDto { Name = name, WebUrl = jobUrl, CiCdId = cicd.Id, Kind = cicd.Kind });
                         }
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
-                        
+                        logger.LogError(e, $"Error finding build at {job}");
                     }                    
                 }
             }
-            catch(Exception)
+            catch(Exception e)
             {
-
+                logger.LogError(e, $"Error finding builds for {repository.WebUrl} at {cicd.Endpoint}");
             }
 
             return builds;
         }
+
+        public bool Supports(CiCdKind Kind) => Kind == CiCdKind.Jenkins;
     }
 }

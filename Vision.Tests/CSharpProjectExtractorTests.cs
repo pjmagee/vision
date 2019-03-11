@@ -6,7 +6,6 @@ using Xunit;
 
 namespace Vision.Tests
 {
-
     public class CSharpProjectExtractorTests: IClassFixture<NuGetAssetExtractor>
     {
         private readonly NuGetAssetExtractor extractor;

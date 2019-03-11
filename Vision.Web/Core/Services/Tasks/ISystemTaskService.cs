@@ -22,18 +22,16 @@
     public class SystemTaskService : ISystemTaskService
     {
         private readonly VisionDbContext context;
-        private readonly AggregateVersionControlService versionControlService;
-        private readonly AggregateVersionService versionService;
-        private readonly AggregateAssetExtractor assetExtractor;
-        
+        private readonly IVersionControlService versionControlService;
+        private readonly IVersionService versionService;
+        private readonly IAssetExtractor assetExtractor;        
         private readonly ILogger<SystemTaskService> logger;
 
-        public SystemTaskService(
-            VisionDbContext context,
-            AggregateVersionControlService versionControlService,
-            AggregateAssetExtractor assetExtractor,
-            AggregateVersionService versionService,
-            ILogger<SystemTaskService> logger)
+        public SystemTaskService(VisionDbContext context,
+                                 IVersionControlService versionControlService,
+                                 IAssetExtractor assetExtractor,
+                                 IVersionService versionService,
+                                 ILogger<SystemTaskService> logger)
         {
             this.versionControlService = versionControlService;
             this.assetExtractor = assetExtractor;
@@ -139,55 +137,85 @@
         }
 
         private async Task AssignAssetFrameworksAsync(Extract extracted, Asset asset)
-        {
-            DependencyKind kind = asset.GetDependencyKind();
+        {            
             string version = extracted.Version;
-
-            Framework framework = await context.Frameworks.FirstOrDefaultAsync(d => d.Version == version) ?? new Framework { Id = Guid.NewGuid(), Version = version };
+            Framework framework = await GetOrCreateFramework(version);
 
             if (context.Entry(framework).State == EntityState.Detached)
             {
                 context.Frameworks.Add(framework);
             }
 
-            context.AssetFrameworks.Add(new AssetFramework { Id = Guid.NewGuid(), Asset = asset, AssetId = asset.Id, Framework = framework, FrameworkId = framework.Id });
+            context.AssetFrameworks.Add(new AssetFramework { Asset = asset, AssetId = asset.Id, Framework = framework, FrameworkId = framework.Id });
             await context.SaveChangesAsync();
+        }
+
+        private async Task<Framework> GetOrCreateFramework(string version)
+        {
+            return await context.Frameworks.FirstOrDefaultAsync(d => d.Version == version) ?? new Framework { Version = version };
         }
 
         private async Task AssignAssetDependencies(Extract extracted, Asset asset)
         {
             DependencyKind kind = asset.GetDependencyKind();
             string version = extracted.Version;
-            string name = extracted.Name;            
+            string name = extracted.Name;
 
-            Dependency dependency = await context.Dependencies.FirstOrDefaultAsync(d => d.Name == name && d.Kind == kind) ?? new Dependency { Id = Guid.NewGuid(), Kind = kind, Name = name };
+            Dependency dependency = await GetOrCreateDependency(kind, name);
 
             /* FIND AND SAVE DEPENDENCY IF NEEDED */
             if (context.Entry(dependency).State == EntityState.Detached)
             {
-                context.Dependencies.Add(dependency);                
+                context.Dependencies.Add(dependency);
                 await context.SaveChangesAsync();
             }
 
-            /* FIND AND SAVE LATEST IF NEEDED */
             DependencyVersion latest = await versionService.GetLatestVersionAsync(dependency);
 
-            // Save Latest version if not found
             if (await context.DependencyVersions.AllAsync(dv => dv.Version != latest.Version))
             {
                 context.DependencyVersions.Add(latest);
+                await context.SaveChangesAsync();
             }
 
-            /* FIND AND SAVE CURRENT VERSION IF NEEDED */
-            DependencyVersion dependencyVersion = dependency.Versions.FirstOrDefault(v => v.Version == version) ?? new DependencyVersion { Id = Guid.NewGuid(), Dependency = dependency, Version = version  };
-                        
+            DependencyVersion dependencyVersion = await GetOrCreateDependencyVersion(version, dependency);
+
             if (context.Entry(dependencyVersion).State == EntityState.Detached)
             {
                 context.DependencyVersions.Add(dependencyVersion);
             }
 
-            context.AssetDependencies.Add(new AssetDependency { Id = Guid.NewGuid(), Asset = asset, DependencyVersion = dependencyVersion });
-        }        
+            context.AssetDependencies.Add(new AssetDependency
+            {
+                AssetId = asset.Id,
+                DependencyId = dependency.Id,
+                DependencyVersionId = dependencyVersion.Id,
+                Asset = asset,
+                DependencyVersion = dependencyVersion,
+                Dependency = dependency
+            });
+        }
+
+        private async Task<Dependency> GetOrCreateDependency(DependencyKind kind, string name)
+        {
+            return await context.Dependencies.
+                FirstOrDefaultAsync(d => d.Name == name && d.Kind == kind) ?? 
+                new Dependency { Name = name, Kind = kind, Updated = DateTime.Now };
+        }
+
+        private async Task<DependencyVersion> GetOrCreateDependencyVersion(string version, Dependency dependency)
+        {
+
+            /* FIND AND SAVE CURRENT VERSION IF NEEDED */
+            return await context.DependencyVersions
+                .FirstOrDefaultAsync(v => v.DependencyId == dependency.Id && v.Version == version) ?? 
+                new DependencyVersion
+                {
+                    Dependency = dependency,
+                    DependencyId = dependency.Id,
+                    Version = version
+                };
+        }
 
         public async Task RefreshDependencyByIdAsync(Guid dependencyId)
         {

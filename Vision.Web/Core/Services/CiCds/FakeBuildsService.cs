@@ -11,7 +11,6 @@ namespace Vision.Web.Core
 {
     public class FakeBuildsService : ICICDBuildsService
     {
-        public CiCdKind Kind => CiCdKind.TeamCity;
 
         private readonly VisionDbContext context;
 
@@ -20,7 +19,7 @@ namespace Vision.Web.Core
             this.context = context;
         }
 
-        public async Task<IEnumerable<CiCdBuildDto>> GetBuildsByRepositoryIdAsync(Guid repositoryId)
+        public async Task<List<CiCdBuildDto>> GetBuildsByRepositoryIdAsync(Guid repositoryId)
         {
             Repository repository = await context.Repositories.FindAsync(repositoryId);
             List<string> assets = await context.Assets.Where(x => x.RepositoryId == repositoryId).Select(x => x.Path).ToListAsync();
@@ -28,7 +27,9 @@ namespace Vision.Web.Core
 
             string name = Pick<string>.RandomItemFrom(new[] { "Commit Build", "Feature Tests", "Integration Tests" });
 
-            return Enumerable.Range(0, GetRandom.Int(1, 3)).Select(x => new CiCdBuildDto { Name = name, WebUrl = "http://ci.rbxd.ds:8090/path/to/build/" });
+            return Enumerable.Range(0, GetRandom.Int(1, 4)).Select(x => new CiCdBuildDto { Name = name, WebUrl = "http://ci.rbxd.ds:8090/path/to/build/" }).ToList();
         }
+
+        public bool Supports(CiCdKind Kind) => true;
     }
 }
