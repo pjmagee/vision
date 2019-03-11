@@ -110,11 +110,17 @@
     protected override async Task OnParametersSetAsync()
     {
         VersionControl = await VersionControlsService.GetVersionControlByIdAsync(VersionControlId);
+        StateHasChanged();
         Repository = await RepositoriesService.GetRepositoryByIdAsync(RepositoryId);
-        Builds = await RepositoriesService.GetCiCdsByRepositoryId(RepositoryId);
+        StateHasChanged();
         Dependencies = await RepositoriesService.GetDependenciesByRepositoryId(RepositoryId);
+        StateHasChanged();
         Assets = await RepositoriesService.GetAssetsByRepositoryId(RepositoryId);
+        StateHasChanged();
         Dependents = await RepositoriesService.GetDependentsByRepositoryId(RepositoryId);
+        StateHasChanged();
         Frameworks = await RepositoriesService.GetFrameworksByRepositoryId(RepositoryId);
+        StateHasChanged();
+        Builds = await RepositoriesService.GetCiCdsByRepositoryId(RepositoryId);
     }
 }
