@@ -3,9 +3,12 @@
         <tr>
             <th>Kind</th>
             <th>Endpoint</th>
-            @*<th>Dependencies</th>*@
+            <th>Dependencies</th>
             <th>Public</th>
             <th>Enabled</th>
+            <th>API Key</th>
+            <th>Username</th>
+            <th>Password</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -15,9 +18,12 @@
         <tr>
             <td class="@item.Kind.GetIconClass()">@SvgService.GetSvg(item.Kind)</td>
             <td><a href="@($"/data/registries/{item.RegistryId}")">@item.Endpoint</a></td>
-            @*<td>@item.Dependencies</td>*@
+            <td>@item.Dependencies</td>
             <td>@item.IsPublic</td>
             <td>@item.IsEnabled</td>
+            <td title="@item.ApiKey">@(string.IsNullOrWhiteSpace(item.ApiKey) ? "Empty" : "Set")</td>
+            <td title="@item.Username">@(string.IsNullOrWhiteSpace(item.Username) ? "Empty" : "Set")</td>
+            <td title="@item.Password">@(string.IsNullOrWhiteSpace(item.Password) ? "Empty" : "Set")</td>
             <td>
                 <a href="@($"/sources/edit/registries/{item.RegistryId}")">Edit</a>
             </td>

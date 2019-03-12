@@ -16,9 +16,9 @@
                 <tr>
                     <td class="@item.Kind.GetIconClass()">@SvgService.GetSvg(item.Kind)</td>
                     <td>@item.Endpoint</td>
-                    <td>@item.ApiKey</td>
-                    <td>@item.Username</td>
-                    <td>@item.Password</td>
+                    <td title="@item.ApiKey">@(string.IsNullOrWhiteSpace(item.ApiKey) ? "Empty" : "Set")</td>
+                    <td title="@item.Username">@(string.IsNullOrWhiteSpace(item.Username) ? "Empty" : "Set")</td>
+                    <td title="@item.Password">@(string.IsNullOrWhiteSpace(item.Password) ? "Empty" : "Set")</td>
                     <td>
                         <a href="@($"/sources/edit/cicds/{item.CiCdId}")">Edit</a>
                     </td>

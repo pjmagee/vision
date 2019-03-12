@@ -74,7 +74,7 @@
                         Icon = "fas fa-fw fa-table"
                     }).ToList()
                 },                
-                new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Frameworks", Route = "insights/frameworks", Icon = "fas fa-fw fa-table" },
+                // new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Frameworks", Route = "insights/frameworks", Icon = "fas fa-fw fa-table" },
                 new NavMenuItem { Type = NavMenuItemType.Seperator, Name = "Admin" },
                 new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Tasks",      Route = "admin/tasks", Icon = "fas fa-fw fa-table" }
             };
