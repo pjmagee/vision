@@ -2,28 +2,31 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Vision.Web.Core
 {
-
     public class TeamCityBuildsService : ICICDBuildsService
     {
-
         private static readonly HttpClient BuildsClient = new HttpClient(new HttpClientHandler { ServerCertificateCustomValidationCallback = delegate { return true; } });
 
         private readonly VisionDbContext context;
         private readonly IRepositoryMatcher matcher;
         private readonly ILogger<TeamCityBuildsService> logger;
+        private readonly IDataProtector protector;
 
-        public TeamCityBuildsService(VisionDbContext context, IRepositoryMatcher matcher, ILogger<TeamCityBuildsService> logger)
+        public TeamCityBuildsService(VisionDbContext context, IRepositoryMatcher matcher, ILogger<TeamCityBuildsService> logger, IDataProtectionProvider provider)
         {
             this.context = context;
             this.matcher = matcher;
             this.logger = logger;
+            this.protector = provider.CreateProtector("Auth");
         }
 
         public async Task<List<CiCdBuildDto>> GetBuildsByRepositoryIdAsync(Guid repositoryId)
@@ -41,15 +44,29 @@ namespace Vision.Web.Core
             return builds;
         }
 
+        private static string Base64Encode(string plainText) => Convert.ToBase64String(Encoding.UTF8.GetBytes(plainText));
+
         private async Task<List<CiCdBuildDto>> GetTeamCityBuildsAsync(Repository repository, CiCd cicd)
         {
             var builds = new List<CiCdBuildDto>();
 
             try
             {
-                BuildsClient.BaseAddress = new Uri(cicd.Endpoint + "guestAuth/app/rest/");
+                var authMode = cicd.IsGuestEnabled ? "guestAuth" : "httpAuth";                
+                var query = cicd.Endpoint.Trim('/') + $"/{authMode}/app/rest/vcs-roots";
 
-                var vcsRootsResponse = await BuildsClient.GetAsync("vcs-roots");
+                logger.LogInformation($"Checking {query} for builds related to {repository.WebUrl}");
+
+                if (!string.IsNullOrWhiteSpace(cicd.Username) && !string.IsNullOrWhiteSpace(cicd.Password))
+                {
+                    var username = Base64Encode(protector.Unprotect(cicd.Username));
+                    var password = Base64Encode(protector.Unprotect(cicd.Password));
+
+                    BuildsClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("basic", $"{username}:{password}");
+                }
+
+                var vcsRootsResponse = await BuildsClient.GetAsync(query, HttpCompletionOption.ResponseContentRead);
+
                 var vcsRootsDocument = XDocument.Parse(await vcsRootsResponse.Content.ReadAsStringAsync());
 
                 foreach (var vcsRootElement in vcsRootsDocument.Root.Elements("vcs-root"))
@@ -58,7 +75,7 @@ namespace Vision.Web.Core
 
                     try
                     {
-                        var vcsRootResponse = await BuildsClient.GetAsync(uri);
+                        var vcsRootResponse = await BuildsClient.GetAsync(cicd.Endpoint.Trim('/') + uri);
                         var vscRootDocument = XDocument.Parse(await vcsRootResponse.Content.ReadAsStringAsync());
                         var projectElement = vscRootDocument.Root.Element("project");
                         var vcsElement = vscRootDocument.Root.Element("properties").Elements("property").FirstOrDefault(p => p.Attribute("name").Value == "url");

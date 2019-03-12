@@ -1,4 +1,6 @@
-﻿namespace Vision.Web.Core
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Vision.Web.Core
 {
     public class CiCd : Entity
     {
@@ -7,6 +9,9 @@
         public string Username { get; set; }
         public string Password { get; set; }
         public bool IsEnabled { get; set; }
+
+        [NotMapped]
+        public bool IsGuestEnabled { get; set; }
         public CiCdKind Kind { get; set; }
     }
 }

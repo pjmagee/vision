@@ -46,10 +46,11 @@
 
             try
             {
-                HttpClient.BaseAddress = new Uri(cicd.Endpoint);
-               
-                var jobUri = new Uri("/job/CI/api/xml", UriKind.Relative);
-                var jobXml = await HttpClient.GetStringAsync(jobUri);
+                var query = cicd.Endpoint.Trim('/') + "/job/CI/api/xml";
+
+                logger.LogInformation($"Checking {query} for builds related to {repository.WebUrl}");
+
+                var jobXml = await HttpClient.GetStringAsync(query);
                 var jobsDocument = XDocument.Parse(jobXml);
                 var jobs = jobsDocument.XPathSelectElements("//job");
 

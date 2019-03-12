@@ -15,6 +15,8 @@
 
         public bool IsEnabled { get; set; }
 
+        public bool IsGuestEnabled { get; set; }
+
         [Required]
         public CiCdKind Kind { get; set; }
     }

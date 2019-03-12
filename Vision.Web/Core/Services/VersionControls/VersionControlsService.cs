@@ -4,14 +4,20 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Microsoft.AspNetCore.DataProtection;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
 
     public class VersionControlsService
     {
         private readonly VisionDbContext context;
+        private readonly IDataProtector protector;
 
-        public VersionControlsService(VisionDbContext context) => this.context = context;
+        public VersionControlsService(VisionDbContext context, IDataProtectionProvider provider)
+        {
+            this.context = context;
+            this.protector = provider.CreateProtector("Auth");
+        }
 
         public async Task<IEnumerable<VersionControlDto>> GetAllAsync()
         {
@@ -26,9 +32,15 @@
         }
 
 
-        public async Task<ActionResult<VersionControlDto>> CreateVersionControl([FromBody] VersionControlDto post)
+        public async Task<ActionResult<VersionControlDto>> CreateVersionControl(VersionControlDto post)
         {
-            VersionControl versionControl = new VersionControl { Id = Guid.NewGuid(), ApiKey = post.ApiKey, Endpoint = post.Endpoint, Kind = post.Kind };
+            VersionControl versionControl = new VersionControl
+            {
+                Id = Guid.NewGuid(),
+                ApiKey = !string.IsNullOrWhiteSpace(post.ApiKey) ? protector.Protect(post.ApiKey) : null,
+                Endpoint = post.Endpoint,
+                Kind = post.Kind
+            };
 
             context.VersionControls.Add(versionControl);
             await context.SaveChangesAsync();
