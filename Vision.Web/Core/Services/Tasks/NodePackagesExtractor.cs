@@ -33,11 +33,13 @@ namespace Vision.Web.Core
                 }
 
                 logger.LogInformation($"Extracted {results.Count} dependencies for {asset.Path}");
+
+                return results;                
             }
             catch(Exception e)
             {
                 logger.LogError(e, $"Could not extract dependencies for {asset.Path}");
-            }
+            }            
 
             return Enumerable.Empty<Extract>();
         }

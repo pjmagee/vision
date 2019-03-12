@@ -25,7 +25,7 @@ namespace Vision.Web.Core
 
         public async Task<DependencyVersion> GetLatestVersionAsync(Dependency dependency)
         {
-            foreach(IVersionService service in versionServices.Where(service => service.Kind == dependency.Kind))
+            foreach(IVersionService service in versionServices.Where(service => service.Supports(dependency.Kind)))
             {
                 try
                 {
@@ -45,5 +45,7 @@ namespace Vision.Web.Core
 
             return new DependencyVersion { IsLatest = false, Version = "UNKNOWN", Dependency = dependency, DependencyId = dependency.Id };
         }
+
+        public bool Supports(DependencyKind kind) => versionServices.Any(s => s.Supports(kind));
     }    
 }

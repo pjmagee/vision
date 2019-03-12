@@ -14,8 +14,6 @@ namespace Vision.Web.Core
         protected readonly IDataProtector protector;
         protected readonly ILogger<VersionService> logger;
 
-        public abstract DependencyKind Kind { get; }
-
         public VersionService(VisionDbContext context, IDataProtectionProvider provider, ILogger<VersionService> logger)
         {
             this.context = context;
@@ -26,7 +24,7 @@ namespace Vision.Web.Core
         public async Task<DependencyVersion> GetLatestVersionAsync(Dependency dependency)
         {
             List<Registry> registries = await context.Registries
-                .Where(registry => registry.Kind == Kind && registry.IsEnabled)
+                .Where(registry => registry.Kind == dependency.Kind && registry.IsEnabled && registry.Kind == Kind)
                 .OrderBy(registry => registry.IsPublic)
                 .ToListAsync();
 
@@ -62,5 +60,7 @@ namespace Vision.Web.Core
         }
 
         protected abstract Task<DependencyVersion> NextAsync(Registry registry, Dependency dependency);
+
+        public abstract bool Supports(DependencyKind kind);
     }
 }

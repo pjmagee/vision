@@ -111,18 +111,12 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        VersionControl = await VersionControlsService.GetVersionControlByIdAsync(VersionControlId);
-        StateHasChanged();
-        Repository = await RepositoriesService.GetRepositoryByIdAsync(RepositoryId);
-        StateHasChanged();
+        VersionControl = await VersionControlsService.GetVersionControlByIdAsync(VersionControlId);        
+        Repository = await RepositoriesService.GetRepositoryByIdAsync(RepositoryId); 
         Dependencies = await RepositoriesService.GetDependenciesByRepositoryId(RepositoryId);
-        StateHasChanged();
         Assets = await RepositoriesService.GetAssetsByRepositoryId(RepositoryId);
-        StateHasChanged();
         Dependents = await RepositoriesService.GetDependentsByRepositoryId(RepositoryId);
-        StateHasChanged();
-        Frameworks = await RepositoriesService.GetFrameworksByRepositoryId(RepositoryId);
-        StateHasChanged();
+        Frameworks = await RepositoriesService.GetFrameworksByRepositoryId(RepositoryId); 
         Builds = await RepositoriesService.GetCiCdsByRepositoryId(RepositoryId);
     }
 }

@@ -14,13 +14,14 @@ namespace Vision.Web.Core
     public class NuGetVersionService : VersionService
     {        
         private static readonly HttpClient client = new HttpClient();
-        
-        public override DependencyKind Kind => DependencyKind.NuGet;
+               
 
         public NuGetVersionService(VisionDbContext context, IDataProtectionProvider provider, ILogger<NuGetVersionService> logger) : base(context, provider, logger)
         {
             
         }
+
+        public override bool Supports(DependencyKind kind) => kind == DependencyKind.NuGet;
 
         protected override async Task<DependencyVersion> NextAsync(Registry registry, Dependency dependency)
         {
@@ -30,10 +31,12 @@ namespace Vision.Web.Core
                 JObject root = JObject.Parse(await client.GetStringAsync(registry.Endpoint));
 
                 // RegistrationsBaseUrl Resource
-                string registration = root["resources"].Single(x => x["@type"].Value<string>() == "RegistrationsBaseUrl")["@id"].Value<string>().TrimEnd('/');
+                string registration = root["resources"].Single(x => x["@type"].Value<string>() == "RegistrationsBaseUrl")["@id"].Value<string>();
 
                 // Dependency Registration Response
-                var endpoint = $"{registration}/{dependency.Name.ToLower()}/index.json";
+                var endpoint = $"{registration.TrimEnd('/')}/{dependency.Name.ToLower()}/index.json";
+
+                logger.LogInformation($"Checking {endpoint} for latest version"); 
 
                 var dependencyResponse = await client.GetStringAsync(endpoint);
 
@@ -51,7 +54,11 @@ namespace Vision.Web.Core
 
                 try
                 {
-                    var root = XDocument.Parse(await client.GetStringAsync($"{registry.Endpoint}/FindPackagesById()?id='{dependency.Name}'&$filter=IsLatestVersion"));
+                    string endpoint = $"{registry.Endpoint.TrimEnd('/')}/FindPackagesById()?id='{dependency.Name}'&$filter=IsLatestVersion";
+
+                    logger.LogInformation($"Checking {endpoint} for latest version");
+
+                    var root = XDocument.Parse(await client.GetStringAsync(endpoint));
                     var latest = root.XPathSelectElement("(//*[local-name() = '" + "Version" + "'])").Value;
 
                     if(!string.IsNullOrWhiteSpace(latest))

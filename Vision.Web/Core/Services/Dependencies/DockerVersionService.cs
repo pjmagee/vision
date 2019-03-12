@@ -14,7 +14,7 @@
 
         }
 
-        public override DependencyKind Kind => DependencyKind.Docker;
+        public override bool Supports(DependencyKind kind) => kind == DependencyKind.Docker;
 
         protected override async Task<DependencyVersion> NextAsync(Registry registry, Dependency dependency)
         {

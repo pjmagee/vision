@@ -11,7 +11,7 @@
         public const string PomFile = "pom.xml";
         public const string GemFile = "GemFile";
         public const string DockerFile = "DockerFile";
-        public const string PackagesFile = "packages.json";
+        public const string PackageJsonFile = "package.json";
         public const string GradleFile = "gradle";
 
         public static DependencyKind GetDependencyKind(this string path)
@@ -22,7 +22,7 @@
             if (path.EndsWith(GradleFile)) return DependencyKind.Gradle;
             if (path.EndsWith(GemFile)) return DependencyKind.RubyGem;
             if (path.EndsWith(DockerFile)) return DependencyKind.Docker;
-            if (path.EndsWith(PackagesFile)) return DependencyKind.Npm;
+            if (path.EndsWith(PackageJsonFile)) return DependencyKind.Npm;
 
             throw new Exception("Unsupported file for kind");
         }
@@ -39,7 +39,7 @@
                 case DependencyKind.Maven: return PomFile;
                 case DependencyKind.Gradle: return GradleFile;
                 case DependencyKind.RubyGem: return GemFile;
-                case DependencyKind.Npm: return PackagesFile;
+                case DependencyKind.Npm: return PackageJsonFile;
             }
 
             throw new Exception("Unsupported kind for File extension");

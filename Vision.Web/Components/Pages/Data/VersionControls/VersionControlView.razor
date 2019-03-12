@@ -24,7 +24,7 @@
     </div>
 </div>
 
-<div class="card shadow mb-4">
+@*<div class="card shadow mb-4">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
     </div>
@@ -38,7 +38,7 @@
             <LoaderComponent></LoaderComponent>
         }
     </div>
-</div>
+</div>*@
 
 @functions
 {
@@ -47,13 +47,13 @@
     [Inject] VersionControlsService VersionControlsService { get; set; }
 
     IEnumerable<RepositoryDto> Repositories { get; set; }
-    IEnumerable<AssetDto> Assets { get; set; }
+    // IEnumerable<AssetDto> Assets { get; set; }
     VersionControlDto VersionControl { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
         VersionControl = await VersionControlsService.GetVersionControlByIdAsync(VersionControlId);
         Repositories = await VersionControlsService.GetRepositoriesByIdAsync(VersionControlId);
-        Assets = await VersionControlsService.GetAssetsByVersionControlIdAsync(VersionControlId);
+        // Assets = await VersionControlsService.GetAssetsByVersionControlIdAsync(VersionControlId);
     }
 }

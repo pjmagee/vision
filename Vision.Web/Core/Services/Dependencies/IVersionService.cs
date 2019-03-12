@@ -4,7 +4,7 @@
 
     public interface IVersionService
     {
-        DependencyKind Kind { get;  }
+        bool Supports(DependencyKind kind);
         Task<DependencyVersion> GetLatestVersionAsync(Dependency dependency);
     }
 }
