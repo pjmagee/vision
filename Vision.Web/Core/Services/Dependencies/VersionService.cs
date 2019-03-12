@@ -24,7 +24,7 @@ namespace Vision.Web.Core
         public async Task<DependencyVersion> GetLatestVersionAsync(Dependency dependency)
         {
             List<Registry> registries = await context.Registries
-                .Where(registry => registry.Kind == dependency.Kind && registry.IsEnabled && registry.Kind == Kind)
+                .Where(registry => registry.Kind == dependency.Kind && registry.IsEnabled)
                 .OrderBy(registry => registry.IsPublic)
                 .ToListAsync();
 

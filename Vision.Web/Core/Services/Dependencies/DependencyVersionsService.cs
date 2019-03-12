@@ -32,6 +32,8 @@
             {                
                 AssetId = asset.Id,
                 Asset = asset.Path,                          
+                Repository = asset.Repository.WebUrl,
+                Kind = asset.Kind,
                 Dependencies = context.AssetDependencies.Count(a => a.AssetId == asset.Id),
                 RepositoryId = asset.RepositoryId,
                 VersionControlId = asset.Repository.VersionControlId
