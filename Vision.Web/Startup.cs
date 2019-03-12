@@ -27,65 +27,38 @@ namespace Vision.Web
                 .AddDbContext<VisionDbContext>(options => options
                     .UseLazyLoadingProxies(useLazyLoadingProxies: true)
                     .UseSqlServer(configuration["ConnectionStrings:Home"])
-                    .ConfigureWarnings(warnings => 
-                            warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)), 
-                            ServiceLifetime.Transient, 
-                            ServiceLifetime.Transient);          
+                    .ConfigureWarnings(warnings =>
+                            warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)),
+                            ServiceLifetime.Transient,
+                            ServiceLifetime.Transient);
 
             services.AddSignalR();
             services.AddRazorComponents();
             services.AddMvc().AddNewtonsoftJson();
 
             services.AddScoped<FakeDataGenerator>();
-            
-            services.AddScoped<BitBucketService>();
-            services.AddScoped<GitlabService>();
+
+            RegisterVersionControlServices(services);
+            RegisterAssetServices(services);
+            RegisterDependencyVersionServices(services);
+            RegisterCiCdServices(services);
+            RegisterRazorComponentServices(services);
 
             
 
-            services.AddScoped<NPMAssetExtractor>();
-            services.AddScoped<NuGetAssetExtractor>();
-            services.AddScoped<DockerAssetExtractor>();
-            services.AddScoped<NuGetVersionService>();
-            services.AddScoped<DockerVersionService>();
-            services.AddScoped<NPMVersionService>();
             
-            services.AddScoped<TeamCityBuildsService>();
-            services.AddScoped<JenkinsBuildsService>();
-            services.AddScoped<RepositoryMatcher>();
 
-            services.AddScoped<IRepositoryMatcher, RepositoryMatcher>();
-            services.AddScoped<ISystemTaskService, SystemTaskService>();
-            services.AddScoped<IVersionControlService, AggregateVersionControlService>();
-            services.AddScoped<ICICDBuildsService, AggregateBuildsService>();
-            services.AddScoped<IAssetExtractor, AggregateAssetExtractor>();
-            services.AddScoped<IVersionService, AggregateVersionService>();
 
-            services.AddScoped<AssetsService>();
-            services.AddScoped<CiCdsService>();
-            services.AddScoped<DependenciesService>();
-            services.AddScoped<DependencyVersionsService>();
-            services.AddScoped<TasksService>();
             services.AddScoped<DashboardService>();
-            services.AddScoped<FrameworksService>();
             services.AddScoped<InsightsService>();
+            services.AddScoped<DependenciesService>();
+            services.AddScoped<FrameworksService>();
             services.AddScoped<RepositoriesService>();
             services.AddScoped<RegistriesService>();
-            services.AddScoped<VersionControlsService>();
-            
-            services.AddScoped<SvgService>();
-            services.AddScoped<NavigationService>();
 
-            services.AddHostedService<RefreshHostedService>();
+            RegisterSystemRefreshServices(services);
 
-            services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
-
-            services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
-            {
-                builder.AllowAnyMethod()
-                       .AllowAnyHeader()
-                       .AllowAnyOrigin();
-            }));
+            services.AddCors(options => options.AddPolicy("CorsPolicy", builder => builder.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin()));
 
             // services.AddScoped(provider => new HttpClient() { BaseAddress = new Uri(provider.GetRequiredService<IUriHelper>().GetBaseUri()) });
 
@@ -111,7 +84,58 @@ namespace Vision.Web
             //    };
             //});
         }
+
+        private static void RegisterSystemRefreshServices(IServiceCollection services)
+        {
+            services.AddScoped<SystemTaskService>();
+            services.AddHostedService<BackgroundSystemRefreshMonitor>();
+            services.AddScoped<ISystemRefreshService, SystemRefreshService>();
+        }
+
+        private static void RegisterRazorComponentServices(IServiceCollection services)
+        {
+            services.AddScoped<SvgService>();
+            services.AddScoped<NavigationService>();
+        }
+
+        private static void RegisterCiCdServices(IServiceCollection services)
+        {
+            services.AddScoped<CiCdsService>();
+            services.AddScoped<TeamCityBuildsService>();
+            services.AddScoped<JenkinsBuildsService>();
+            services.AddScoped<ICICDBuildsService, AggregateCICDBuildsService>();
+        }
+
+        private static void RegisterDependencyVersionServices(IServiceCollection services)
+        {
+            services.AddScoped<DependencyVersionsService>();
+
+            services.AddScoped<NuGetVersionService>();
+            services.AddScoped<DockerVersionService>();
+            services.AddScoped<NpmVersionService>();
+            services.AddScoped<IVersionService, AggregateVersionService>();
+        }
         
+        private static void RegisterAssetServices(IServiceCollection services)
+        {
+            services.AddScoped<AssetsService>();
+            services.AddScoped<RepositoryAssetsService>();
+
+            services.AddScoped<NpmAssetExtractor>();
+            services.AddScoped<NuGetAssetExtractor>();
+            services.AddScoped<DockerAssetExtractor>();
+            services.AddScoped<IAssetExtractor, AggregateAssetExtractor>();
+        }
+
+        private static void RegisterVersionControlServices(IServiceCollection services)
+        {
+            services.AddScoped<VersionControlsService>();
+            services.AddScoped<IRepositoryMatcher, RepositoryMatcher>();
+            services.AddScoped<BitBucketService>();
+            services.AddScoped<GitlabService>();
+            services.AddScoped<IVersionControlService, AggregateVersionControlService>();
+        }
+
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {           
             if (env.IsDevelopment())
@@ -120,13 +144,8 @@ namespace Vision.Web
             }
             
             app.UseStaticFiles();
-
             app.UseCors("CorsPolicy");
-
-            app.UseSignalR(builder => 
-            {
-                builder.MapHub<NotificationHub>("/notifications");
-            });
+            app.UseSignalR(builder => builder.MapHub<NotificationHub>("/notifications"));
 
             app.UseRouting(routes =>
             {

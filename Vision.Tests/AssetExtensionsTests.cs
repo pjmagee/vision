@@ -44,5 +44,18 @@ namespace Vision.Tests
             // assert
             Assert.Equal(DependencyKind.PyPi, kind);
         }
+
+        [Fact]
+        public void DependencyKindForDockerfileIsDocker()
+        {
+            // arrange
+            var asset = new Asset { Path = "Dockerfile" };
+
+            // act
+            var kind = asset.GetDependencyKind();
+
+            // assert
+            Assert.Equal(DependencyKind.Docker, kind);
+        }
     }
 }

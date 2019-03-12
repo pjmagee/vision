@@ -52,7 +52,7 @@
 
                                 logger.LogInformation($"Adding '{path}' for repository {repository.Id}");
 
-                                results.Add(new Asset { Id = Guid.NewGuid(), Repository = repository, Kind =  AppHelper.GetDependencyKind(path), Path = path, Raw = string.Join(Environment.NewLine, file.FileContents) });
+                                results.Add(new Asset { Id = Guid.NewGuid(), Repository = repository, Kind = path.GetDependencyKind(), Path = path, Raw = string.Join(Environment.NewLine, file.FileContents) });
                             }
                         }
                     }

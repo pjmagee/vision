@@ -7,19 +7,18 @@ using Newtonsoft.Json.Linq;
 
 namespace Vision.Web.Core
 {
-    public class NPMVersionService : VersionService
+    public class NpmVersionService : VersionService
     {
         private static readonly HttpClient client = new HttpClient();
-
-
-        public NPMVersionService(VisionDbContext context, IDataProtectionProvider provider, ILogger<NPMVersionService> logger) : base(context, provider, logger)
+        
+        public NpmVersionService(VisionDbContext context, IDataProtectionProvider provider, ILogger<NpmVersionService> logger) : base(context, provider, logger)
         {
 
         }
 
         public override bool Supports(DependencyKind kind) => kind == DependencyKind.Npm;
 
-        protected override async Task<DependencyVersion> NextAsync(Registry registry, Dependency dependency)
+        protected override async Task<DependencyVersion> GetLatestVersionAsync(Registry registry, Dependency dependency)
         {
             string query = $"{registry.Endpoint.TrimEnd('/')}/{dependency}";
 

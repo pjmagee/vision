@@ -1,10 +1,17 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 
 namespace Vision.Web.Core
 {
     public class RepositoryMatcher : IRepositoryMatcher
     {
-        // This service allows more lienant approaches to certain services using git:// or https:// or http:// or ssh:// for a repository
+        private readonly ILogger<RepositoryMatcher> logger;
+
+        // This service allows more lienant approaches to certain repository links using git:// or https:// or http:// or ssh:// for a repository
+        public RepositoryMatcher(ILogger<RepositoryMatcher> logger)
+        {
+            this.logger = logger;
+        }
 
         public bool IsSameRepository(string url1, string url2)
         {
@@ -18,11 +25,17 @@ namespace Vision.Web.Core
 
                 return sameHost && samePath;
             }
-            catch (Exception)
+            catch (NullReferenceException e)
             {
-                // TODO: LOG
-                return false;
+                logger.LogError(e, $"Error making comparison with repositories");
             }
+            catch (Exception e)
+            {
+                logger.LogError(e, $"Could not compare {url1} and {url2}");
+                
+            }
+
+            return false;
         }
     }
 }

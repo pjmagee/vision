@@ -30,7 +30,6 @@
             metric.DependencyKind.Value.GetFontAwesomeClass() : 
             metric.CategoryKind.GetFontAwesomeClass();
 
-
         private static string GetFontAwesomeClass(this MetricCategoryKind kind)
         {
             switch (kind)

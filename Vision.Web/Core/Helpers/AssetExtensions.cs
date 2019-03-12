@@ -1,7 +1,5 @@
 ﻿namespace Vision.Web.Core
 {
-    using System;
-
     public static class AssetExtensions
     {
 

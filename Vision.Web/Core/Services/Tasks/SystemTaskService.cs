@@ -1,16 +1,16 @@
 ﻿namespace Vision.Web.Core
 {
+    using Microsoft.EntityFrameworkCore;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Microsoft.EntityFrameworkCore;
 
-    public class TasksService
+    public class SystemTaskService
     {
         private readonly VisionDbContext context;
 
-        public TasksService(VisionDbContext context)
+        public SystemTaskService(VisionDbContext context)
         {
             this.context = context;
         }
@@ -30,7 +30,7 @@
             SystemTask task = new SystemTask { Scope = TaskScopeKind.Asset, TargetId = id };
             context.Tasks.Add(task);
             await context.SaveChangesAsync();
-            return task;            
+            return task;
         }
 
         public async Task<SystemTask> UpdateDependencyAsync(Guid id)

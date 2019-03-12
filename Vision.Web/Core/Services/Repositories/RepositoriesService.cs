@@ -2,19 +2,22 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
-
+    
     public class RepositoriesService
     {
         private readonly VisionDbContext context;
         private readonly ICICDBuildsService buildsService;
+        private readonly RepositoryAssetsService repositoryAssetsService;
 
-        public RepositoriesService(VisionDbContext context, ICICDBuildsService buildsService)
+        public RepositoriesService(VisionDbContext context, ICICDBuildsService buildsService, RepositoryAssetsService repositoryAssetsService)
         {
             this.context = context;
             this.buildsService = buildsService;
+            this.repositoryAssetsService = repositoryAssetsService;
         }
 
         public async Task<RepositoryDto> GetRepositoryByIdAsync(Guid repositoryId)
@@ -48,9 +51,12 @@
 
         public async Task<IEnumerable<DependencyDto>> GetDependenciesByRepositoryId(Guid repositoryId)
         {
+            // Find all Dependencies who's Project URl (META DATA FROM DEPENDENCY REGISTRY) matches this Repositories Git or Web Url
+            // TODO: Ensure all XpertHR Assets which create dependencies (nuspec files) have the repository in the nuspec <RepositoryUrl></RepositoryUrl>
             Repository repository = await context.Repositories.FindAsync(repositoryId);
+            List<string> assetNames = await repositoryAssetsService.GetAssetPublishNamesByRepositoryIdAsync(repositoryId);
 
-            return await context.Dependencies.Where(dependency => string.Equals(dependency.RepositoryUrl, repository.Url) || string.Equals(dependency.RepositoryUrl, repository.WebUrl)).Select(dependency => new DependencyDto
+            return await context.Dependencies.Where(dependency => assetNames.Contains(dependency.Name) || string.Equals(dependency.RepositoryUrl, repository.Url) || string.Equals(dependency.RepositoryUrl, repository.WebUrl)).Select(dependency => new DependencyDto
             {
                 Assets = context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id),
                 DependencyId = dependency.Id,

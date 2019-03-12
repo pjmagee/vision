@@ -33,20 +33,9 @@ namespace Vision.Web.Core
                 try
                 {
                     logger.LogInformation($"Searching latest version for {dependency.Name} at registry: {registry.Endpoint}.");
-
-                    DependencyVersion result = await NextAsync(registry, dependency);
-                    
-
-                    if (result != null)
-                    {
-                        logger.LogInformation($"Found latest version {result.Version} for {dependency.Name}");
-                        return result;
-                    }
-                    else
-                    {
-                        logger.LogInformation($"Did not find latest version for {dependency.Name} at registry: {registry.Endpoint}.");
-                    }
-                        
+                    DependencyVersion result = await GetLatestVersionAsync(registry, dependency);
+                    logger.LogInformation(result != null ? $"Found latest version {result.Version} for {dependency.Name}" : $"Did not find latest version for {dependency.Name} at registry: {registry.Endpoint}.");
+                    return result;
                 }
                 catch(Exception e)
                 {
@@ -59,7 +48,7 @@ namespace Vision.Web.Core
             return new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Version = "UNKNOWN", IsLatest = false };
         }
 
-        protected abstract Task<DependencyVersion> NextAsync(Registry registry, Dependency dependency);
+        protected abstract Task<DependencyVersion> GetLatestVersionAsync(Registry registry, Dependency dependency);
 
         public abstract bool Supports(DependencyKind kind);
     }

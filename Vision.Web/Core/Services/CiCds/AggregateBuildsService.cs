@@ -1,22 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace Vision.Web.Core
 {
-    public class AggregateBuildsService : ICICDBuildsService
+    public class AggregateCICDBuildsService : ICICDBuildsService
     {
         private readonly VisionDbContext context;
-        private readonly ILogger<AggregateBuildsService> logger;
-
+        private readonly ILogger<AggregateCICDBuildsService> logger;
         private readonly IEnumerable<ICICDBuildsService> buildServices;
 
-        public AggregateBuildsService(
-            VisionDbContext context,
-            ILogger<AggregateBuildsService> logger,
-            JenkinsBuildsService jenkinsBuildsService,
-            TeamCityBuildsService teamCityBuildsService)
+        public AggregateCICDBuildsService(VisionDbContext context, JenkinsBuildsService jenkinsBuildsService, TeamCityBuildsService teamCityBuildsService, ILogger<AggregateCICDBuildsService> logger)
         {
             this.context = context;
             this.logger = logger;
@@ -40,6 +36,6 @@ namespace Vision.Web.Core
             return builds;
         }
 
-        public bool Supports(CiCdKind Kind) => true;
+        public bool Supports(CiCdKind Kind) => buildServices.Any(service => service.Supports(Kind));
     }
 }

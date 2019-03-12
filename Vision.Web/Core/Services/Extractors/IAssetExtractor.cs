@@ -8,5 +8,6 @@ namespace Vision.Web.Core
         bool Supports(DependencyKind kind);
         IEnumerable<Extract> ExtractDependencies(Asset asset);
         IEnumerable<Extract> ExtractFrameworks(Asset asset);
+        string ExtractPublishName(Asset asset);
     }
 }

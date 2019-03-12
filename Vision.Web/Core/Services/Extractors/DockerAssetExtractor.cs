@@ -6,6 +6,8 @@ namespace Vision.Web.Core
 {
     public class DockerAssetExtractor : IAssetExtractor
     {
+        public bool Supports(DependencyKind kind) => kind == DependencyKind.Docker;
+
         public IEnumerable<Extract> ExtractDependencies(Asset asset)
         {
             var lines = asset.Raw.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
@@ -19,9 +21,16 @@ namespace Vision.Web.Core
 
         public IEnumerable<Extract> ExtractFrameworks(Asset asset)
         {
+            // ¯\_(ツ)_/¯ Erm...
+            // Do we....list previous docker images? No no no.
             yield break;
         }
 
-        public bool Supports(DependencyKind kind) => kind == DependencyKind.Docker;
+        public string ExtractPublishName(Asset asset)
+        {
+            // TODO: Ensure ALL Dockerfiles contain the LABEL keyword with 'Name' set to the name we publish the image as.
+            // TODO: read 'LABEL' line in Dockerfile with 'Name' property
+            throw new NotImplementedException();
+        }
     }
 }

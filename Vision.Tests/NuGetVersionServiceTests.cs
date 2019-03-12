@@ -7,6 +7,7 @@ using Xunit;
 
 namespace Vision.Tests
 {
+
     public class NuGetVersionServiceTests
     {
         private readonly NuGetVersionService service;
@@ -19,7 +20,7 @@ namespace Vision.Tests
         {
             options = new DbContextOptionsBuilder<VisionDbContext>().UseInMemoryDatabase("Registries").Options;
             context = new VisionDbContext(options);
-            // service = new NuGetVersionService(context, new DataProtectionStub(), new LoggerFactory().CreateLogger<NuGetVersionService>());
+            service = new NuGetVersionService(context, new DataProtectionStub(), new LoggerFactory().CreateLogger<NuGetVersionService>());
         }
 
         [Theory]

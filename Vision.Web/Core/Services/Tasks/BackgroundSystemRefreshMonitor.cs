@@ -1,7 +1,6 @@
 ﻿namespace Vision.Web.Core
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -12,13 +11,12 @@
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
 
-    internal class RefreshHostedService : IHostedService
+    internal class BackgroundSystemRefreshMonitor : IHostedService
     {
         private readonly ILogger logger;
-
         private readonly IServiceProvider services;
 
-        public RefreshHostedService(IServiceProvider services, ILogger<RefreshHostedService> logger)
+        public BackgroundSystemRefreshMonitor(IServiceProvider services, ILogger<BackgroundSystemRefreshMonitor> logger)
         {
             this.services = services;
             this.logger = logger;
@@ -27,21 +25,20 @@
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             logger.LogInformation("Hosted Service is starting.");
-
             await DoWorkAsync(cancellationToken);
         }
 
         private async Task DoWorkAsync(CancellationToken cancellationToken)
         {
-            logger.LogInformation("Hosted Service is working.");
+            logger.LogInformation("Hosted Service started.");
 
             while(!cancellationToken.IsCancellationRequested)
             {
-                logger.LogInformation("Hosted Service is checking for items...");
+                
 
                 using (IServiceScope scope = services.CreateScope())
                 {
-                    ISystemTaskService taskService = scope.ServiceProvider.GetRequiredService<ISystemTaskService>();
+                    ISystemRefreshService taskService = scope.ServiceProvider.GetRequiredService<ISystemRefreshService>();
                     VisionDbContext context = scope.ServiceProvider.GetRequiredService<VisionDbContext>();
 
                     IEnumerable<SystemTask> tasks = await context.Tasks.OrderByDescending(t => t.Created).Where(t => t.Completed == null).ToListAsync();
@@ -58,7 +55,7 @@
                             {
                                 try
                                 {
-                                    logger.LogInformation($"Starting Transaction task {task.Scope.ToString()}:{task.Id} processing...");
+                                    logger.LogInformation($"Starting refresh task {task.Scope.ToString()}:{task.Id}");
 
                                     switch (task.Scope)
                                     {
@@ -94,7 +91,8 @@
                                 }
                                 catch (Exception e)
                                 {
-                                    logger.LogError(e, $"Error performing task. Transaction not commited.");
+                                    logger.LogError(e, $"Error performing refresh task {task.Scope.ToString()}:{task.Id}. Transaction not commited.");
+                                    transaction.Rollback();
                                 }
                             }
                         }
@@ -109,45 +107,15 @@
                     }
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(5));
+                await Task.Delay(TimeSpan.FromSeconds(10));
             }
         }
-
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
             logger.LogInformation("Consume Scoped Service Hosted Service is stopping.");
 
             return Task.CompletedTask;
-        }
-    }
-
-    public interface IBackgroundTaskQueue
-    {
-        void QueueBackgroundWorkItem(Func<CancellationToken, Task> workItem);
-
-        Task<Func<CancellationToken, Task>> DequeueAsync(CancellationToken cancellationToken);
-    }
-
-    public class BackgroundTaskQueue : IBackgroundTaskQueue
-    {
-        private readonly ConcurrentQueue<Func<CancellationToken, Task>> workItems = new ConcurrentQueue<Func<CancellationToken, Task>>();
-        private readonly SemaphoreSlim signal = new SemaphoreSlim(0);
-
-        public void QueueBackgroundWorkItem(Func<CancellationToken, Task> workItem)
-        {
-            if (workItem == null)
-                throw new ArgumentNullException(nameof(workItem));
-
-            workItems.Enqueue(workItem);
-            signal.Release();
-        }
-
-        public async Task<Func<CancellationToken, Task>> DequeueAsync(CancellationToken cancellationToken)
-        {
-            await signal.WaitAsync(cancellationToken);
-            workItems.TryDequeue(out Func<CancellationToken, Task> workItem);
-            return workItem;
         }
     }
 }

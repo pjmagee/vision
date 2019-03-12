@@ -10,16 +10,16 @@
 
     [Parameter] TaskScopeKind Target { get; set; }
 
-    [Inject] TasksService TasksService { get; set; }
+    [Inject] SystemTaskService SystemTaskService { get; set; }
 
     private async Task RefreshAsync()
     {
         var task = Target switch
         {
-            TaskScopeKind.VersionControl => TasksService.UpdateVersionControlAsync(Id),
-            TaskScopeKind.Repository => TasksService.UpdateRepositoryAsync(Id),
-            TaskScopeKind.Dependency => TasksService.UpdateDependencyAsync(Id),
-            TaskScopeKind.Asset => TasksService.UpdateAssetAsync(Id),
+            TaskScopeKind.VersionControl => SystemTaskService.UpdateVersionControlAsync(Id),
+            TaskScopeKind.Repository => SystemTaskService.UpdateRepositoryAsync(Id),
+            TaskScopeKind.Dependency => SystemTaskService.UpdateDependencyAsync(Id),
+            TaskScopeKind.Asset => SystemTaskService.UpdateAssetAsync(Id),
             _ => throw new Exception("Derp")
         };
 

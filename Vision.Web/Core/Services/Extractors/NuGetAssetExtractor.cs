@@ -28,7 +28,7 @@ namespace Vision.Web.Core
         {
             try
             {
-                // We cannot use XDocument.Parse because of bom issues with SOME of our assets.
+                // ¯\_(ツ)_/¯ We cannot use XDocument.Parse because of bom issues with SOME of our assets.
                 // If we force it to get the encoding with UTF8 and let the XML Text Reader handle it, it fixes most of those issues :-)
                 using (var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(asset.Raw)))
                 {
@@ -70,14 +70,14 @@ namespace Vision.Web.Core
         {
             try
             {
-                // We cannot use XDocument.Parse because of bom issues with SOME of our assets.
+                // ¯\_(ツ)_/¯ We cannot use XDocument.Parse because of bom issues with SOME of our assets.
                 // If we force it to get the encoding with UTF8 and let the XML Text Reader handle it, it fixes most of those issues :-)
 
-                using (var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(asset.Raw)))
+                using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(asset.Raw)))
                 {
-                    using (var xmlReader = new XmlTextReader(xmlStream))
+                    using (var reader = new XmlTextReader(stream))
                     {
-                        XDocument document = XDocument.Load(xmlReader);
+                        XDocument document = XDocument.Load(reader);
 
                         IEnumerable<string> targetFramework = (from element in document.Descendants()
                                                                where (element.Name.LocalName == "TargetFramework" || element.Name.LocalName == "TargetFrameworkVersion")
@@ -95,8 +95,6 @@ namespace Vision.Web.Core
                         logger.LogInformation($"Extracted {results.Count} frameworks for asset {asset.Path}");
 
                         return results;
-
-
                     }
                 }
             }
@@ -136,6 +134,14 @@ namespace Vision.Web.Core
             }
 
             return new Extract(name, version);
+        }
+
+        public string ExtractPublishName(Asset asset)
+        {
+            // ¯\_(ツ)_/¯
+            // IF it doesnt exist under <Name> or something, return the Project Name without the extension? 
+
+            return Path.GetFileNameWithoutExtension(asset.Path);
         }
     }
 }

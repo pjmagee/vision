@@ -14,7 +14,7 @@ namespace Vision.Web.Core
         public AggregateVersionService(
             NuGetVersionService nuGetVersionService,
             DockerVersionService dockerVersionService,
-            NPMVersionService nPMVersionService,
+            NpmVersionService nPMVersionService,
             ILogger<AggregateVersionService> logger)
         {
             versionServices = new IVersionService[] { nuGetVersionService, dockerVersionService, nPMVersionService };

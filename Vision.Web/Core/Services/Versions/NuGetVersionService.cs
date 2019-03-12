@@ -23,8 +23,10 @@ namespace Vision.Web.Core
 
         public override bool Supports(DependencyKind kind) => kind == DependencyKind.NuGet;
 
-        protected override async Task<DependencyVersion> NextAsync(Registry registry, Dependency dependency)
+        protected override async Task<DependencyVersion> GetLatestVersionAsync(Registry registry, Dependency dependency)
         {
+            // TODO: Wait until Nexus3 actually implements a v3 NuGet API
+            // https://issues.sonatype.org/browse/NEXUS-10886
             if (registry.Endpoint.EndsWith("index.json"))
             {
                 // root API v3
@@ -67,9 +69,10 @@ namespace Vision.Web.Core
                         return new DependencyVersion { Version = latest, IsLatest = true, Dependency = dependency, DependencyId = dependency.Id };
                     }                    
                 }
-                catch(NullReferenceException)
+                catch(NullReferenceException e)
                 {
                     // poor XML handling :-)
+                    logger.LogError(e, $"Error extracting information for: {dependency.Name}");
                 }
                 catch(HttpRequestException e)
                 {

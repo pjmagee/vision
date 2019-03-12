@@ -7,10 +7,7 @@ namespace Vision.Web.Core
     {
         private readonly IEnumerable<IAssetExtractor> extractionServices;        
 
-        public AggregateAssetExtractor(
-            NPMAssetExtractor npmExtractionService, 
-            NuGetAssetExtractor nuGetPackageExtractionService, 
-            DockerAssetExtractor dockerAssetExtractor)
+        public AggregateAssetExtractor(NpmAssetExtractor npmExtractionService, NuGetAssetExtractor nuGetPackageExtractionService, DockerAssetExtractor dockerAssetExtractor)
         {
             extractionServices = new IAssetExtractor[] 
             {
@@ -34,8 +31,16 @@ namespace Vision.Web.Core
                 .SelectMany(service => service.ExtractFrameworks(asset));
         }
 
+        public string ExtractPublishName(Asset asset)
+        {
+            return extractionServices
+                .Where(service => service.Supports(asset.Kind))
+                .Select(x => x.ExtractPublishName(asset)).FirstOrDefault();
+        }
+
         public bool Supports(DependencyKind kind)
         {
+            // we don't really care, this is the top level aggregate extractor
             return extractionServices.Any(es => es.Supports(kind));
         }
     }

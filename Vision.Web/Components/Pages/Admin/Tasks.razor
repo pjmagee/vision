@@ -51,12 +51,12 @@
 {
     IEnumerable<SystemTask> SystemTasks { get; set; }
 
-    [Inject] TasksService TasksService { get; set; }
+    [Inject] SystemTaskService SystemTaskService { get; set; }
     [Inject] IJSRuntime Runtime { get; set; }
 
     protected override async Task OnInitAsync()
     {
-        SystemTasks = await TasksService.GetAllAsync();
+        SystemTasks = await SystemTaskService.GetAllAsync();
     }
 
     protected override async Task OnAfterRenderAsync()

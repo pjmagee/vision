@@ -8,37 +8,27 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    public interface ISystemTaskService
-    {
-        Task RefreshAllAsync();
-        Task RefreshVersionControlByIdAsync(Guid sourceId);
-        Task RefreshRepositoryByIdAsync(Guid repositoryId);
-        Task RefreshAssetByIdAsync(Guid assetId);
-        Task RefreshAssetDependenciesAsync(Guid assetId);
-        Task RefreshAssetFrameworksAsync(Guid assetId);
-        Task RefreshDependencyByIdAsync(Guid dependencyId);
-    }
-
-    public class SystemTaskService : ISystemTaskService
+    public class SystemRefreshService : ISystemRefreshService
     {
         private readonly VisionDbContext context;
         private readonly IVersionControlService versionControlService;
         private readonly IVersionService versionService;
         private readonly IAssetExtractor assetExtractor;        
-        private readonly ILogger<SystemTaskService> logger;
+        private readonly ILogger<SystemRefreshService> logger;
 
-        public SystemTaskService(VisionDbContext context,
-                                 IVersionControlService versionControlService,
-                                 IAssetExtractor assetExtractor,
-                                 IVersionService versionService,
-                                 ILogger<SystemTaskService> logger)
+        public SystemRefreshService(
+            VisionDbContext context,
+            IVersionControlService versionControlService,
+            IAssetExtractor assetExtractor,
+            IVersionService versionService,
+            ILogger<SystemRefreshService> logger)
         {
             this.versionControlService = versionControlService;
             this.assetExtractor = assetExtractor;
             this.versionService = versionService;
             this.logger = logger;
             this.context = context;
-        }
+        }        
 
         public async Task RefreshAllAsync()
         {
