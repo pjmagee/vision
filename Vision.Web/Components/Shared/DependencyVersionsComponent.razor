@@ -4,7 +4,7 @@
             <th>Version</th>
             <th>Latest</th>
             <th>Assets</th>
-            <th>Actions</th>
+            @*<th>Actions</th>*@
         </tr>
     </thead>
     <tbody>
@@ -14,7 +14,7 @@
                 <td><a href="@($"/data/dependencies/{item.DependencyId}/versions/{item.DependencyVersionId}")">@item.Version</a></td>
                 <td>@item.IsLatest</td>
                 <td>@item.Assets</td>
-                <td></td>
+                @*<td></td>*@
             </tr>
         }
     </tbody>

@@ -4,7 +4,7 @@
             <th>@nameof(AssetDto.Asset)</th>           
             <th>@nameof(AssetDto.Repository)</th>
             <th>@nameof(AssetDto.Dependencies)</th>
-            <th>Actions</th>
+            @*<th>Actions</th>*@
         </tr>
     </thead>
     <tbody>
@@ -18,7 +18,7 @@
                     <a href="@($"/data/vcs/{item.VersionControlId}/repositories/{item.RepositoryId}")">@item.Repository</a>
                 </td>
                 <td>@item.Dependencies</td>
-                <td></td>
+                @*<td></td>*@
             </tr>
         }
     </tbody>

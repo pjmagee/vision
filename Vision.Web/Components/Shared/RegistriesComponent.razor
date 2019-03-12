@@ -3,10 +3,10 @@
         <tr>
             <th>Kind</th>
             <th>Endpoint</th>
-            <th>Dependencies</th>
+            @*<th>Dependencies</th>*@
             <th>Public</th>
             <th>Enabled</th>
-            <th></th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -15,7 +15,7 @@
         <tr>
             <td class="@item.Kind.GetIconClass()">@SvgService.GetSvg(item.Kind)</td>
             <td><a href="@($"/data/registries/{item.RegistryId}")">@item.Endpoint</a></td>
-            <td>@item.Dependencies</td>
+            @*<td>@item.Dependencies</td>*@
             <td>@item.IsPublic</td>
             <td>@item.IsEnabled</td>
             <td>

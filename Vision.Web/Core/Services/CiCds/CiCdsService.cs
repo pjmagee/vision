@@ -24,11 +24,15 @@
 
             return new CiCdDto
             {
-                ApiKey = cicd.ApiKey,
                 CiCdId = cicd.Id,
                 Endpoint = cicd.Endpoint,
-                Kind = cicd.Kind
-            };
+                Kind = cicd.Kind,
+                IsEnabled = cicd.IsEnabled,
+                IsGuestEnabled = cicd.IsGuestEnabled,
+                ApiKey = cicd.ApiKey,
+                Username = cicd.Username,
+                Password = cicd.Password
+             };
         }
 
         public async Task<CiCdDto> UpdateAsync(CiCdDto dto)

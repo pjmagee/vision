@@ -22,10 +22,10 @@
                 <input type="text" class="form-control" bind="CiCd.ApiKey" placeholder="API Key" />
             </div>
             <div class="form-group">
-                <input type="text" class="form-control" bind="CiCd.Username" placeholder="Basic auth" />
+                <input type="text" class="form-control" bind="CiCd.Username" placeholder="Username" />
             </div>
             <div class="form-group">
-                <input type="password" class="form-control" bind="CiCd.Password" placeholder="Basic auth" />
+                <input type="password" class="form-control" bind="CiCd.Password" placeholder="Password" />
             </div>
             <div class="form-group">
                 <select type="text" class="form-control" bind="CiCd.Kind" placeholder="Type">
@@ -57,7 +57,9 @@
 @functions
 {
     [Parameter] Guid CiCdId { get; set; }
-    [Inject] CiCdsService CiCdsService { get; set; }    
+    [Inject] CiCdsService CiCdsService { get; set; }
+
+    [Inject] IUriHelper UriHelper { get; set; }
 
     CiCdDto CiCd { get; set; }
     EditContext context { get; set; }
@@ -74,6 +76,7 @@
         if (context.Validate())
         {
             await CiCdsService.UpdateAsync(CiCd);
+            UriHelper.NavigateTo("/data/cicds");
         }
     }
 }

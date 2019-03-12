@@ -60,6 +60,8 @@
 
     [Inject] RegistriesService RegistriesService { get; set; }
 
+    [Inject] IUriHelper UriHelper { get; set; }
+
     RegistryDto Registry { get; set; }
     EditContext context { get; set; }
 
@@ -68,6 +70,7 @@
         if (context.Validate())
         {
             await RegistriesService.UpdateAsync(Registry);
+            UriHelper.NavigateTo("/data/registries");
         }
     }
 
