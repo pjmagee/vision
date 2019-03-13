@@ -11,10 +11,22 @@ namespace Vision.Web.Core
         public IEnumerable<Extract> ExtractDependencies(Asset asset)
         {
             var lines = asset.Raw.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
+            var ignores = new List<string>();
 
             foreach (var line in lines.Where(line => line.StartsWith("FROM", StringComparison.OrdinalIgnoreCase)))
             {
-                string[] segments = line.Split(new[] { "FROM", ":", " " }, StringSplitOptions.RemoveEmptyEntries);
+                string[] segments = line.Split(new[] { "from ", "FROM ", ":", " AS ", " as " }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (segments.Length >= 3)
+                {
+                    ignores.Add(segments[2]);
+                }
+
+                if (ignores.Contains(segments[0].Trim()))
+                {
+                    continue;
+                }
+
                 yield return new Extract(segments[0].Trim(), (segments[segments.Length - 1] == segments[0] ? string.Empty : segments[1]).Trim());
             }
         }

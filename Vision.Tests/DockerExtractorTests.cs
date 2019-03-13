@@ -5,6 +5,7 @@ using Xunit;
 
 namespace Vision.Tests
 {
+
     public class DockerExtractorTests : IClassFixture<DockerAssetExtractor>
     {
         private readonly DockerAssetExtractor extractor;
@@ -89,6 +90,23 @@ namespace Vision.Tests
 
             Assert.Equal("microsoft/dotnet", dependencies[2].Name);
             Assert.Equal("runtime", dependencies[2].Version);
+        }
+
+        [Fact]
+        public void ExtractMultipleImagesAndFilterAsBuilders()
+        {
+            // arrange
+            var file = "FROM xperthr/aspnetcore-build:latest AS builder" + Environment.NewLine + "FROM builder as build" + Environment.NewLine + "FROM builder as publish" + Environment.NewLine + "FROM xperthr/aspnetcore:latest";
+            // act
+            var dependencies = extractor.ExtractDependencies(new Asset { Id = Guid.NewGuid(), Raw = file }).ToList();
+
+            Assert.Equal(2, dependencies.Count);
+
+            Assert.Equal("xperthr/aspnetcore-build", dependencies[0].Name);
+            Assert.Equal("latest", dependencies[0].Version);
+
+            Assert.Equal("xperthr/aspnetcore", dependencies[1].Name);
+            Assert.Equal("latest", dependencies[1].Version);
         }
     }
 }

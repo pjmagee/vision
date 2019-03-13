@@ -56,7 +56,7 @@ namespace Vision.Web.Core
 
                 try
                 {
-                    string endpoint = $"{registry.Endpoint.TrimEnd('/')}/FindPackagesById()?id='{dependency.Name}'&$filter=IsLatestVersion";
+                    string endpoint = new Uri(new Uri(registry.Endpoint), new Uri($"/FindPackagesById()?id='{dependency.Name}'&$filter=IsLatestVersion", UriKind.Relative)).ToString();
 
                     logger.LogInformation($"Checking {endpoint} for latest version");
 

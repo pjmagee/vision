@@ -16,7 +16,7 @@ namespace Vision.Tests
         {
             var options = new DbContextOptionsBuilder<VisionDbContext>().UseInMemoryDatabase("Registries").Options;
             context = new VisionDbContext(options);
-            service = new DockerVersionService(context, null, new LoggerFactory().CreateLogger<NuGetVersionService>());
+            // service = new DockerVersionService(context, null, new LoggerFactory().CreateLogger<NuGetVersionService>());
         }
 
         [Theory]

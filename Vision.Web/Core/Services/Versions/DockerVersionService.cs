@@ -1,7 +1,6 @@
 ﻿namespace Vision.Web.Core
 {
     using Docker.Registry.DotNet;
-    using Docker.Registry.DotNet.Authentication;
     using Docker.Registry.DotNet.Models;
     using Microsoft.AspNetCore.DataProtection;
     using Microsoft.Extensions.Logging;
@@ -10,7 +9,7 @@
 
     public class DockerVersionService : VersionService
     {
-        public DockerVersionService(VisionDbContext context, IDataProtectionProvider provider, ILogger<VersionService> logger) : base(context, provider, logger)
+        public DockerVersionService(VisionDbContext context, IDataProtectionProvider provider, ILogger<DockerVersionService> logger) : base(context, provider, logger)
         {
 
         }

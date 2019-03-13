@@ -23,18 +23,23 @@ namespace Vision.Web.Core
             {
                 JObject package = JObject.Parse(asset.Raw);
 
-                List<Extract> results = new List<Extract>();
+                List<Extract> extracts = new List<Extract>();
 
-                foreach (string dependency in package["dependencies"].Concat(package["devDependencies"]).Select((JToken token) => token.ToString()).Distinct())
+                IEnumerable<JToken> dependencies = (
+                    package.ContainsKey("dependencies") ? package["dependencies"] : Enumerable.Empty<JToken>())
+                    .Concat(
+                        package.ContainsKey("devDependencies") ? package["devDependencies"] : Enumerable.Empty<JToken>());
+
+                foreach (string dependency in dependencies.Select((JToken token) => token.ToString()).Distinct())
                 {
                     string[] pair = dependency.Split(':');
 
-                    results.Add(new Extract(pair[0].Replace("\"", "").Trim(), pair[1].Replace("\"", "").Trim()));
+                    extracts.Add(new Extract(pair[0].Replace("\"", "").Trim(), pair[1].Replace("\"", "").Trim()));
                 }
 
-                logger.LogInformation($"Extracted {results.Count} dependencies for {asset.Path}");
+                logger.LogInformation($"Extracted {extracts.Count} dependencies for {asset.Path}");
 
-                return results;                
+                return extracts;                
             }
             catch(Exception e)
             {
@@ -46,10 +51,31 @@ namespace Vision.Web.Core
 
         public IEnumerable<Extract> ExtractFrameworks(Asset asset)
         {
-            // ¯\_(ツ)_/¯ What is a 'Framework' for the Node world?
-            // TODO: extract example 'engines' (I guess this is the closest to frameworks/runtime for node?)
-            // TODO: { "engines" : { "node" : ">=0.10.3 <0.12" } }
-            // TODO: { "engines" : { "npm" : "~1.0.20" } }
+            try
+            {
+                JObject package = JObject.Parse(asset.Raw);
+
+                List<Extract> extracts = new List<Extract>();
+
+                if (package.ContainsKey("engines"))
+                {
+                    var properties = package["engines"].Values<JProperty>();
+
+                    foreach (var prop in properties)
+                    {
+                        extracts.Add(new Extract(prop.Name, prop.Value.ToString()));
+                    }
+
+                    logger.LogInformation($"Extracted {extracts.Count} engines for {asset.Repository.WebUrl} : {asset.Path}");
+                }
+
+                return extracts;
+            }            
+            catch (Exception e)
+            {
+                logger.LogError(e, $"Could not extract engines for {asset.Repository.WebUrl} : {asset.Path} ");
+            }
+
             return Enumerable.Empty<Extract>();
         }
 
