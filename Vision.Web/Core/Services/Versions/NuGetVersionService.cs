@@ -23,33 +23,29 @@ namespace Vision.Web.Core
 
         public override bool Supports(DependencyKind kind) => kind == DependencyKind.NuGet;
 
-        protected override async Task<DependencyVersion> GetLatestVersionAsync(Registry registry, Dependency dependency)
+        protected override async Task<DependencyVersion> GetLatestMetaDataAsync(Registry registry, Dependency dependency)
         {
-            // TODO: Wait until Nexus3 actually implements a v3 NuGet API
-            // https://issues.sonatype.org/browse/NEXUS-10886
-            if (registry.Endpoint.EndsWith("index.json"))
+            HttpResponseMessage response = await client.GetAsync(registry.Endpoint);
+
+            var contentTypes = response.Headers.GetValues("Content-Type"); 
+            
+            if (contentTypes.Contains("application/json"))
             {
-                // root API v3
                 JObject root = JObject.Parse(await client.GetStringAsync(registry.Endpoint));
-
-                // RegistrationsBaseUrl Resource
                 string registration = root["resources"].Single(x => x["@type"].Value<string>() == "RegistrationsBaseUrl")["@id"].Value<string>();
+                string endpoint = $"{registration.TrimEnd('/')}/{dependency.Name.ToLower()}/index.json";
 
-                // Dependency Registration Response
-                var endpoint = $"{registration.TrimEnd('/')}/{dependency.Name.ToLower()}/index.json";
+                logger.LogInformation($"Checking {endpoint} for latest version");
 
-                logger.LogInformation($"Checking {endpoint} for latest version"); 
-
-                var dependencyResponse = await client.GetStringAsync(endpoint);
-
-                var response = JObject.Parse(dependencyResponse);
-                var latest = response["items"].First["upper"].Value<string>();
+                string registryReponse = await client.GetStringAsync(endpoint);
+                JObject json = JObject.Parse(registryReponse);
+                string latest = json["items"].First["upper"].Value<string>();
 
                 logger.LogInformation($"Found latest version for {dependency.Name}: {latest}");
 
                 return new DependencyVersion { Version = latest, IsLatest = true, Dependency = dependency, DependencyId = dependency.Id };
             }
-            else
+            else if(contentTypes.Contains("application/xml"))
             {
                 // THIS ONE WORKS ON OFFICAL NUGET V2 XML API, BUT NOT ON NEXUS!!!!
                 // var root = XDocument.Parse(await client.GetStringAsync($"{registry.Endpoint}/FindPackagesById()?id='{dependency.Name}'&$filter=IsLatestVersion eq true"));
@@ -60,24 +56,27 @@ namespace Vision.Web.Core
 
                     logger.LogInformation($"Checking {endpoint} for latest version");
 
-                    var root = XDocument.Parse(await client.GetStringAsync(endpoint));
-                    var latest = root.XPathSelectElement("(//*[local-name() = '" + "Version" + "'])").Value;
+                    XDocument root = XDocument.Parse(await client.GetStringAsync(endpoint));
+                    string latest = root.XPathSelectElement("(//*[local-name() = '" + "Version" + "'])").Value;
 
                     if(!string.IsNullOrWhiteSpace(latest))
                     {
                         logger.LogInformation($"Found latest version for {dependency.Name}: {latest}");
                         return new DependencyVersion { Version = latest, IsLatest = true, Dependency = dependency, DependencyId = dependency.Id };
-                    }                    
+                    }
                 }
                 catch(NullReferenceException e)
                 {
-                    // poor XML handling :-)
                     logger.LogError(e, $"Error extracting information for: {dependency.Name}");
                 }
                 catch(HttpRequestException e)
                 {
                     logger.LogError(e, $"HTTP Error when searching version for: {dependency.Name}");
                 }                
+            }
+            else
+            {
+                throw new Exception($"Unsupported NuGet registry: {registry.Endpoint}");
             }
 
             throw new Exception("Could not find dependency");

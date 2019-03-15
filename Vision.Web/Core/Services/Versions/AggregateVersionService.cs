@@ -23,13 +23,13 @@ namespace Vision.Web.Core
 
         public DependencyKind Kind => throw new NotSupportedException("This is an aggregated version service.");
 
-        public async Task<DependencyVersion> GetLatestVersionAsync(Dependency dependency)
+        public async Task<DependencyVersion> GetLatestMetaDataAsync(Dependency dependency)
         {
             foreach(IVersionService service in versionServices.Where(service => service.Supports(dependency.Kind)))
             {
                 try
                 {
-                    var latest = await service.GetLatestVersionAsync(dependency);
+                    var latest = await service.GetLatestMetaDataAsync(dependency);
 
                     if(latest != null)
                     {

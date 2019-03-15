@@ -1,18 +1,17 @@
-﻿using System;
-using System.Linq;
-using Vision.Web.Core;
-using Xunit;
-
-namespace Vision.Tests
+﻿namespace Vision.Tests
 {
+    using System;
+    using System.Linq;
+    using Vision.Web.Core;
+    using Xunit;
 
-    public class DockerExtractorTests : IClassFixture<DockerAssetExtractor>
+    public class DockerExtractorTests
     {
-        private readonly DockerAssetExtractor extractor;
+        private readonly DockerAssetExtractor sut;
 
-        public DockerExtractorTests(DockerAssetExtractor extractor)
+        public DockerExtractorTests()
         {
-            this.extractor = extractor;
+            this.sut = new DockerAssetExtractor();
         }
 
         [Fact]
@@ -22,8 +21,9 @@ namespace Vision.Tests
             var file = "FROM ubuntu";
 
             // act
-            var dependencies = extractor.ExtractDependencies(new Asset { Id = Guid.NewGuid(), Raw = file }).ToList();
+            var dependencies = sut.ExtractDependencies(new Asset { Id = Guid.NewGuid(), Raw = file }).ToList();
 
+            // assert
             Assert.Equal("ubuntu", dependencies[0].Name);
             Assert.Equal(string.Empty, dependencies[0].Version);
         }
@@ -35,7 +35,7 @@ namespace Vision.Tests
             var file = "FROM ubuntu:latest";
 
             // act
-            var dependencies = extractor.ExtractDependencies(new Asset { Id = Guid.NewGuid(), Raw = file }).ToList();
+            var dependencies = sut.ExtractDependencies(new Asset { Id = Guid.NewGuid(), Raw = file }).ToList();
 
             Assert.Equal("ubuntu", dependencies[0].Name);
             Assert.Equal("latest", dependencies[0].Version);
@@ -48,7 +48,7 @@ namespace Vision.Tests
             var file = "FROM golang:1.7.3 as builder";
 
             // act
-            var dependencies = extractor.ExtractDependencies(new Asset { Id = Guid.NewGuid(), Raw = file }).ToList();
+            var dependencies = sut.ExtractDependencies(new Asset { Id = Guid.NewGuid(), Raw = file }).ToList();
 
             Assert.Equal("golang", dependencies[0].Name);
             Assert.Equal("1.7.3", dependencies[0].Version);
@@ -58,10 +58,12 @@ namespace Vision.Tests
         public void ExtractMultipleImagesAndTagsFromDockerfile()
         {
             // arrange
-            var file = "FROM ubuntu:latest" + Environment.NewLine + "FROM microsoft/dotnet:sdk" + Environment.NewLine + "FROM microsoft/dotnet:runtime";
+            var file = "FROM ubuntu:latest" + Environment.NewLine + 
+                       "FROM microsoft/dotnet:sdk" + Environment.NewLine + 
+                       "FROM microsoft/dotnet:runtime";
 
             // act
-            var dependencies = extractor.ExtractDependencies(new Asset { Id = Guid.NewGuid(), Raw = file }).ToList();
+            var dependencies = sut.ExtractDependencies(new Asset { Id = Guid.NewGuid(), Raw = file }).ToList();
 
             Assert.Equal("ubuntu", dependencies[0].Name);
             Assert.Equal("latest", dependencies[0].Version);
@@ -77,10 +79,12 @@ namespace Vision.Tests
         public void ExtractMultipleImagesAndTagsFromAsBuilders()
         {
             // arrange
-            var file = "FROM ubuntu:latest as ubuilder" + Environment.NewLine + "FROM microsoft/dotnet:sdk as sdkBuilder" + Environment.NewLine + "FROM microsoft/dotnet:runtime as runtimeBuilder";
+            var file = "FROM ubuntu:latest as ubuilder" + Environment.NewLine + 
+                       "FROM microsoft/dotnet:sdk as sdkBuilder" + Environment.NewLine + 
+                       "FROM microsoft/dotnet:runtime as runtimeBuilder";
 
             // act
-            var dependencies = extractor.ExtractDependencies(new Asset { Id = Guid.NewGuid(), Raw = file }).ToList();
+            var dependencies = sut.ExtractDependencies(new Asset { Id = Guid.NewGuid(), Raw = file }).ToList();
 
             Assert.Equal("ubuntu", dependencies[0].Name);
             Assert.Equal("latest", dependencies[0].Version);
@@ -96,9 +100,12 @@ namespace Vision.Tests
         public void ExtractMultipleImagesAndFilterAsBuilders()
         {
             // arrange
-            var file = "FROM xperthr/aspnetcore-build:latest AS builder" + Environment.NewLine + "FROM builder as build" + Environment.NewLine + "FROM builder as publish" + Environment.NewLine + "FROM xperthr/aspnetcore:latest";
+            var file = "FROM xperthr/aspnetcore-build:latest AS builder" + Environment.NewLine +
+                       "FROM builder as build" + Environment.NewLine + 
+                       "FROM builder as publish" + Environment.NewLine + 
+                       "FROM xperthr/aspnetcore:latest";
             // act
-            var dependencies = extractor.ExtractDependencies(new Asset { Id = Guid.NewGuid(), Raw = file }).ToList();
+            var dependencies = sut.ExtractDependencies(new Asset { Id = Guid.NewGuid(), Raw = file }).ToList();
 
             Assert.Equal(2, dependencies.Count);
 

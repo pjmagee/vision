@@ -79,8 +79,7 @@
             // ASSET DEPENDENCIES
             foreach (Asset asset in context.Assets)
             {
-                var kind = asset.GetDependencyKind();
-                var assetDependencies = GetAssetDependencies(asset, context.Dependencies.Where(d => d.Kind == kind).ToList());
+                var assetDependencies = GetAssetDependencies(asset, context.Dependencies.Where(d => d.Kind == asset.Kind).ToList());
                 context.AssetDependencies.AddRange(assetDependencies);
             }
             await context.SaveChangesAsync();
@@ -88,10 +87,7 @@
             // ASSET FRAMEWORKS
             foreach (Asset asset in context.Assets)
             {
-                DependencyKind kind = asset.GetDependencyKind();
-
-                if (kind != DependencyKind.NuGet)
-                    continue;
+                if (asset.Kind != DependencyKind.NuGet) continue;
 
                 IEnumerable<AssetFramework> assetFrameworks = GetAssetFrameworks(asset, context.Frameworks.ToList());
                 context.AssetFrameworks.AddRange(assetFrameworks);
@@ -189,8 +185,7 @@
 
         private IEnumerable<AssetDependency> GetAssetDependencies(Asset asset, IList<Dependency> dependencies)
         {
-            var kind = asset.GetDependencyKind();
-            var max = Math.Min(dependencies.Count, GetDependenciesForAsset(kind));
+            var max = Math.Min(dependencies.Count, GetDependenciesForAsset(asset.Kind));
             var selectedDependencies = Pick<Dependency>.UniqueRandomList(With.Between(1).And(max).Elements).From(dependencies);
 
             return selectedDependencies.Select(dependency =>             

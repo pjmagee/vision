@@ -28,8 +28,7 @@ namespace Vision.Web.Core
         {
             try
             {
-                // ¯\_(ツ)_/¯ We cannot use XDocument.Parse because of bom issues with SOME of our assets.
-                // If we force it to get the encoding with UTF8 and let the XML Text Reader handle it, it fixes most of those issues :-)
+                // ¯\_(ツ)_/¯ We cannot use XDocument.Parse(xml) because of bom issues with some of our files.
                 using (var xmlStream = new MemoryStream(Encoding.UTF8.GetBytes(asset.Raw)))
                 {
                     using (var xmlReader = new XmlTextReader(xmlStream))
@@ -70,9 +69,7 @@ namespace Vision.Web.Core
         {
             try
             {
-                // ¯\_(ツ)_/¯ We cannot use XDocument.Parse because of bom issues with SOME of our assets.
-                // If we force it to get the encoding with UTF8 and let the XML Text Reader handle it, it fixes most of those issues :-)
-
+                // ¯\_(ツ)_/¯ We cannot use XDocument.Parse(xml) because of bom issues with some of our files.
                 using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(asset.Raw)))
                 {
                     using (var reader = new XmlTextReader(stream))
@@ -90,7 +87,7 @@ namespace Vision.Web.Core
                                                                 select framework);
 
 
-                        var results = targetFrameworks.Concat(targetFramework).Select(fw => new Extract("Framework", fw)).ToList();
+                        var results = targetFrameworks.Concat(targetFramework).Select(fw => new Extract("Framework", fw?.Trim())).ToList();
 
                         logger.LogInformation($"Extracted {results.Count} frameworks for asset {asset.Path}");
 
@@ -133,15 +130,23 @@ namespace Vision.Web.Core
                 }
             }
 
-            return new Extract(name, version);
+            return new Extract(name?.Trim(), version?.Trim());
         }
 
         public string ExtractPublishName(Asset asset)
         {
-            // ¯\_(ツ)_/¯
-            // IF it doesnt exist under <Name> or something, return the Project Name without the extension? 
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(asset.Raw)))
+            {
+                using (var reader = new XmlTextReader(stream))
+                {
+                    XDocument document = XDocument.Load(reader);
+                    
+                    string packageId = document.XPathSelectElement("//*[local-name() = '" + "PackageId" + "']")?.Value;
+                    string assemblyName = document.XPathSelectElement("//*[local-name() = '" + "AssemblyName" + "']")?.Value;
 
-            return Path.GetFileNameWithoutExtension(asset.Path);
+                    return packageId ?? assemblyName ?? Path.GetFileNameWithoutExtension(asset.Path);
+                }
+            }
         }
     }
 }

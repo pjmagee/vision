@@ -67,7 +67,7 @@
                         var vcsUrl = buildDocument.XPathSelectElement("//remoteUrl").Value;
                         var name = job.XPathSelectElement("name").Value;
 
-                        if (matcher.IsSameRepository(vcsUrl, repository.Url))
+                        if (matcher.IsMatch(vcsUrl, repository.Url))
                         {
                             builds.Add(new CiCdBuildDto { Name = name, WebUrl = jobUrl, CiCdId = cicd.Id, Kind = cicd.Kind });
                         }

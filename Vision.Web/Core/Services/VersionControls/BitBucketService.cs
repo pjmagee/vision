@@ -37,7 +37,7 @@
 
                 foreach(Atlassian.Stash.Entities.Repository bitBucketRepository in repositories.Values ?? Enumerable.Empty<Atlassian.Stash.Entities.Repository>())
                 {
-                    bool isRepositoryFound = bitBucketRepository.Links.Clone.Select(c => c.Href).Concat(bitBucketRepository.Links.Self.Select(s => s.Href)).Any(link => matcher.IsSameRepository(link.ToString(), repository.Url));
+                    bool isRepositoryFound = bitBucketRepository.Links.Clone.Select(c => c.Href).Concat(bitBucketRepository.Links.Self.Select(s => s.Href)).Any(link => matcher.IsMatch(link.ToString(), repository.Url));
 
                     if (isRepositoryFound)
                     {

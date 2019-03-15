@@ -147,11 +147,10 @@
 
         private async Task AssignAssetDependencies(Extract extracted, Asset asset)
         {
-            DependencyKind kind = asset.GetDependencyKind();
             string version = extracted.Version;
             string name = extracted.Name;
 
-            Dependency dependency = await GetOrCreateDependency(kind, name);
+            Dependency dependency = await GetOrCreateDependency(asset.Kind, name);
 
             /* FIND AND SAVE DEPENDENCY IF NEEDED */
             if (context.Entry(dependency).State == EntityState.Detached)
@@ -160,7 +159,7 @@
                 await context.SaveChangesAsync();
             }
 
-            DependencyVersion latest = await versionService.GetLatestVersionAsync(dependency);
+            DependencyVersion latest = await versionService.GetLatestMetaDataAsync(dependency);
 
             if (await context.DependencyVersions.AllAsync(dv => dv.Version != latest.Version))
             {
@@ -210,7 +209,7 @@
         public async Task RefreshDependencyByIdAsync(Guid dependencyId)
         {
             Dependency dependency = await context.Dependencies.FindAsync(dependencyId);
-            DependencyVersion latestVersion = await versionService.GetLatestVersionAsync(dependency);
+            DependencyVersion latestVersion = await versionService.GetLatestMetaDataAsync(dependency);
             List<DependencyVersion> currentVersions = await context.DependencyVersions.Where(x => x.DependencyId == dependencyId).ToListAsync();
 
             if (currentVersions.All(current => current.Version != latestVersion.Version))

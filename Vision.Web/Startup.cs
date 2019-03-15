@@ -44,11 +44,6 @@ namespace Vision.Web
             RegisterCiCdServices(services);
             RegisterRazorComponentServices(services);
 
-            
-
-            
-
-
             services.AddScoped<DashboardService>();
             services.AddScoped<InsightsService>();
             services.AddScoped<DependenciesService>();

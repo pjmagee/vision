@@ -2,6 +2,6 @@
 {
     public interface IRepositoryMatcher
     {
-        bool IsSameRepository(string one, string two);
+        bool IsMatch(string one, string two);
     }
 }

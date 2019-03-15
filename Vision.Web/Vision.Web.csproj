@@ -4,8 +4,6 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <LangVersion>8.0</LangVersion>
     <_RazorComponentInclude>Components\**\*.cshtml</_RazorComponentInclude>
-    <NullableReferenceTypes>true</NullableReferenceTypes>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <UpToDateCheckInput Include="@(Content-&gt;WithMetadataValue('Extension', '.razor'))" />
+    <UpToDateCheckInput Include="@(Content->WithMetadataValue('Extension', '.razor'))" />
   </ItemGroup>
 
 </Project>

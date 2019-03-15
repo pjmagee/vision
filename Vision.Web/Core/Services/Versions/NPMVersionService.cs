@@ -18,7 +18,7 @@ namespace Vision.Web.Core
 
         public override bool Supports(DependencyKind kind) => kind == DependencyKind.Npm;
 
-        protected override async Task<DependencyVersion> GetLatestVersionAsync(Registry registry, Dependency dependency)
+        protected override async Task<DependencyVersion> GetLatestMetaDataAsync(Registry registry, Dependency dependency)
         {
             string query = new Uri(new Uri(registry.Endpoint), new Uri($"/{dependency.Name}", UriKind.Relative)).ToString();
 

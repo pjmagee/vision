@@ -13,7 +13,7 @@ namespace Vision.Web.Core
             this.logger = logger;
         }
 
-        public bool IsSameRepository(string url1, string url2)
+        public bool IsMatch(string url1, string url2)
         {
             try
             {

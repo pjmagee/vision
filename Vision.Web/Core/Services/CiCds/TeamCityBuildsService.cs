@@ -83,7 +83,7 @@ namespace Vision.Web.Core
                         var webUri = projectElement.Attribute("webUrl").Value;
                         var vcsUrl = vcsElement?.Attribute("value").Value;
 
-                        if (matcher.IsSameRepository(vcsUrl, repository.Url))
+                        if (matcher.IsMatch(vcsUrl, repository.Url))
                         {
                             builds.Add(new CiCdBuildDto { Name = name, WebUrl = webUri, CiCdId = cicd.Id, Kind = cicd.Kind });
                         }

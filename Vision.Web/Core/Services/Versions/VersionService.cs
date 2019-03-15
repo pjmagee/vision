@@ -8,6 +8,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Vision.Web.Core
 {
+    public class DependencyMetaData
+    {
+        public string Latest { get; set; }
+        public string ProjectUrl { get; set; }
+        public string Name { get; set; }
+    }
+
     public abstract class VersionService : IVersionService
     {
         protected readonly VisionDbContext context;
@@ -21,7 +28,7 @@ namespace Vision.Web.Core
             this.logger = logger;
         }
 
-        public async Task<DependencyVersion> GetLatestVersionAsync(Dependency dependency)
+        public async Task<DependencyVersion> GetLatestMetaDataAsync(Dependency dependency)
         {
             List<Registry> registries = await context.Registries
                 .Where(registry => registry.Kind == dependency.Kind && registry.IsEnabled)
@@ -33,7 +40,7 @@ namespace Vision.Web.Core
                 try
                 {
                     logger.LogInformation($"Searching latest version for {dependency.Name} at registry: {registry.Endpoint}.");
-                    DependencyVersion result = await GetLatestVersionAsync(registry, dependency);
+                    DependencyVersion result = await GetLatestMetaDataAsync(registry, dependency);
                     logger.LogInformation(result != null ? $"Found latest version {result.Version} for {dependency.Name}" : $"Did not find latest version for {dependency.Name} at registry: {registry.Endpoint}.");
                     return result;
                 }
@@ -48,7 +55,7 @@ namespace Vision.Web.Core
             return new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Version = "UNKNOWN", IsLatest = false };
         }
 
-        protected abstract Task<DependencyVersion> GetLatestVersionAsync(Registry registry, Dependency dependency);
+        protected abstract Task<DependencyVersion> GetLatestMetaDataAsync(Registry registry, Dependency dependency);
 
         public abstract bool Supports(DependencyKind kind);
     }

@@ -16,7 +16,7 @@
 
         public override bool Supports(DependencyKind kind) => kind == DependencyKind.Docker;
 
-        protected override async Task<DependencyVersion> GetLatestVersionAsync(Registry registry, Dependency dependency)
+        protected override async Task<DependencyVersion> GetLatestMetaDataAsync(Registry registry, Dependency dependency)
         {
             // RegistryClientConfiguration clientConfig = new RegistryClientConfiguration(registry.Endpoint);
             //if (!string.IsNullOrWhiteSpace(registry.Username) && !string.IsNullOrWhiteSpace(registry.Password))

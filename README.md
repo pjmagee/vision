@@ -1,6 +1,6 @@
 # Vision
 
-This project runs on nightly builds of .NET Core and ASP.NET Core.
+This project runs on .NET Core 3 Preview
 
 ## Technologies / Frameworks
 
@@ -37,3 +37,5 @@ https://github.com/aspnet/AspNetCore/issues/5562
 * implement /insights/repositories/  
 * implement /insights/frameworks/  
 * implement /insights/versions/{vId}  
+
+* Integration tests should use Docker for API integration with: TeamCity, Jenkins & Bitbucket
