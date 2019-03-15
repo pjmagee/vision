@@ -9,7 +9,7 @@
 
     public class NpmVersionServiceTests : IDisposable
     {
-        private readonly NuGetVersionService sut;
+        private readonly NpmVersionService sut;
         private readonly DbContextOptions<VisionDbContext> options;
         private readonly VisionDbContext context;
 
@@ -17,7 +17,7 @@
         {
             options = new DbContextOptionsBuilder<VisionDbContext>().UseInMemoryDatabase("Registries").Options;
             context = new VisionDbContext(options);
-            sut = new NpmVersionService(context, new DataProtectionStub(), new LoggerFactory().CreateLogger<NuGetVersionService>());
+            sut = new NpmVersionService(context, new DataProtectionStub(), new LoggerFactory().CreateLogger<NpmVersionService>());
         }
 
         [Theory]

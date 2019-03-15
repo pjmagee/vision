@@ -16,7 +16,7 @@
         {
             var options = new DbContextOptionsBuilder<VisionDbContext>().UseInMemoryDatabase("Registries").Options;
             context = new VisionDbContext(options);
-            sut = new DockerVersionService(context, null, new LoggerFactory().CreateLogger<NuGetVersionService>());
+            sut = new DockerVersionService(context, null, new LoggerFactory().CreateLogger<DockerVersionService>());
         }        
 
         [Theory]

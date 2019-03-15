@@ -8,8 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Atlassian.Stash.Api" Version="3.1.20" />
-    <PackageReference Include="Docker.Registry.DotNet" Version="1.0.10" />
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="2.2.0" />
+    <PackageReference Include="Docker.Registry.DotNet" Version="1.0.10" />    
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
 
     <PackageReference Include="Microsoft.AspNetCore.Components.Server" Version="3.0.0-preview3-19153-02" />
