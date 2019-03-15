@@ -89,16 +89,13 @@
 
         public async Task<IEnumerable<FrameworkDto>> GetFrameworksByRepositoryId(Guid repositoryId)
         {
-            return await context.Assets
-                .Where(asset => asset.RepositoryId == repositoryId) // assets in this repository
-                .SelectMany(asset => context.AssetFrameworks.Where(x => x.AssetId == asset.Id)) // all asset frameworks that this asset uses
-                .Select(assetFramework => assetFramework.Framework).Distinct() // select the linked unique frameworks and distinct them
+            return await context.Frameworks
+                .Where(fw => context.AssetFrameworks.Any(af => af.FrameworkId == fw.Id && context.Assets.Any(a => a.RepositoryId == repositoryId && af.AssetId == a.Id)))
                 .Select(framework => new FrameworkDto
                 {
-                    Assets = context.AssetFrameworks.Count(assetFramework => assetFramework.FrameworkId == framework.Id),
+                    Assets = context.AssetFrameworks.Count(assetFramework => assetFramework.FrameworkId == framework.Id && assetFramework.Asset.RepositoryId == repositoryId),
                     FrameworkId = framework.Id,
-                    Name = framework.Version,
-                    
+                    Name = framework.Version
                 })
                 .ToListAsync();
         }

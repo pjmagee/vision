@@ -50,8 +50,13 @@
         public async Task<IEnumerable<FrameworkDto>> GetFrameworksByAssetId(Guid assetId)
         {
             return await context.Frameworks
-                .Where(x => context.AssetFrameworks.Any(af => af.AssetId == assetId))
-                .Select(x => new FrameworkDto { FrameworkId = x.Id, Name = x.Version })
+                .Where(fw => context.AssetFrameworks.Any(af => af.AssetId == assetId && af.FrameworkId == fw.Id))
+                .Select(fw => new FrameworkDto
+                {
+                    FrameworkId = fw.Id,
+                    Name = fw.Version,
+                    Assets = context.AssetFrameworks.Count(af => af.FrameworkId  == fw.Id)
+                })
                 .ToListAsync();
         }        
     }
