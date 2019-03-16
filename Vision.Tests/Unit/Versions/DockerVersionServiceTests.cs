@@ -21,24 +21,21 @@
 
         [Theory]
         [InlineData("sonatype/nexus3", "latest")]
-        public async Task DockerV2Api(string package, string version)
+        public async Task DockerV2Api(string package, string expected)
         {
             // arrange
-            context.Registries.Add(new Registry { Endpoint = "nexus3.xpa.rbxd.ds:8080", ApiKey = "", IsEnabled = true, IsPublic = true, Kind = DependencyKind.Docker });
+            context.Registries.Add(new Registry { Endpoint = "https://registry-1.docker.io/v2/", IsEnabled = true, IsPublic = true, Kind = DependencyKind.Docker });
             context.SaveChanges();
 
-            var dependency = new Dependency { Name = package, Id = Guid.NewGuid(), Kind = DependencyKind.NuGet };
+            Dependency dependency = new Dependency { Name = package, Id = Guid.NewGuid(), Kind = DependencyKind.NuGet };
 
             // act
-            var latest = await sut.GetLatestMetaDataAsync(dependency);
+            DependencyVersion latest = await sut.GetLatestMetaDataAsync(dependency);
 
             // assert
-            Assert.Equal(version, latest.Version);
+            Assert.Equal(expected, latest.Version);
         }
 
-        public void Dispose()
-        {
-            context?.Dispose();
-        }
+        public void Dispose() => context?.Dispose();
     }
 }

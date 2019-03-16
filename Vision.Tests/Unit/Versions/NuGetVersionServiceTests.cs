@@ -21,42 +21,24 @@
         }
 
         [Theory]
-        [InlineData("Atlassian.Stash.Api", "3.1.20")]
-        public async Task NuGetV2Api(string package, string version)
+        [InlineData("https://www.nuget.org/api/v2", "Atlassian.Stash.Api", "3.1.20")]
+        [InlineData("https://api.nuget.org/v3/index.json", "Atlassian.Stash.Api", "3.1.20")]
+
+        public async Task NuGetApiTests(string endpoint, string package, string version)
         {
             // arrange
-            context.Registries.Add(new Registry { Endpoint = "https://www.nuget.org/api/v2", IsEnabled = true, IsPublic = true, Kind = DependencyKind.NuGet });
+            context.Registries.Add(new Registry { Endpoint = endpoint, IsEnabled = true, IsPublic = true, Kind = DependencyKind.NuGet });
             context.SaveChanges();
 
-            var dependency = new Dependency { Name = package, Kind = DependencyKind.NuGet };
+            Dependency dependency = new Dependency { Name = package, Kind = DependencyKind.NuGet };
 
             // act
-            var latest = await sut.GetLatestMetaDataAsync(dependency);
+            DependencyVersion latest = await sut.GetLatestMetaDataAsync(dependency);
 
             // assert
             Assert.Equal(version, latest.Version);
         }
 
-        [Theory]
-        [InlineData("Atlassian.Stash.Api", "3.1.20")]
-        public async Task NuGetV3Api(string package, string version)
-        {
-            // arrange
-            context.Registries.Add(new Registry { Endpoint = "https://api.nuget.org/v3/index.json", IsEnabled = true, IsPublic = true, Kind = DependencyKind.NuGet });
-            context.SaveChanges();
-
-            var dependency = new Dependency { Name = package, Kind = DependencyKind.NuGet };
-
-            // act
-            var latest = await sut.GetLatestMetaDataAsync(dependency);
-
-            // assert
-            Assert.Equal(version, latest.Version);
-        }
-
-        public void Dispose()
-        {
-            context?.Dispose();
-        }
+        public void Dispose() => context?.Dispose();
     }
 }

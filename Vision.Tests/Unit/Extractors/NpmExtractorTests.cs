@@ -48,5 +48,18 @@ namespace Vision.Tests
             Assert.Equal("npm", extracts[1].Name);
             Assert.Equal("10.0", extracts[1].Version);
         }
+
+        [Fact]
+        public void ExtractsName()
+        {
+            // Arrange
+            string json = "{ \"name\": 'Vision', \"engines\": { \"node\":\">=0.10.3 <0.12\", \"npm\":\"10.0\" } } ";
+            Asset asset = new Asset { Repository = new Repository { WebUrl = "http://git:8080/KEY/repository.git/Browse/" }, Raw = json };
+
+            // Act
+            string name = sut.ExtractPublishName(asset);
+
+            Assert.Equal("Vision", name);
+        }
     }
 }

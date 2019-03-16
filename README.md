@@ -38,4 +38,7 @@ https://github.com/aspnet/AspNetCore/issues/5562
 * implement /insights/frameworks/  
 * implement /insights/versions/{vId}  
 
+* implement disabling/ignoring a Repository (could be legacy that we do not care about)
+
 * Integration tests should use Docker for API integration with: TeamCity, Jenkins & Bitbucket
+* Rename CICD's to Pipelines (Teamcity pipelines, Azure Pipelines, Jenkins Pipelines, etc etc)

@@ -26,7 +26,7 @@
                     new XAttribute("Version", "1.0.0"))).ToString();
 
             // act
-            var dependencies = sut.ExtractDependencies(new Asset { Id = Guid.NewGuid(), Raw = csproj }).ToList();
+            var dependencies = sut.ExtractDependencies(new Asset { Raw = csproj }).ToList();
 
             Assert.Equal("Package.Name", dependencies[0].Name);
             Assert.Equal("1.0.0", dependencies[0].Version);
@@ -42,7 +42,7 @@
                         new XElement("Version", "1.0.0"))).ToString();
 
             // act
-            var dependencies = sut.ExtractDependencies(new Asset { Id = Guid.NewGuid(), Raw = csproj }).ToList();
+            var dependencies = sut.ExtractDependencies(new Asset { Raw = csproj }).ToList();
 
             Assert.Equal("Package.Name", dependencies[0].Name);
             Assert.Equal("1.0.0", dependencies[0].Version);
@@ -58,7 +58,7 @@
                         new XElement("SpecificVersion", "False"))).ToString();
 
             // act
-            var dependencies = sut.ExtractDependencies(new Asset { Id = Guid.NewGuid(), Raw = csproj }).ToList();
+            var dependencies = sut.ExtractDependencies(new Asset { Raw = csproj }).ToList();
 
             Assert.Equal("Package.Name", dependencies[0].Name);
             Assert.Equal("1.0.0", dependencies[0].Version);
@@ -71,7 +71,7 @@
             var csproj = new XElement("TargetFramework", "netcoreapp2.0").ToString();
 
             // act
-            var frameworks = sut.ExtractFrameworks(new Asset { Id = Guid.NewGuid(), Raw = csproj }).ToList();
+            var frameworks = sut.ExtractFrameworks(new Asset { Raw = csproj }).ToList();
 
             Assert.Equal("Framework", frameworks[0].Name);
             Assert.Equal("netcoreapp2.0", frameworks[0].Version);
@@ -84,7 +84,7 @@
             var csproj = new XElement("TargetFrameworks", "netcoreapp2.0; netstandard2.0").ToString();
 
             // act
-            var frameworks = sut.ExtractFrameworks(new Asset { Id = Guid.NewGuid(), Raw = csproj }).ToList();
+            var frameworks = sut.ExtractFrameworks(new Asset { Raw = csproj }).ToList();
 
             Assert.Equal("Framework", frameworks[0].Name);
             Assert.Equal("netcoreapp2.0", frameworks[0].Version);
@@ -94,24 +94,24 @@
         }
 
         [Fact]
-        public void ShouldUsePackageIdWhenPresent()
+        public void ExtractsPublishNameUsingPackageIdWhenPresent()
         {
             // arrange
             var csproj = new XElement("PackageId", "Vision").ToString();
 
             // act
-            var name = sut.ExtractPublishName(new Asset { Id = Guid.NewGuid(), Raw = csproj }).ToList();
+            var name = sut.ExtractPublishName(new Asset { Raw = csproj }).ToList();
 
             Assert.Equal("Vision", name);
         }
 
         [Fact]
-        public void ShouldUsePathNameWhenNoOtherAvailable()
+        public void ExtractsPublishNameUsingFileNameWhenPackageIdNotPresent()
         {
             // arrange
             var csproj = new XElement("Project", new XElement("With", new XElement("No", new XElement("Publish", new XElement("Name"))))).ToString();
             // act
-            var name = sut.ExtractPublishName(new Asset { Id = Guid.NewGuid(), Raw = csproj, Path = "Vision.Example.csproj" }).ToList();
+            var name = sut.ExtractPublishName(new Asset { Raw = csproj, Path = "Vision.Example.csproj" }).ToList();
 
             Assert.Equal("Vision.Example", name);
         }

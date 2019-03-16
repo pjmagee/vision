@@ -21,25 +21,22 @@
         }
 
         [Theory]
-        [InlineData("@angular/core", "7.0.1")]
-        public async Task NuGetV2Api(string package, string version)
+        [InlineData("https://registry.npmjs.org/", "@angular/core", "7.2.9")]
+        public async Task NpmApiTest(string endpoint, string package, string expected)
         {
             // arrange
-            context.Registries.Add(new Registry { Endpoint = "https://www.nuget.org/api/v2", IsEnabled = true, IsPublic = true, Kind = DependencyKind.NuGet });
+            context.Registries.Add(new Registry { Endpoint = endpoint, IsEnabled = true, IsPublic = true, Kind = DependencyKind.Npm });
             context.SaveChanges();
 
-            var dependency = new Dependency { Name = package, Kind = DependencyKind.NuGet };
+            Dependency dependency = new Dependency { Name = package, Kind = DependencyKind.Npm };
 
             // act
-            var latest = await sut.GetLatestMetaDataAsync(dependency);
+            DependencyVersion latest = await sut.GetLatestMetaDataAsync(dependency);
 
             // assert
-            Assert.Equal(version, latest.Version);
+            Assert.Equal(expected, latest.Version);
         }
 
-        public void Dispose()
-        {
-            context?.Dispose();
-        }
+        public void Dispose() => context?.Dispose();
     }
 }

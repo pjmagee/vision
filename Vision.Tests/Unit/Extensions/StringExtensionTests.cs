@@ -1,21 +1,43 @@
 ﻿namespace Vision.Tests
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using Vision.Web.Core;
     using Xunit;
 
     public class StringExtensionTests
     {
-        [Fact]
-        public void ExtensionsShouldBeSupported()
+        public static IEnumerable<object[]> Extensions => AppHelper
+            .SupportedExtensions
+            .Select(ext => new object[] { ext, true })
+            .Concat(new[]
+            {
+                new object[] { ".sample", false },
+                new object[] { ".proj.sample", false },                
+                new object[] { "Dockerfile.sample", false },
+                new object[] { "pom.xml.sample", false },
+                new object[] { "node_modules/package.json", false },
+                new object[] { "/node_modules/package.json", false }
+            });
+
+        [Theory]
+        [MemberData(nameof(Extensions))]
+        public void ExtensionsShouldBeSupported(string extension, bool expected)
         {
-            Assert.All(AppHelper.SupportedExtensions, item => Assert.True(item.IsSupported()));                
+            Assert.Equal(expected: expected, actual: extension.IsSupported());
         }
 
-        [Fact]
-        public void RandomExtensionShouldNotReturnDependencyKind()
+        [Theory]
+        [InlineData(".sample")]
+        [InlineData(".csproj.sample")]
+        [InlineData("Dockerfile.sample")]
+        [InlineData("packages.json.sample")]
+        [InlineData("sample.sln")]
+        [InlineData("maven.pom.xml.sample")]           
+        public void GetDependencyKindShouldThrowExceptionOnInvalidFile(string unsupported)
         {
-            Assert.Throws<InvalidOperationException>(() => ".unsupported".GetDependencyKind());
+            Assert.Throws<InvalidOperationException>(() => unsupported.GetDependencyKind());
         }
     }
 }

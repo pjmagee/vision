@@ -10,59 +10,21 @@ namespace Vision.Tests
 
         public RepositoryMatcherTests()
         {
-            this.repositoryMatcher = new RepositoryMatcher(new LoggerFactory().CreateLogger<RepositoryMatcher>());
+            repositoryMatcher = new RepositoryMatcher(new LoggerFactory().CreateLogger<RepositoryMatcher>());
         }
 
-        [Fact]
-        public void SshToHttpIsMatch()
+        [Theory]
+        [InlineData("ssh://git@domain:8080/key/project.git", "ssh://git@domain:8080/key/project.git", true)]        
+        [InlineData("http://domain:8090/scm/key/project.git", "http://domain:8090/scm/key/project.git", true)]
+        [InlineData("http://domain:8090/scm/key/project.git", "ssh://git@domain:8080/key/project.git", true)]
+        [InlineData("ssh://git@domain:8080/key/project.git", "http://domain:8090/scm/key/project.git", true)]
+        [InlineData("ssh://git@domain:8080/key/project.git", "https://domain:8090/scm/key/project.git", true)]
+        [InlineData("ssh://git@external:8080/key/project.git", "http://domain:8090/scm/key/project.git", false)]
+        [InlineData("ssh://git@external:8080/key/project.git", "http://external:8090/scm/project2.git", false)]
+        [InlineData("ssh://git@domain:8080/key/project.git", "ssh://git@domain:8080/key/project2.git", false)]
+        public void MatcherTests(string one, string two, bool expectedMatch)
         {
-            // arrange
-            var one = "ssh://git@stash.xpa.rbxd.ds:8080/fess/fess.git";
-            var two = "http://stash.xpa.rbxd.ds:8090/scm/fess/fess.git";
-
-            // act
-            var isMatch = repositoryMatcher.IsMatch(one, two);
-
-            Assert.True(isMatch);            
-        }
-
-        [Fact]
-        public void HttpToSshIsMatch()
-        {
-            // arrange            
-            var one = "http://stash.xpa.rbxd.ds:8090/scm/fess/fess.git";
-            var two = "ssh://git@stash.xpa.rbxd.ds:8080/fess/fess.git";
-
-            // act
-            var isMatch = repositoryMatcher.IsMatch(one, two);
-
-            Assert.True(isMatch);
-        }
-
-        [Fact]
-        public void HttpToHttpIsMatch()
-        {
-            // arrange            
-            var one = "http://stash.xpa.rbxd.ds:8090/scm/fess/fess.git";
-            var two = "http://stash.xpa.rbxd.ds:8090/scm/fess/fess.git";
-
-            // act
-            var isMatch = repositoryMatcher.IsMatch(one, two);
-
-            Assert.True(isMatch);
-        }
-
-        [Fact]
-        public void SshToSshIsMatch()
-        {
-            // arrange            
-            var one = "ssh://git@stash.xpa.rbxd.ds:8080/fess/fess.git";
-            var two = "ssh://git@stash.xpa.rbxd.ds:8080/fess/fess.git";
-
-            // act
-            var isMatch = repositoryMatcher.IsMatch(one, two);
-
-            Assert.True(isMatch);
+            Assert.Equal(expectedMatch, repositoryMatcher.IsMatch(one, two));
         }
     }
 }
