@@ -35,11 +35,11 @@
             };
         }
 
-        public async Task<IEnumerable<RepositoryDto>> GetRepositoriesByFrameworkIdAsync(Guid frameworkId)
+        public async Task<PaginatedList<RepositoryDto>> GetRepositoriesByFrameworkIdAsync(Guid frameworkId)
         {
             var framework = await context.Frameworks.FindAsync(frameworkId);
 
-            return await context.Repositories
+            var query = context.Repositories
                 .Where(repository => context.Assets.Any(asset => asset.RepositoryId == repository.Id && context.AssetFrameworks.Any(assetFramework => assetFramework.FrameworkId == frameworkId && assetFramework.AssetId == asset.Id)))
                 .Select(repository => new RepositoryDto
                 {
@@ -48,8 +48,9 @@
                     WebUrl = repository.WebUrl,
                     Url = repository.Url,
                     RepositoryId = repository.Id
-                })
-                .ToListAsync();
+                });
+
+            return await PaginatedList<RepositoryDto>.CreateAsync(query, 1, 10000);
         }
 
         public async Task<IEnumerable<AssetDto>> GetAssetsByFrameworkIdAsync(Guid frameworkId)

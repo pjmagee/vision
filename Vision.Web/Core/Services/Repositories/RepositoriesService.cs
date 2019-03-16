@@ -34,9 +34,9 @@
             };
         }
 
-        public async Task<IEnumerable<AssetDto>> GetAssetsByRepositoryId(Guid repositoryId)
+        public async Task<PaginatedList<AssetDto>> GetAssetsByRepositoryId(Guid repositoryId, int pageIndex = 1, int pageSize = 10)
         {
-            return await context.Assets.Where(asset => asset.RepositoryId == repositoryId).Select(asset => new AssetDto
+            var query = context.Assets.Where(asset => asset.RepositoryId == repositoryId).Select(asset => new AssetDto
             {
                 AssetId = asset.Id,
                 Repository = asset.Repository.Url,
@@ -45,8 +45,9 @@
                 Kind = asset.Kind,
                 RepositoryId = asset.RepositoryId,
                 VersionControlId = asset.Repository.VersionControlId
-            })
-            .ToListAsync();
+            });
+
+            return await PaginatedList<AssetDto>.CreateAsync(query, pageIndex, pageSize);
         }
 
         public async Task<IEnumerable<DependencyDto>> GetDependenciesByRepositoryId(Guid repositoryId)

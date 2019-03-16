@@ -72,10 +72,20 @@
             };
         }
 
-        public async Task<IEnumerable<RepositoryDto>> GetRepositoriesByIdAsync(Guid versionControlId)
+        public async Task<PaginatedList<RepositoryDto>> GetRepositoriesByIdAsync(Guid versionControlId, int pageIndex = 1, int pageSize = 10)
         {
-            var repositories = await context.Repositories.Where(repository => repository.VersionControlId == versionControlId).ToListAsync();
-            return repositories.Select(x => new RepositoryDto { VersionControlId = x.VersionControlId, Assets = x.Assets.Count, Url = x.Url, WebUrl = x.WebUrl, RepositoryId = x.Id });
+            IQueryable<RepositoryDto> repositories = context.Repositories
+                .Where(repository => repository.VersionControlId == versionControlId)
+                .Select(x => new RepositoryDto
+                {
+                    VersionControlId = x.VersionControlId,
+                    Assets = x.Assets.Count,
+                    Url = x.Url,
+                    WebUrl = x.WebUrl,
+                    RepositoryId = x.Id
+                });
+
+            return await PaginatedList<RepositoryDto>.CreateAsync(repositories, pageIndex, pageSize);
         }
 
         public async Task<IEnumerable<AssetDto>> GetAssetsByVersionControlIdAsync(Guid versionControlId)

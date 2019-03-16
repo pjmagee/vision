@@ -7,6 +7,7 @@
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using System.Xml.XPath;
+    using Microsoft.AspNetCore.DataProtection;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
 
@@ -17,12 +18,14 @@
         private readonly VisionDbContext context;
         private readonly IRepositoryMatcher matcher;
         private readonly ILogger<JenkinsBuildsService> logger;
+        private readonly IDataProtector protector;
 
-        public JenkinsBuildsService(VisionDbContext context, IRepositoryMatcher matcher, ILogger<JenkinsBuildsService> logger)
+        public JenkinsBuildsService(VisionDbContext context, IRepositoryMatcher matcher, ILogger<JenkinsBuildsService> logger, IDataProtectionProvider provider)
         {
             this.context = context;
             this.matcher = matcher;
             this.logger = logger;
+            this.protector = provider.CreateProtector("Jenkins");
         }
 
         public async Task<List<CiCdBuildDto>> GetBuildsByRepositoryIdAsync(Guid repositoryId)

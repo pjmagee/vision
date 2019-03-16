@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ namespace Vision.Web.Core
         public NuGetVersionService(VisionDbContext context, IDataProtectionProvider provider, ILogger<NuGetVersionService> logger) : base(context, provider, logger)
         {
             
-        }
+        } 
 
         public override bool Supports(DependencyKind kind) => kind == DependencyKind.NuGet;
 
@@ -27,13 +28,59 @@ namespace Vision.Web.Core
         {
             HttpResponseMessage response = await client.GetAsync(registry.Endpoint);
 
-            var contentTypes = response.Headers.GetValues("Content-Type"); 
-            
-            if (contentTypes.Contains("application/json"))
+            string mediaType = response.Content.Headers.ContentType.MediaType;
+
+            if (IsV2APIEndpoint(mediaType))
+            {
+                return await HandleV2API(registry, dependency);
+            }
+            else if (IsV3APIEndpoint(mediaType))
+            {
+                return await HandleV3API(registry, dependency);
+            }
+            else
+            {
+                throw new Exception($"Unsupported NuGet registry: {registry.Endpoint}");
+            }
+
+            throw new Exception("Could not find dependency");
+        }
+
+        private async Task<DependencyVersion> HandleV2API(Registry registry, Dependency dependency)
+        {
+            try
+            {
+                // THIS ONE WORKS ON OFFICAL NUGET V2 XML API, BUT NOT ON NEXUS!!!!
+                // var root = XDocument.Parse(await client.GetStringAsync($"{registry.Endpoint}/FindPackagesById()?id='{dependency.Name}'&$filter=IsLatestVersion eq true"));
+
+                Uri endpoint = new Uri(new Uri(registry.Endpoint.Trim('/') + "/", UriKind.Absolute), new Uri($"FindPackagesById()?id='{dependency.Name}'&$filter=IsLatestVersion", UriKind.Relative));
+
+                logger.LogInformation($"Checking {endpoint} for latest version");
+
+                XDocument root = XDocument.Parse(await client.GetStringAsync(endpoint));
+                string latest = root.XPathSelectElement("(//*[local-name() = '" + "Version" + "'])").Value;
+
+                logger.LogInformation($"Found latest version for {dependency.Name}: {latest}");
+
+                return new DependencyVersion { Version = latest, IsLatest = true, Dependency = dependency, DependencyId = dependency.Id };
+            }
+            catch(Exception e)
+            {
+                logger.LogError(e, $"Could not get version for {dependency.Name}");
+                throw;
+            }
+        }
+
+        private async Task<DependencyVersion> HandleV3API(Registry registry, Dependency dependency)
+        {
+            try
             {
                 JObject root = JObject.Parse(await client.GetStringAsync(registry.Endpoint));
                 string registration = root["resources"].Single(x => x["@type"].Value<string>() == "RegistrationsBaseUrl")["@id"].Value<string>();
-                string endpoint = $"{registration.TrimEnd('/')}/{dependency.Name.ToLower()}/index.json";
+
+                Uri endpoint = new Uri(
+                    new Uri(registration.Trim('/') + "/", UriKind.Absolute),
+                    new Uri(dependency.Name.ToLower() + "/" + "index.json", UriKind.Relative));
 
                 logger.LogInformation($"Checking {endpoint} for latest version");
 
@@ -45,41 +92,15 @@ namespace Vision.Web.Core
 
                 return new DependencyVersion { Version = latest, IsLatest = true, Dependency = dependency, DependencyId = dependency.Id };
             }
-            else if(contentTypes.Contains("application/xml"))
+            catch(Exception e)
             {
-                // THIS ONE WORKS ON OFFICAL NUGET V2 XML API, BUT NOT ON NEXUS!!!!
-                // var root = XDocument.Parse(await client.GetStringAsync($"{registry.Endpoint}/FindPackagesById()?id='{dependency.Name}'&$filter=IsLatestVersion eq true"));
-
-                try
-                {
-                    string endpoint = new Uri(new Uri(registry.Endpoint), new Uri($"/FindPackagesById()?id='{dependency.Name}'&$filter=IsLatestVersion", UriKind.Relative)).ToString();
-
-                    logger.LogInformation($"Checking {endpoint} for latest version");
-
-                    XDocument root = XDocument.Parse(await client.GetStringAsync(endpoint));
-                    string latest = root.XPathSelectElement("(//*[local-name() = '" + "Version" + "'])").Value;
-
-                    if(!string.IsNullOrWhiteSpace(latest))
-                    {
-                        logger.LogInformation($"Found latest version for {dependency.Name}: {latest}");
-                        return new DependencyVersion { Version = latest, IsLatest = true, Dependency = dependency, DependencyId = dependency.Id };
-                    }
-                }
-                catch(NullReferenceException e)
-                {
-                    logger.LogError(e, $"Error extracting information for: {dependency.Name}");
-                }
-                catch(HttpRequestException e)
-                {
-                    logger.LogError(e, $"HTTP Error when searching version for: {dependency.Name}");
-                }                
+                logger.LogError(e, $"Could not get version for {dependency.Name}");
+                throw;
             }
-            else
-            {
-                throw new Exception($"Unsupported NuGet registry: {registry.Endpoint}");
-            }
-
-            throw new Exception("Could not find dependency");
         }
+
+        private static bool IsV2APIEndpoint(string mediaType) => string.Equals(mediaType, "application/xml", StringComparison.CurrentCultureIgnoreCase);
+
+        private static bool IsV3APIEndpoint(string mediaType) => string.Equals(mediaType, "application/json", StringComparison.CurrentCultureIgnoreCase);
     }
 }

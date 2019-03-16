@@ -2,6 +2,7 @@
 
 namespace Vision.Web.Core
 {
+
     public class Extract
     {
         public string Name { get; set; }

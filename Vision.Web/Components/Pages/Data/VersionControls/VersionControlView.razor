@@ -1,4 +1,5 @@
 ﻿@page "/data/vcs/{VersionControlId:guid}"
+@page "/data/vcs/{VersionControlId:guid}/page/{PageIndex:int}"
 
 <BreadcrumbsComponent>
     <li class="breadcrumb-item">Data</li>
@@ -15,7 +16,7 @@
     <div class="card-body">
         @if (Repositories != null)
         {
-            <RepositoriesComponent Items="Repositories"></RepositoriesComponent>
+            <RepositoriesComponent PagedItems="Repositories" Page="@((int page) => UriHelper.NavigateTo($"/data/vcs/{VersionControlId}/page/{page}"))"></RepositoriesComponent>
         }
         else
         {
@@ -24,36 +25,21 @@
     </div>
 </div>
 
-@*<div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
-    </div>
-    <div class="card-body">
-        @if (Assets != null)
-        {
-            <AssetsComponent Items="Assets"></AssetsComponent>
-        }
-        else
-        {
-            <LoaderComponent></LoaderComponent>
-        }
-    </div>
-</div>*@
-
 @functions
 {
     [Parameter] Guid VersionControlId { get; set; }
-    
-    [Inject] VersionControlsService VersionControlsService { get; set; }
+    [Parameter] int PageIndex { get; set; } = 1;
+    [Parameter] int PageSize { get; set; } = 10;
 
-    IEnumerable<RepositoryDto> Repositories { get; set; }
-    // IEnumerable<AssetDto> Assets { get; set; }
+    [Inject] VersionControlsService VersionControlsService { get; set; }
+    [Inject] IUriHelper UriHelper { get; set; }
+
+    PaginatedList<RepositoryDto> Repositories { get; set; }
     VersionControlDto VersionControl { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
         VersionControl = await VersionControlsService.GetVersionControlByIdAsync(VersionControlId);
-        Repositories = await VersionControlsService.GetRepositoriesByIdAsync(VersionControlId);
-        // Assets = await VersionControlsService.GetAssetsByVersionControlIdAsync(VersionControlId);
+        Repositories = await VersionControlsService.GetRepositoriesByIdAsync(VersionControlId, PageIndex, PageSize);
     }
 }

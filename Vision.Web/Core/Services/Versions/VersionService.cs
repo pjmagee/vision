@@ -40,8 +40,16 @@ namespace Vision.Web.Core
                 try
                 {
                     logger.LogInformation($"Searching latest version for {dependency.Name} at registry: {registry.Endpoint}.");
+
                     DependencyVersion result = await GetLatestMetaDataAsync(registry, dependency);
-                    logger.LogInformation(result != null ? $"Found latest version {result.Version} for {dependency.Name}" : $"Did not find latest version for {dependency.Name} at registry: {registry.Endpoint}.");
+
+                    if (result == null)
+                    {
+                        throw new InvalidOperationException($"DependencyVersion returned for {dependency.Name} is null.");
+                    }
+
+                    logger.LogInformation($"Found latest version {result.Version} for {dependency.Name}");
+
                     return result;
                 }
                 catch(Exception e)

@@ -7,9 +7,9 @@ namespace Vision.Web.Core
     {
         public string Url { get; set; }
         public string WebUrl { get; set; }
-
         public Guid VersionControlId { get; set; }
         public virtual VersionControl VersionControl { get; set; }        
         public virtual ICollection<Asset> Assets { get; set; }
+        public bool IsIgnored { get; set; }
     }   
 }

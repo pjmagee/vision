@@ -43,7 +43,7 @@
     [Parameter] Guid FrameworkId { get; set; }
 
     IEnumerable<AssetDto> Assets { get; set; }
-    IEnumerable<RepositoryDto> Repositories { get; set; }
+    PaginatedList<RepositoryDto> Repositories { get; set; }
     FrameworkDto Framework { get; set; }
 
     [Inject] FrameworksService FrameworksService { get; set; }
