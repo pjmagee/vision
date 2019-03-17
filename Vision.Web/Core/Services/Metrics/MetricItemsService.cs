@@ -6,15 +6,15 @@
     using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
 
-    public class MetricItemsService
+    public class MetricService : IMetricService
     {
         private readonly VisionDbContext context;
-        private readonly RepositoryAssetsService repositoryAssetsService;
+        private readonly AssetService assetService;
 
-        public MetricItemsService(VisionDbContext context, RepositoryAssetsService repositoryAssetsService)
+        public MetricService(VisionDbContext context, AssetService assetService)
         {
             this.context = context;
-            this.repositoryAssetsService = repositoryAssetsService;
+            this.assetService = assetService;
         }
 
         public async Task<IEnumerable<MetricItem>> GetCountsAsync()
@@ -78,13 +78,13 @@
 
             foreach (Repository repository in context.Repositories)
             {
-                List<string> assetNames = await repositoryAssetsService.GetPublishedNamesByRepositoryIdAsync(repository.Id);
+                List<string> assetNames = await assetService.GetPublishedNamesByRepositoryIdAsync(repository.Id);
 
                 bool publishes = await context.Dependencies
                     .Where(d => d.Kind == dependencyKind)
                     .AnyAsync(dependency => assetNames.Contains(dependency.Name) || (string.Equals(dependency.RepositoryUrl, repository.Url) || string.Equals(dependency.RepositoryUrl, repository.WebUrl)));
 
-                if(publishes)
+                if (publishes)
                 {
                     repositories.Add(new RepositoryDto
                     {
@@ -114,7 +114,7 @@
                     Kind = dependency.Kind,
                     Assets = context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id),
                     Versions = context.DependencyVersions.Count(dv => dv.DependencyId == dependency.Id),
-                    RepositoryUrl = dependency.RepositoryUrl                    
+                    RepositoryUrl = dependency.RepositoryUrl
                 })
                 .ToArrayAsync();
 

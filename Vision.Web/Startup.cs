@@ -24,7 +24,7 @@ namespace Vision.Web
 
             services
                 .AddDbContext<VisionDbContext>(options => options
-                    .UseLazyLoadingProxies(useLazyLoadingProxies: true)
+                    .UseLazyLoadingProxies(useLazyLoadingProxies: true)                    
                     .UseSqlServer(configuration["ConnectionStrings:Home"])
                     .ConfigureWarnings(warnings =>
                             warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)),
@@ -33,9 +33,7 @@ namespace Vision.Web
 
             services.AddSignalR();
             services.AddRazorComponents();
-            services.AddMvc().AddNewtonsoftJson();
-
-            services.AddScoped<FakeDataGenerator>();
+            services.AddMvc().AddNewtonsoftJson();                    
 
             RegisterVersionControlServices(services);
             RegisterAssetServices(services);
@@ -43,12 +41,12 @@ namespace Vision.Web
             RegisterCiCdServices(services);
             RegisterRazorComponentServices(services);
 
-            services.AddScoped<MetricItemsService>();
+            services.AddScoped<FakeDataGenerator>();
+            services.AddScoped<IMetricService, MetricService>();
 
             RegisterSystemRefreshServices(services);
 
             services.AddCors(options => options.AddPolicy("CorsPolicy", builder => builder.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin()));
-
 
             services.AddSwaggerDocument(config =>
             {
@@ -77,7 +75,7 @@ namespace Vision.Web
         {
             services.AddScoped<SystemTaskService>();
             services.AddHostedService<BackgroundSystemRefreshMonitor>();
-            services.AddScoped<ISystemRefreshService, SystemRefreshService>();
+            services.AddScoped<IRefreshService, RefreshService>();
         }
 
         private static void RegisterRazorComponentServices(IServiceCollection services)
@@ -88,30 +86,30 @@ namespace Vision.Web
 
         private static void RegisterCiCdServices(IServiceCollection services)
         {
-            services.AddScoped<CiCdsService>();
-            services.AddScoped<TeamCityBuildsService>();
-            services.AddScoped<JenkinsBuildsService>();
-            services.AddScoped<ICICDBuildsService, AggregateCICDBuildsService>();
+            services.AddScoped<ICiCdService, CiCdService>();
+
+            services.AddScoped<TeamCityProvider>();
+            services.AddScoped<JenkinsProvider>();
+            services.AddScoped<ICICDProvider, AggregateCICDProvider>();
         }
 
         private static void RegisterDependencyServices(IServiceCollection services)
         {
-            services.AddScoped<RegistriesService>();
-            services.AddScoped<DependencyVersionService>();
-            services.AddScoped<DependenciesService>();
+            services.AddScoped<IRegistryService, RegistryService>();
+            services.AddScoped<IDependencyVersionService, DependencyVersionService>();
+            services.AddScoped<IDependencyService, DependencyService>();
 
-            services.AddScoped<NuGetVersionService>();
-            services.AddScoped<DockerVersionService>();
-            services.AddScoped<NpmVersionService>();
-            services.AddScoped<IVersionService, AggregateVersionService>();
+            services.AddScoped<NuGetVersionProvider>();
+            services.AddScoped<DockerVersionProvider>();
+            services.AddScoped<NpmVersionProvider>();
+            services.AddScoped<IVersionProvider, AggregateVersionProvider>();
         }
         
         private static void RegisterAssetServices(IServiceCollection services)
         {
-            services.AddScoped<FrameworksService>();
-            services.AddScoped<AssetsService>();
-            services.AddScoped<RepositoryAssetsService>();
-            services.AddScoped<AssetDependenciesService>();
+            services.AddScoped<IFrameworkService, FrameworkService>();
+            services.AddScoped<IAssetService, AssetService>();
+            services.AddScoped<IAssetDependencyService, AssetDependencyService>();
 
             services.AddScoped<NpmAssetExtractor>();
             services.AddScoped<NuGetAssetExtractor>();
@@ -121,13 +119,13 @@ namespace Vision.Web
 
         private static void RegisterVersionControlServices(IServiceCollection services)
         {
-            services.AddScoped<VersionControlsService>();
-            services.AddScoped<RepositoriesService>();
-
+            services.AddScoped<IVersionControlService, VersionControlService>();
+            services.AddScoped<IRepositoryService, RepositoryService>();
             services.AddScoped<IRepositoryMatcher, RepositoryMatcher>();
-            services.AddScoped<BitBucketService>();
-            services.AddScoped<GitlabService>();
-            services.AddScoped<IVersionControlService, AggregateVersionControlService>();
+
+            services.AddScoped<BitBucketProvider>();
+            services.AddScoped<GitlabProvider>();
+            services.AddScoped<IVersionControlProvider, AggregateVersionControlProvider>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

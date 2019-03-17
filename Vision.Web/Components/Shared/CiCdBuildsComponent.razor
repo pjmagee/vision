@@ -34,13 +34,13 @@
     [Parameter] Guid RepositoryId { get; set; }
 
     [Inject] SvgService SvgService { get; set; }
-    [Inject] ICICDBuildsService CiCdsService { get; set; }
+    [Inject] ICiCdService CiCdService { get; set; }
 
-    List<CiCdBuildDto> Items { get; set; }
+    IEnumerable<CiCdBuildDto> Items { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        Items = await CiCdsService.GetBuildsByRepositoryIdAsync(RepositoryId);
+        Items = await CiCdService.GetBuildsByRepositoryIdAsync(RepositoryId);
         StateHasChanged();
     }
 }

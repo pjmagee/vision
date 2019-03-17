@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using NSubstitute;
 using Vision.Web.Core;
 using Xunit;
 
@@ -10,7 +11,7 @@ namespace Vision.Tests
 
         public RepositoryMatcherTests()
         {
-            repositoryMatcher = new RepositoryMatcher(new LoggerFactory().CreateLogger<RepositoryMatcher>());
+            repositoryMatcher = new RepositoryMatcher(Substitute.For<ILogger<RepositoryMatcher>>());
         }
 
         [Theory]

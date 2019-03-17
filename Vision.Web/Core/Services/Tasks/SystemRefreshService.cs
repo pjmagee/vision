@@ -8,20 +8,20 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    public class SystemRefreshService : ISystemRefreshService
+    public class RefreshService : IRefreshService
     {
         private readonly VisionDbContext context;
-        private readonly IVersionControlService versionControlService;
-        private readonly IVersionService versionService;
+        private readonly IVersionControlProvider versionControlService;
+        private readonly IVersionProvider versionService;
         private readonly IAssetExtractor assetExtractor;        
-        private readonly ILogger<SystemRefreshService> logger;
+        private readonly ILogger<RefreshService> logger;
 
-        public SystemRefreshService(
+        public RefreshService(
             VisionDbContext context,
-            IVersionControlService versionControlService,
+            IVersionControlProvider versionControlService,
             IAssetExtractor assetExtractor,
-            IVersionService versionService,
-            ILogger<SystemRefreshService> logger)
+            IVersionProvider versionService,
+            ILogger<RefreshService> logger)
         {
             this.versionControlService = versionControlService;
             this.assetExtractor = assetExtractor;

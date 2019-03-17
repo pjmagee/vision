@@ -2,7 +2,7 @@
 @page "/dashboard"
 
 <BreadcrumbsComponent>
-    <li class="breadcrumb-item active">Dashboard</li>
+    <BreadcrumbItem IsActive="true">Dashboard</BreadcrumbItem>
 </BreadcrumbsComponent>
 
 @if (Items != null)
@@ -59,10 +59,10 @@
 {
     IEnumerable<MetricItem> Items { get ; set; }
 
-    [Inject] MetricItemsService MetricItemsService { get; set; }
+    [Inject] IMetricService MetricService { get; set; }
 
     protected async override Task OnInitAsync()
     {        
-        Items = await MetricItemsService.GetCountsAsync();
+        Items = await MetricService.GetCountsAsync();
     }
 }

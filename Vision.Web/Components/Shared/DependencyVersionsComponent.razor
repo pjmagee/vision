@@ -30,9 +30,9 @@
 @functions
 {   
     [Parameter] Guid? DependencyId { get; set; }
-    [Inject] DependencyVersionService Service { get; set; }
+    [Inject] IDependencyVersionService Service { get; set; }
 
-    PaginatedList<DependencyVersionDto> Items { get; set; }
+    IPaginatedList<DependencyVersionDto> Items { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {

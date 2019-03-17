@@ -4,7 +4,7 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    public class DependencyVersionService
+    public class DependencyVersionService : IDependencyVersionService
     {
         private readonly VisionDbContext context;
 
@@ -24,7 +24,7 @@
             };
         }
 
-        public async Task<PaginatedList<DependencyVersionDto>> GetByDependencyIdAsync(Guid dependencyId, int pageIndex = 1, int pageSize = 10)
+        public async Task<IPaginatedList<DependencyVersionDto>> GetByDependencyIdAsync(Guid dependencyId, int pageIndex = 1, int pageSize = 10)
         {
             var query = context.DependencyVersions
                 .Where(dependencyVersion => dependencyVersion.DependencyId == dependencyId)

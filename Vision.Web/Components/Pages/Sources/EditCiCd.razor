@@ -62,7 +62,7 @@
 {
     [Parameter] Guid CiCdId { get; set; }
 
-    [Inject] CiCdsService CiCdsService { get; set; }
+    [Inject] ICiCdService CiCdService { get; set; }
     [Inject] IUriHelper UriHelper { get; set; }
 
     CiCdDto CiCd { get; set; }
@@ -70,7 +70,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        CiCd = await CiCdsService.GetByIdAsync(CiCdId);
+        CiCd = await CiCdService.GetByIdAsync(CiCdId);
         context = new EditContext(CiCd);
         context.AddDataAnnotationsValidation();
     }
@@ -79,7 +79,7 @@
     {
         if (context.Validate())
         {
-            await CiCdsService.UpdateAsync(CiCd);
+            await CiCdService.UpdateAsync(CiCd);
             UriHelper.NavigateTo("/data/cicds");
         }
     }

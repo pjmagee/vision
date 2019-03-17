@@ -1,3 +1,0 @@
-﻿namespace Vision.Web.Core
-{
-}

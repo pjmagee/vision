@@ -1,6 +1,4 @@
-﻿
-
-<BlazorTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
+﻿<BlazorTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
     <thead>
         <tr>
             <th>Kind</th>
@@ -38,9 +36,9 @@
     [Parameter] DependencyKind[] Kinds { get; set; }
 
     [Inject] SvgService SvgService { get; set; }
-    [Inject] DependenciesService Service { get; set; }
+    [Inject] IDependencyService Service { get; set; }
 
-    PaginatedList<DependencyDto> Items { get; set; }    
+    IPaginatedList<DependencyDto> Items { get; set; }    
 
     protected override async Task OnParametersSetAsync()
     {

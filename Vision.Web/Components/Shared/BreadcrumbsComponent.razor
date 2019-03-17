@@ -91,43 +91,43 @@
 
     [Parameter] RenderFragment ChildContent { get; set; }
 
-    [Inject] RepositoriesService RepositoriesService { get; set; }
-    [Inject] FrameworksService FrameworksService { get; set; }
-    [Inject] VersionControlsService VersionControlsService { get; set; }
-    [Inject] AssetsService AssetsService { get; set; }
-    [Inject] RegistriesService RegistriesService { get; set; }
-    [Inject] DependenciesService DependenciesService { get; set; }
+    [Inject] IRepositoryService RepositoryService { get; set; }
+    [Inject] IFrameworkService FrameworkService { get; set; }
+    [Inject] IVersionControlService VersionControlService { get; set; }
+    [Inject] IAssetService AssetService { get; set; }
+    [Inject] IRegistryService RegistryService { get; set; }
+    [Inject] IDependencyService DependencyService { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
         if (RepositoryId.HasValue)
         {
-            Repository = await RepositoriesService.GetByIdAsync(RepositoryId.Value);
+            Repository = await RepositoryService.GetByIdAsync(RepositoryId.Value);
         }
 
         if (FrameworkId.HasValue)
         {
-            Framework = await FrameworksService.GetByIdAsync(FrameworkId.Value);
+            Framework = await FrameworkService.GetByIdAsync(FrameworkId.Value);
         }
 
         if (VersionControlId.HasValue)
         {
-            VersionControl = await VersionControlsService.GetByIdAsync(VersionControlId.Value);
+            VersionControl = await VersionControlService.GetByIdAsync(VersionControlId.Value);
         }
 
         if (AssetId.HasValue)
         {
-            Asset = await AssetsService.GetByIdAsync(AssetId.Value);
+            Asset = await AssetService.GetByIdAsync(AssetId.Value);
         }
 
         if (RegistryId.HasValue)
         {
-            Registry = await RegistriesService.GetByIdAsync(RegistryId.Value);
+            Registry = await RegistryService.GetByIdAsync(RegistryId.Value);
         }
 
         if (DependencyId.HasValue)
         {
-            Dependency = await DependenciesService.GetByIdAsync(DependencyId.Value);
+            Dependency = await DependencyService.GetByIdAsync(DependencyId.Value);
         }
 
         StateHasChanged();

@@ -3,10 +3,6 @@ using System;
 
 namespace Vision.Web.Core
 {
-    public interface IRepositoryMatcher
-    {
-        bool IsMatch(string one, string two);
-    }
 
     public class RepositoryMatcher : IRepositoryMatcher
     {

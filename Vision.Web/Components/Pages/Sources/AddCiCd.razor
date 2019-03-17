@@ -58,12 +58,12 @@
 
 @functions
 {
-    [Inject] CiCdsService CiCdsService { get; set; }
+    [Inject] ICiCdService CiCdService { get; set; }
 
     CiCdDto CiCd { get; set; } = new CiCdDto();
 
     protected async Task Submit()
     {
-        await CiCdsService.CreateAsync(CiCd);
+        await CiCdService.CreateAsync(CiCd);
     }
 }

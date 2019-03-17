@@ -1,6 +1,7 @@
 ﻿namespace Vision.Tests
 {
     using Microsoft.Extensions.Logging;
+    using NSubstitute;
     using System;
     using System.Linq;
     using System.Xml.Linq;
@@ -13,7 +14,7 @@
 
         public NuGetAssetExtractorTests()
         {
-            this.sut = new NuGetAssetExtractor(new LoggerFactory().CreateLogger<NuGetAssetExtractor>());
+            this.sut = new NuGetAssetExtractor(Substitute.For<ILogger<NuGetAssetExtractor>>());
         }
 
         [Fact]

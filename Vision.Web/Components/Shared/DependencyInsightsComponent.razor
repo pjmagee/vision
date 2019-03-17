@@ -31,7 +31,7 @@ else
 {
     [Parameter] DependencyKind DependencyKind { get; set; }
 
-    [Inject] MetricItemsService InsightsService { get; set; }
+    [Inject] IMetricService InsightsService { get; set; }
 
     IEnumerable<MetricItems<DependencyDto>> Items { get; set; }
 

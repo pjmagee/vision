@@ -10,7 +10,7 @@
 
     [Parameter] TaskScopeKind Target { get; set; }
 
-    [Inject] SystemTaskService SystemTaskService { get; set; }
+    [Inject] ISystemTaskService SystemTaskService { get; set; }
 
     private async Task RefreshAsync()
     {

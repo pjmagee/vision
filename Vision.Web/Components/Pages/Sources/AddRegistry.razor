@@ -50,12 +50,12 @@
 
 @functions
 {
-    RegistryDto Registry { get; set; } = new RegistryDto();
+    [Inject] IRegistryService RegistryService { get; set; }
 
-    [Inject] RegistriesService RegistriesService { get; set; }
+    RegistryDto Registry { get; set; } = new RegistryDto();    
 
     protected async Task Submit()
     {
-       await RegistriesService.CreateAsync(Registry);
+       await RegistryService.CreateAsync(Registry);
     }
 }

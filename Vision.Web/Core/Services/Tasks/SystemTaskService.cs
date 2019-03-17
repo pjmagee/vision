@@ -6,7 +6,7 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    public class SystemTaskService
+    public class SystemTaskService : ISystemTaskService
     {
         private readonly VisionDbContext context;
 

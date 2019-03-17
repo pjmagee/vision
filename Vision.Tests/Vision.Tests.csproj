@@ -13,6 +13,8 @@
     <PackageReference Include="Docker.DotNet" Version="3.125.2" />
     <PackageReference Include="FluentAssertions" Version="5.6.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.4.10" />
+    <PackageReference Include="NSubstitute" Version="4.0.0" />
+    <PackageReference Include="NSubstitute.Analyzers.CSharp" Version="1.0.7" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
       <PrivateAssets>all</PrivateAssets>
@@ -26,6 +28,7 @@
 
   <ItemGroup>
     <Folder Include="Integration\" />
+    <Folder Include="Unit\Providers\VersionControls\" />
   </ItemGroup>
 
 </Project>

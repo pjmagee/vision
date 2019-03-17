@@ -41,9 +41,9 @@
 
     [Parameter] bool Dependents { get; set; }
 
-    [Inject] AssetsService Service { get; set; }
+    [Inject] IAssetService Service { get; set; }
 
-    PaginatedList<AssetDto> Items { get; set; }
+    IPaginatedList<AssetDto> Items { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {

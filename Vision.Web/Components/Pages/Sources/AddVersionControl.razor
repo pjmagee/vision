@@ -32,12 +32,12 @@
 
 @functions 
 {
-    VersionControlDto VersionControl { get; set; } = new VersionControlDto();
+    [Inject] IVersionControlService VersionControlService { get; set; }
 
-    [Inject] VersionControlsService VersionControlsService { get; set; }
+    VersionControlDto VersionControl { get; set; } = new VersionControlDto();    
 
     protected async Task Submit()
     {
-        await VersionControlsService.CreateVersionControl(VersionControl);
+        await VersionControlService.CreateVersionControl(VersionControl);
     }
 }

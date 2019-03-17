@@ -42,9 +42,9 @@
     [Parameter] Guid? VersionControlId { get; set; }
     [Parameter] bool ShowIgnored { get; set; }
 
-    [Inject] RepositoriesService Service { get; set; }
+    [Inject] IRepositoryService Service { get; set; }
 
-    PaginatedList<RepositoryDto> Items { get; set; }
+    IPaginatedList<RepositoryDto> Items { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -56,7 +56,6 @@
         await Service.ToggleIgnoreAsync(dto.RepositoryId);
         await PageAsync(Items.PageIndex);
         StateHasChanged();
-        Refresh?.Invoke();
     }
 
     async Task PageAsync(int page = 1)

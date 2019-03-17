@@ -61,8 +61,7 @@
 {
     [Parameter] Guid RegistryId { get; set; }
 
-    [Inject] RegistriesService RegistriesService { get; set; }
-
+    [Inject] IRegistryService RegistryService { get; set; }
     [Inject] IUriHelper UriHelper { get; set; }
 
     RegistryDto Registry { get; set; }
@@ -72,14 +71,14 @@
     {
         if (context.Validate())
         {
-            await RegistriesService.UpdateAsync(Registry);
+            await RegistryService.UpdateAsync(Registry);
             UriHelper.NavigateTo("/data/registries");
         }
     }
 
     protected override async Task OnParametersSetAsync()
     {
-        Registry = await RegistriesService.GetByIdAsync(RegistryId);
+        Registry = await RegistryService.GetByIdAsync(RegistryId);
         context = new EditContext(Registry);
         context.AddDataAnnotationsValidation();
     }

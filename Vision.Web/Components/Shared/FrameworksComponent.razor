@@ -30,11 +30,10 @@
     [Parameter] Guid? RepositoryId { get; set; }
     [Parameter] Guid? AssetId { get; set; }
 
-    [Inject] FrameworksService FrameworksService { get; set; }
+    [Inject] IFrameworkService FrameworksService { get; set; }
     [Inject] SvgService SvgService { get; set; }
-    [Inject] FrameworksService Service { get; set; }
 
-    PaginatedList<FrameworkDto> Items { get; set; }
+    IPaginatedList<FrameworkDto> Items { get; set; }
     
     protected override async Task OnParametersSetAsync()
     {
@@ -45,15 +44,15 @@
     {
         if(RepositoryId.HasValue)
         {
-            Items = await Service.GetByRepositoryIdAsync(RepositoryId.Value, page);
+            Items = await FrameworksService.GetByRepositoryIdAsync(RepositoryId.Value, page);
         }
         else if(AssetId.HasValue)
         {
-            Items = await Service.GetByAssetIdAsync(AssetId.Value, page);
+            Items = await FrameworksService.GetByAssetIdAsync(AssetId.Value, page);
         }       
         else
         {
-            Items = await Service.GetAsync(page);
+            Items = await FrameworksService.GetAsync(page);
         }
 
         StateHasChanged();

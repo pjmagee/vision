@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using NSubstitute;
 using System.Collections.Generic;
 using System.Linq;
 using Vision.Web.Core;
@@ -12,7 +13,7 @@ namespace Vision.Tests
 
         public NpmExtractorTests()
         {
-            sut = new NpmAssetExtractor(new LoggerFactory().CreateLogger<NpmAssetExtractor>());
+            sut = new NpmAssetExtractor(Substitute.For<ILogger<NpmAssetExtractor>>());
         }
 
         [Fact]

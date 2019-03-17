@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,7 +7,14 @@ namespace Vision.Web.Core
 {
     public class DockerAssetExtractor : IAssetExtractor
     {
+        private readonly ILogger<DockerAssetExtractor> logger;
+
         public bool Supports(DependencyKind kind) => kind == DependencyKind.Docker;
+
+        public DockerAssetExtractor(ILogger<DockerAssetExtractor> logger)
+        {
+            this.logger = logger;
+        }
 
         public IEnumerable<Extract> ExtractDependencies(Asset asset)
         {

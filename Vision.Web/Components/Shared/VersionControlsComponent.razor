@@ -35,10 +35,10 @@
 
 @functions
 {
-    [Inject] VersionControlsService Service { get; set; }
+    [Inject] IVersionControlService  Service { get; set; }
     [Inject] SvgService SvgService { get; set; }
 
-    PaginatedList<VersionControlDto> Items { get; set; }
+    IPaginatedList<VersionControlDto> Items { get; set; }
 
     protected override async Task OnInitAsync()
     {

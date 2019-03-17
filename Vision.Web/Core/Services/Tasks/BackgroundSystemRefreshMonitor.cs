@@ -38,7 +38,7 @@
 
                 using (IServiceScope scope = services.CreateScope())
                 {
-                    ISystemRefreshService taskService = scope.ServiceProvider.GetRequiredService<ISystemRefreshService>();
+                    IRefreshService taskService = scope.ServiceProvider.GetRequiredService<IRefreshService>();
                     VisionDbContext context = scope.ServiceProvider.GetRequiredService<VisionDbContext>();
 
                     IEnumerable<SystemTask> tasks = await context.Tasks.OrderByDescending(t => t.Created).Where(t => t.Completed == null).ToListAsync();

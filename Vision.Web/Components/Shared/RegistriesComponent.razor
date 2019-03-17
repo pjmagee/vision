@@ -44,11 +44,11 @@
 <PagerComponent Pager="Items" Page="@(async(p) => await PageAsync(p))"></PagerComponent>
 
 @functions
-{
-    PaginatedList<RegistryDto> Items { get; set; }
-
-    [Inject] RegistriesService Service { get; set; }
+{   
+    [Inject] IRegistryService Service { get; set; }
     [Inject] SvgService SvgService { get; set; }
+
+    IPaginatedList<RegistryDto> Items { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {

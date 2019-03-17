@@ -37,9 +37,9 @@
 
 @functions
 {
-    PaginatedList<CiCdDto> Items { get; set; }
+    IPaginatedList<CiCdDto> Items { get; set; }
 
-    [Inject] CiCdsService Service { get; set; }
+    [Inject] ICiCdService Service { get; set; }
     [Inject] SvgService SvgService { get; set; }
 
     protected override async Task OnParametersSetAsync()
