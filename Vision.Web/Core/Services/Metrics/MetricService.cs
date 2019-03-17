@@ -9,9 +9,9 @@
     public class MetricService : IMetricService
     {
         private readonly VisionDbContext context;
-        private readonly AssetService assetService;
+        private readonly IAssetService assetService;
 
-        public MetricService(VisionDbContext context, AssetService assetService)
+        public MetricService(VisionDbContext context, IAssetService assetService)
         {
             this.context = context;
             this.assetService = assetService;

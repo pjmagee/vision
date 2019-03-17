@@ -11,8 +11,9 @@
     public class RefreshService : IRefreshService
     {
         private readonly VisionDbContext context;
-        private readonly IVersionControlProvider versionControlService;
-        private readonly IVersionProvider versionService;
+
+        private readonly IVersionControlProvider versionControlProvider;
+        private readonly IVersionProvider versionProvider;
         private readonly IAssetExtractor assetExtractor;        
         private readonly ILogger<RefreshService> logger;
 
@@ -23,9 +24,9 @@
             IVersionProvider versionService,
             ILogger<RefreshService> logger)
         {
-            this.versionControlService = versionControlService;
+            this.versionControlProvider = versionControlService;
             this.assetExtractor = assetExtractor;
-            this.versionService = versionService;
+            this.versionProvider = versionService;
             this.logger = logger;
             this.context = context;
         }        
@@ -52,7 +53,7 @@
             context.Assets.RemoveRange(repository.Assets);
             await context.SaveChangesAsync();
 
-            IEnumerable<Asset> items = await versionControlService.GetAssetsAsync(repository);
+            IEnumerable<Asset> items = await versionControlProvider.GetAssetsAsync(repository);
 
             foreach(Asset asset in items)
             {                
@@ -98,10 +99,9 @@
             
             IEnumerable<Extract> items = assetExtractor.ExtractFrameworks(asset);
 
-            foreach(Extract extract in items)
-            {
-                await AssignAssetFrameworksAsync(extract, asset);
-            }
+            var tasks = items.Select(extract => AssignAssetFrameworksAsync(extract, asset)).ToArray();
+
+            await Task.WhenAll(tasks);
         }
 
         public async Task RefreshVersionControlByIdAsync(Guid versionControlId)
@@ -112,7 +112,7 @@
             context.Repositories.RemoveRange(versionControl.Repositories);
             await context.SaveChangesAsync();
 
-            IEnumerable<Repository> items = await versionControlService.GetRepositoriesAsync(versionControl);
+            IEnumerable<Repository> items = await versionControlProvider.GetRepositoriesAsync(versionControl);
 
             foreach(Repository repository in items)
             {
@@ -159,7 +159,7 @@
                 await context.SaveChangesAsync();
             }
 
-            DependencyVersion latest = await versionService.GetLatestMetaDataAsync(dependency);
+            DependencyVersion latest = await versionProvider.GetLatestMetaDataAsync(dependency);
 
             if (await context.DependencyVersions.AllAsync(dv => dv.Version != latest.Version))
             {
@@ -209,8 +209,14 @@
         public async Task RefreshDependencyByIdAsync(Guid dependencyId)
         {
             Dependency dependency = await context.Dependencies.FindAsync(dependencyId);
-            DependencyVersion latestVersion = await versionService.GetLatestMetaDataAsync(dependency);
-            List<DependencyVersion> currentVersions = await context.DependencyVersions.Where(x => x.DependencyId == dependencyId).ToListAsync();
+
+            Task<DependencyVersion> versionTask = versionProvider.GetLatestMetaDataAsync(dependency);
+            Task<List<DependencyVersion>> currentVersionsTask = context.DependencyVersions.Where(x => x.DependencyId == dependencyId).ToListAsync();
+
+            await Task.WhenAll(versionTask, currentVersionsTask);
+
+            DependencyVersion latestVersion = versionTask.Result;
+            List<DependencyVersion> currentVersions = currentVersionsTask.Result;
 
             if (currentVersions.All(current => current.Version != latestVersion.Version))
             {

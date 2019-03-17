@@ -21,10 +21,23 @@
                     </td>
                 </tr>
             }
+
+            @if (!Items.Any())
+            {
+                <tr>
+                    <td colspan="3">
+                        No CI/CD builds found.
+                    </td>
+                </tr>
+            }
         }
         else
         {
-            <LoaderComponent></LoaderComponent>
+            <tr>
+                <td colspan="3">
+                    <LoaderComponent></LoaderComponent>
+                </td>
+            </tr>
         }
     </tbody>
 </BlazorTable>

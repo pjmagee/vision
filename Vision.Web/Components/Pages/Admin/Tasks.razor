@@ -1,11 +1,9 @@
 ﻿@page "/admin/tasks"
 
 <BreadcrumbsComponent>
-    <li class="breadcrumb-item">Admin</li>
-    <li class="breadcrumb-item active"><a href="/data/tasks">Tasks</a></li>
+    <BreadcrumbItem>Data</BreadcrumbItem>
+    <BreadcrumbItem IsActive="true"><a href="/data/tasks">Tasks</a></BreadcrumbItem>
 </BreadcrumbsComponent>
-
-<HeadingComponent Title="Refresh Tasks"></HeadingComponent>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
@@ -51,16 +49,11 @@
 {
     IEnumerable<SystemTask> SystemTasks { get; set; }
 
-    [Inject] SystemTaskService SystemTaskService { get; set; }
+    [Inject] ISystemTaskService SystemTaskService { get; set; }
     [Inject] IJSRuntime Runtime { get; set; }
 
     protected override async Task OnInitAsync()
     {
         SystemTasks = await SystemTaskService.GetAllAsync();
-    }
-
-    protected override async Task OnAfterRenderAsync()
-    {
-        await Runtime.InvokeAsync<object>("dataTable");
     }
 }

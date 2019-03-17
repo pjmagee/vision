@@ -23,10 +23,23 @@
                     </td>
                 </tr>
             }
+
+            @if (Items.Count == 0)
+            {
+                <tr>
+                    <td colspan="3">
+                        No version control systems found.
+                    </td>
+                </tr>
+            }
         }
         else
         {
-            <LoaderComponent></LoaderComponent>
+            <tr>
+                <td colspan="5">
+                    <LoaderComponent></LoaderComponent>
+                </td>
+            </tr>
         }
     </tbody>
 </BlazorTable>

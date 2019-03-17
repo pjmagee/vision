@@ -277,7 +277,9 @@
         {
             return Builder<CiCd>.CreateNew()
                 .With(x => x.Id = Guid.NewGuid())
-                .With(x => x.ApiKey = Guid.NewGuid().ToString());
+                .With(x => x.ApiKey = protector.Protect(Guid.NewGuid().ToString()))
+                .With(x => x.Username = protector.Protect("Username"))
+                .With(x => x.Password = protector.Protect("Password"));
         }
 
         private ISingleObjectBuilder<Registry> CreateNewRegistry()
@@ -371,12 +373,14 @@
                 case DependencyKind.PyPi:
                 case DependencyKind.RubyGem: return GetRandom.Int(50, 300);
             }
+
             throw new Exception("Cannot pick random item picker for dependency sources for chosen dependency kind");
         }
 
         private static string GetPathForAsset(string fileOrFolderName, int fileIndex, DependencyKind kind)
         {
             string ext = kind.GetFileExtension();
+
             bool isFirstFile = fileIndex == 0;
 
             switch (kind)

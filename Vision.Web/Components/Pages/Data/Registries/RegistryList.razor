@@ -1,13 +1,13 @@
 ﻿@page "/data/registries"
 
 <BreadcrumbsComponent>
-    <li class="breadcrumb-item">Data</li>
-    <li class="breadcrumb-item active">Dependency registries</li>
+    <BreadcrumbItem>Data</BreadcrumbItem>
+    <BreadcrumbItem IsActive="true">Registries</BreadcrumbItem>
 </BreadcrumbsComponent>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Dependency registry sources</h6>
+        <h6 class="m-0 font-weight-bold text-primary">Registry sources</h6>
     </div>
     <div class="card-body">
         <RegistriesComponent></RegistriesComponent>

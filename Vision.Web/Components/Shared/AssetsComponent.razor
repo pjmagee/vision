@@ -21,10 +21,23 @@
                     <td>@item.Dependencies</td>
                 </tr>
             }
+
+            @if(Items.Count == 0)
+            {
+                <tr>
+                    <td colspan="3">
+                        No assets found.
+                    </td>
+                </tr>
+            }
         }
         else
         {
-            <LoaderComponent></LoaderComponent>
+            <tr>
+                <td colspan="3">
+                    <LoaderComponent></LoaderComponent>
+                </td>
+            </tr>
         }
     </tbody>
 </BlazorTable>
@@ -38,10 +51,9 @@
     [Parameter] Guid? DependencyId { get; set; }
     [Parameter] Guid? VersionId { get; set; }
     [Parameter] Guid? FrameworkId { get; set; }
-
     [Parameter] bool Dependents { get; set; }
 
-    [Inject] IAssetService Service { get; set; }
+    [Inject] IAssetService AssetService { get; set; }
 
     IPaginatedList<AssetDto> Items { get; set; }
 
@@ -54,31 +66,31 @@
     {
         if (Dependents && RepositoryId.HasValue)
         {
-            Items = await Service.GetDependentsByRepositoryId(RepositoryId.Value, page);
+            Items = await AssetService.GetDependentsByRepositoryId(RepositoryId.Value, page);
         }
         else if (RepositoryId.HasValue)
         {
-            Items = await Service.GetByRepositoryIdAsync(RepositoryId.Value, page);
+            Items = await AssetService.GetByRepositoryIdAsync(RepositoryId.Value, page);
         }
         else if (VersionControlId.HasValue)
         {
-            Items = await Service.GetByVersionControlIdAsync(VersionControlId.Value, page);
+            Items = await AssetService.GetByVersionControlIdAsync(VersionControlId.Value, page);
         }
         else if (DependencyId.HasValue)
         {
-            Items = await Service.GetByDependencyIdAsync(DependencyId.Value, page);
+            Items = await AssetService.GetByDependencyIdAsync(DependencyId.Value, page);
         }
         else if(VersionId.HasValue)
         {
-            Items = await Service.GetByVersionIdAsync(VersionId.Value);
+            Items = await AssetService.GetByVersionIdAsync(VersionId.Value, page);
         }
         else if (FrameworkId.HasValue)
         {
-            Items = await Service.GetByFrameworkIdAsync(FrameworkId.Value, page);
+            Items = await AssetService.GetByFrameworkIdAsync(FrameworkId.Value, page);
         }
         else
         {
-            Items = await Service.GetAsync(page);
+            Items = await AssetService.GetAsync(page);
         }
 
         StateHasChanged();

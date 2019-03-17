@@ -97,6 +97,7 @@
     [Inject] IAssetService AssetService { get; set; }
     [Inject] IRegistryService RegistryService { get; set; }
     [Inject] IDependencyService DependencyService { get; set; }
+    [Inject] IDependencyVersionService VersionService { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -128,6 +129,11 @@
         if (DependencyId.HasValue)
         {
             Dependency = await DependencyService.GetByIdAsync(DependencyId.Value);
+        }
+
+        if(VersionId.HasValue)
+        {
+            Version = await VersionService.GetByIdAsync(VersionId.Value);
         }
 
         StateHasChanged();

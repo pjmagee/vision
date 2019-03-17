@@ -12,11 +12,11 @@ namespace Vision.Web.Core
         private readonly ILogger<AggregateCICDProvider> logger;
         private readonly IEnumerable<ICICDProvider> providers;
 
-        public AggregateCICDProvider(VisionDbContext context, IEnumerable<ICICDProvider> providers, ILogger<AggregateCICDProvider> logger)
+        public AggregateCICDProvider(VisionDbContext context, TeamCityProvider teamCityProvider, JenkinsProvider jenkinsProvider, ILogger<AggregateCICDProvider> logger)
         {
             this.context = context;
             this.logger = logger;
-            this.providers = providers;
+            this.providers = new ICICDProvider[] { teamCityProvider, jenkinsProvider };
         }
 
         public async Task<List<CiCdBuildDto>> GetBuildsByRepositoryIdAsync(Guid repositoryId)

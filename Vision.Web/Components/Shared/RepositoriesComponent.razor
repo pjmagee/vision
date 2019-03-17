@@ -26,10 +26,23 @@
                     </td>
                 </tr>
             }
+
+            @if (Items.Count == 0)
+            {
+                <tr>
+                    <td colspan="3">
+                        No repositories found.
+                    </td>
+                </tr>
+            }
         }
         else
         {
-            <LoaderComponent></LoaderComponent>
+            <tr>
+                <td colspan="3">
+                    <LoaderComponent></LoaderComponent>
+                </td>
+            </tr>
         }
     </tbody>
 </BlazorTable>

@@ -44,7 +44,7 @@ namespace Vision.Web
             services.AddScoped<FakeDataGenerator>();
             services.AddScoped<IMetricService, MetricService>();
 
-            RegisterSystemRefreshServices(services);
+            RegisterRefreshServices(services);
 
             services.AddCors(options => options.AddPolicy("CorsPolicy", builder => builder.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin()));
 
@@ -71,11 +71,11 @@ namespace Vision.Web
             });
         }
 
-        private static void RegisterSystemRefreshServices(IServiceCollection services)
+        private static void RegisterRefreshServices(IServiceCollection services)
         {
-            services.AddScoped<SystemTaskService>();
-            services.AddHostedService<BackgroundSystemRefreshMonitor>();
+            services.AddScoped<ISystemTaskService, SystemTaskService>();            
             services.AddScoped<IRefreshService, RefreshService>();
+            services.AddHostedService<BackgroundSystemRefreshMonitor>();
         }
 
         private static void RegisterRazorComponentServices(IServiceCollection services)
@@ -87,7 +87,6 @@ namespace Vision.Web
         private static void RegisterCiCdServices(IServiceCollection services)
         {
             services.AddScoped<ICiCdService, CiCdService>();
-
             services.AddScoped<TeamCityProvider>();
             services.AddScoped<JenkinsProvider>();
             services.AddScoped<ICICDProvider, AggregateCICDProvider>();
@@ -113,7 +112,7 @@ namespace Vision.Web
 
             services.AddScoped<NpmAssetExtractor>();
             services.AddScoped<NuGetAssetExtractor>();
-            services.AddScoped<DockerAssetExtractor>();
+            services.AddScoped<DockerAssetExtractor>();            
             services.AddScoped<IAssetExtractor, AggregateAssetExtractor>();
         }
 

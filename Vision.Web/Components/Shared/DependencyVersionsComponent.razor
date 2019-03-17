@@ -17,6 +17,15 @@
                     <td>@item.Assets</td>
                 </tr>
             }
+
+            @if (Items.Count == 0)
+            {
+                <tr>
+                    <td colspan="3">
+                        No dependency versions found.
+                    </td>
+                </tr>
+            }
         }
         else
         {
@@ -30,7 +39,7 @@
 @functions
 {   
     [Parameter] Guid? DependencyId { get; set; }
-    [Inject] IDependencyVersionService Service { get; set; }
+    [Inject] IDependencyVersionService VersionService { get; set; }
 
     IPaginatedList<DependencyVersionDto> Items { get; set; }
 
@@ -43,7 +52,7 @@
     {
         if(DependencyId.HasValue)
         {
-            Items = await Service.GetByDependencyIdAsync(DependencyId.Value, page);
+            Items = await VersionService.GetByDependencyIdAsync(DependencyId.Value, page);
         }
 
         StateHasChanged();

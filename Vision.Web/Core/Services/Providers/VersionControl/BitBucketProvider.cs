@@ -20,8 +20,7 @@
             this.matcher = matcher;
             this.logger = logger;
         }
-
-
+        
         public async Task<IEnumerable<Asset>> GetAssetsAsync(Repository repository)
         {
             if (repository.VersionControl.Kind != VersionControlKind.Bitbucket) return Enumerable.Empty<Asset>();
@@ -46,8 +45,7 @@
                         foreach(string path in filePaths.Values ?? Enumerable.Empty<string>())
                         {
                             if (path.IsSupported())
-                            {                                
-
+                            {
                                 Atlassian.Stash.Entities.File file  = await client.Repositories.GetFileContents(project.Key, bitBucketRepository.Slug, path, new FileContentsOptions { Content = true, Limit = 10000 });
 
                                 logger.LogInformation($"Adding '{path}' for repository {repository.Id}");

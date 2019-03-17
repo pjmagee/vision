@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Vision.Web.Core
@@ -12,7 +11,7 @@ namespace Vision.Web.Core
 
         public AggregateVersionControlProvider(BitBucketProvider bitBucketService, GitlabProvider gitlabService, ILogger<AggregateVersionControlProvider> logger)
         {
-            providers = new IVersionControlProvider[] { bitBucketService, gitlabService };
+            this.providers = new IVersionControlProvider[] { bitBucketService, gitlabService };
             this.logger = logger;
         }
 

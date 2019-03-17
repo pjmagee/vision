@@ -17,6 +17,15 @@
                     <td>@item.IsLatest</td>
                 </tr>
             }
+
+            @if (Items.Count == 0)
+            {
+                <tr>
+                    <td colspan="3">
+                        No dependency assets found.
+                    </td>
+                </tr>
+            }
         }
         else
         {

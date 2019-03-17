@@ -19,10 +19,23 @@
                     <td>@item.Versions</td>
                 </tr>
             }
+
+            @if (Items.Count == 0)
+            {
+                <tr>
+                    <td colspan="3">
+                        No dependencies found.
+                    </td>
+                </tr>
+            }
         }
         else
         {
-            <LoaderComponent></LoaderComponent>
+            <tr>
+                <td colspan="4">
+                    <LoaderComponent></LoaderComponent>
+                </td>
+            </tr>
         }
     </tbody>
 </BlazorTable>

@@ -1,7 +1,6 @@
 ﻿namespace Vision.Web.Core
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
@@ -9,12 +8,10 @@
     public class RepositoryService : IRepositoryService
     {
         private readonly VisionDbContext context;
-        private readonly ICICDProvider buildsService;
 
-        public RepositoryService(VisionDbContext context, ICICDProvider buildsService)
+        public RepositoryService(VisionDbContext context)
         {
             this.context = context;
-            this.buildsService = buildsService;
         }
 
         public async Task<RepositoryDto> ToggleIgnoreAsync(Guid repositoryId)
@@ -105,11 +102,6 @@
                 .OrderByDescending(r => r.Assets);
 
             return await PaginatedList<RepositoryDto>.CreateAsync(query, pageIndex, pageSize);
-        }
-
-        public async Task<IEnumerable<CiCdBuildDto>> GetCiCdsByRepositoryId(Guid repositoryId)
-        {
-            return await buildsService.GetBuildsByRepositoryIdAsync(repositoryId);
         }
     }
 }

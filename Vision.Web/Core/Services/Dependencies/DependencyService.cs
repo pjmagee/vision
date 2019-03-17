@@ -27,7 +27,9 @@
                 Versions = context.DependencyVersions.Count(dv => dv.DependencyId == dependency.Id),
                 Assets = context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id),
                 RepositoryUrl = dependency.RepositoryUrl
-            });
+            })
+            .OrderByDescending(d => d.Assets)
+            .ThenByDescending(d => d.Versions);
 
             return await PaginatedList<DependencyDto>.CreateAsync(query, pageIndex, pageSize);
         }
@@ -40,17 +42,19 @@
             Repository repository = await context.Repositories.FindAsync(repositoryId);
             List<string> assetNames = await assetService.GetPublishedNamesByRepositoryIdAsync(repositoryId);
 
-            IQueryable<DependencyDto> query = context.Dependencies.Where(dependency => assetNames.Contains(dependency.Name) || string.Equals(dependency.RepositoryUrl, repository.Url) || string.Equals(dependency.RepositoryUrl, repository.WebUrl)).Select(dependency => new DependencyDto
-            {
-                Assets = context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id),
-                DependencyId = dependency.Id,
-                Kind = dependency.Kind,
-                Name = dependency.Name,
-                RepositoryUrl = dependency.RepositoryUrl,
-                Versions = context.DependencyVersions.Count(dv => dv.DependencyId == dependency.Id)
-            })
-            .OrderByDescending(d => d.Versions)
-            .ThenByDescending(d => d.Assets);
+            var query = context.Dependencies
+                .Where(dependency => assetNames.Contains(dependency.Name) || string.Equals(dependency.RepositoryUrl, repository.Url) || string.Equals(dependency.RepositoryUrl, repository.WebUrl))
+                .Select(dependency => new DependencyDto
+                {
+                    Assets = context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id),
+                    DependencyId = dependency.Id,
+                    Kind = dependency.Kind,
+                    Name = dependency.Name,
+                    RepositoryUrl = dependency.RepositoryUrl,
+                    Versions = context.DependencyVersions.Count(dv => dv.DependencyId == dependency.Id)
+                })
+                .OrderByDescending(d => d.Assets)
+                .ThenByDescending(d => d.Versions);
 
             return await PaginatedList<DependencyDto>.CreateAsync(query, pageIndex, pageSize);
         }
@@ -68,8 +72,8 @@
                      DependencyId = entity.Id,
                      Kind = entity.Kind
                  })
-                 .OrderByDescending(d => d.Versions)
-                 .ThenByDescending(d => d.Assets);
+                 .OrderByDescending(d => d.Assets)
+                 .ThenByDescending(d => d.Versions);
 
             return await PaginatedList<DependencyDto>.CreateAsync(query, pageIndex, pageSize);
         }
@@ -85,8 +89,8 @@
                 Assets = context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id),
                 RepositoryUrl = dependency.RepositoryUrl
             })
-            .OrderByDescending(a => a.Versions)
-            .ThenByDescending(d => d.Assets);
+            .OrderByDescending(d => d.Assets)
+            .ThenByDescending(d => d.Versions);
 
             return await PaginatedList<DependencyDto>.CreateAsync(query, pageIndex, pageSize);
         }

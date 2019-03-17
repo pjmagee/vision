@@ -9,10 +9,10 @@
     public class CiCdService : ICiCdService
     {
         private readonly VisionDbContext context;
-        private readonly AggregateCICDProvider cicdProvider;
+        private readonly ICICDProvider cicdProvider;
         private readonly IDataProtector protector;
 
-        public CiCdService(VisionDbContext context, IDataProtectionProvider provider, AggregateCICDProvider cicdProvider)
+        public CiCdService(VisionDbContext context, IDataProtectionProvider provider, ICICDProvider cicdProvider)
         {
             this.context = context;
             this.cicdProvider = cicdProvider;
