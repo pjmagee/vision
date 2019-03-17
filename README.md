@@ -43,5 +43,6 @@ https://github.com/aspnet/AspNetCore/issues/5562
 
 * reintroduce API controllers for most of the sources
 
+* Integration with SonarQube API?
 * Integration tests should use Docker for API integration with: TeamCity, Jenkins & Bitbucket
 * Rename CICD's to Pipelines (Teamcity pipelines, Azure Pipelines, Jenkins Pipelines, etc etc)

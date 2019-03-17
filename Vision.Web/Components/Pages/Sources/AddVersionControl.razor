@@ -1,8 +1,8 @@
 ﻿@page "/sources/vcs"
 
 <BreadcrumbsComponent>
-    <li class="breadcrumb-item">Sources</li>
-    <li class="breadcrumb-item active" aria-current="page">Version control system</li>
+    <BreadcrumbItem>Sources</BreadcrumbItem>
+    <BreadcrumbItem>Version Control Systems</BreadcrumbItem>
 </BreadcrumbsComponent>
 
 <div class="card shadow mb-4">
@@ -19,10 +19,10 @@
             </div>
             <div class="form-group">
                 <select type="text" class="form-control" bind="VersionControl.Kind" placeholder="Type">
-                   @foreach (VersionControlKind kind in Enum.GetValues(typeof(VersionControlKind)).Cast<VersionControlKind>())
-                   {
-                     <option value="@kind">@kind.ToString()</option>
-                   }
+                    @foreach (VersionControlKind kind in Enum.GetValues(typeof(VersionControlKind)).Cast<VersionControlKind>())
+                    {
+                        <option value="@kind">@kind.ToString()</option>
+                    }
                 </select>
             </div>
             <button onclick="@Submit" type="button" class="btn btn-primary">Save</button>
@@ -30,11 +30,11 @@
     </div>
 </div>
 
-@functions 
+@functions
 {
     [Inject] IVersionControlService VersionControlService { get; set; }
 
-    VersionControlDto VersionControl { get; set; } = new VersionControlDto();    
+    VersionControlDto VersionControl { get; set; } = new VersionControlDto();
 
     protected async Task Submit()
     {
