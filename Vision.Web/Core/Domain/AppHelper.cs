@@ -6,7 +6,11 @@
 
     public static class AppHelper
     {
-        public static IEnumerable<DependencyKind> DependencyKinds { get; } = Enum.GetValues(typeof(DependencyKind)).Cast<DependencyKind>();
+        public static IEnumerable<CiCdKind> CiCdKinds { get; } = Enum.GetValues(typeof(CiCdKind)).Cast<CiCdKind>();
+
+        public static IEnumerable<DependencyKind> DependencyKinds = Enum.GetValues(typeof(DependencyKind)).Cast<DependencyKind>();
+        public static IEnumerable<VersionControlKind> VersionControlKinds { get; } = Enum.GetValues(typeof(VersionControlKind)).Cast<VersionControlKind>();
+        public static string GetName(this Enum kind) => Enum.GetName(kind.GetType(), kind);
 
         public const string NuGetFile = ".csproj";
         public const string RequirementsFile = "requirements.txt";

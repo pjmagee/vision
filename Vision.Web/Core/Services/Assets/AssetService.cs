@@ -109,22 +109,28 @@
             return await PaginatedList<AssetDto>.CreateAsync(query, pageIndex, pageSize);
         }
 
-        public async Task<IPaginatedList<AssetDto>> GetAsync(int pageIndex = 1, int pageSize = 10)
+        public async Task<IPaginatedList<AssetDto>> GetAsync(int pageIndex = 1, int pageSize = 10, DependencyKind? kind = null)
         {
-            var query = context.Assets
-                .Select(asset => new AssetDto
-                {
-                    AssetId = asset.Id,
-                    Asset = asset.Path,
-                    Kind = asset.Kind,
-                    Dependencies = context.AssetDependencies.Count(assetDependency => assetDependency.AssetId == asset.Id),
-                    Repository = asset.Repository.WebUrl,
-                    RepositoryId = asset.RepositoryId,
-                    VersionControlId = asset.Repository.VersionControlId
-                })
-                .OrderByDescending(asset => asset.Dependencies);
+            var query = context.Assets.AsQueryable();
 
-            return await PaginatedList<AssetDto>.CreateAsync(query, pageIndex, pageSize);
+            if(kind.HasValue)
+            {
+                query = query.Where(a => a.Kind == kind);
+            }
+
+            var paging = query.Select(asset => new AssetDto
+            {
+                AssetId = asset.Id,
+                Asset = asset.Path,
+                Kind = asset.Kind,
+                Dependencies = context.AssetDependencies.Count(assetDependency => assetDependency.AssetId == asset.Id),
+                Repository = asset.Repository.WebUrl,
+                RepositoryId = asset.RepositoryId,
+                VersionControlId = asset.Repository.VersionControlId
+            })
+            .OrderByDescending(asset => asset.Dependencies);
+
+            return await PaginatedList<AssetDto>.CreateAsync(paging, pageIndex, pageSize);
         }
 
         public async Task<IPaginatedList<AssetDto>> GetByFrameworkIdAsync(Guid frameworkId, int pageIndex = 1, int pageSize = 10)
