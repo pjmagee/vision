@@ -10,25 +10,6 @@
         <h6 class="m-0 font-weight-bold text-primary">Dependencies</h6>
     </div>
     <div class="card-body">
-        @if (Items != null)
-        {
-            <DependenciesComponent Items="Items"></DependenciesComponent>
-        }
-        else
-        {
-            <LoaderComponent></LoaderComponent>
-        }
+        <DependenciesComponent></DependenciesComponent>
     </div>
 </div>
-
-@functions
-{
-    [Inject] DependenciesService DependenciesService { get; set; }
-
-    IEnumerable<DependencyDto> Items { get; set; }
-
-    protected override async Task OnInitAsync()
-    {
-        Items = await DependenciesService.GetAllAsync();
-    }
-}

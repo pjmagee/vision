@@ -13,7 +13,7 @@
                                 <h6 class="m-0 font-weight-bold text-primary">@item.Title</h6>
                             </div>
                             <div class="card-body">
-                                <DependenciesComponent Items="item.Items"></DependenciesComponent>
+                                <DependenciesComponent Items="@(new PaginatedList<DependencyDto>(item.Items.ToList(), item.Items.Count(), 1, 1000))"></DependenciesComponent>
                             </div>
                         </div>
                     }
@@ -31,7 +31,7 @@ else
 {
     [Parameter] DependencyKind DependencyKind { get; set; }
 
-    [Inject] InsightsService InsightsService { get; set; }
+    [Inject] MetricItemsService InsightsService { get; set; }
 
     IEnumerable<MetricItems<DependencyDto>> Items { get; set; }
 

@@ -333,12 +333,13 @@
 
         private IEnumerable<Repository> GetRepositories(VersionControl source)
         {
-            var repoNames = Enumerable.Range(0, GetRandom.Int(30, 100)).Select(x => GetGeneratedNameByKind(DependencyKind.Npm).Trim('@')).Distinct().ToList();
+            var repoNames = Enumerable.Range(0, GetRandom.Int(30, 800)).Select(x => GetGeneratedNameByKind(DependencyKind.Npm).Trim('@')).Distinct().ToList();
             var repoPicker = new RandomItemPicker<string>(repoNames, new UniqueRandomGenerator());
 
             return Builder<Repository>.CreateListOfSize(GetRandom.Int(1, repoNames.Count))
                 .All()
                 .With(r => r.Id = Guid.NewGuid())
+                .With(r => r.IsIgnored = false)
                 .With((r, idx) =>
                 {
                     var uri = new Uri(source.Endpoint);

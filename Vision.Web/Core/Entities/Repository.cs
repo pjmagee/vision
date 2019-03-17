@@ -10,6 +10,6 @@ namespace Vision.Web.Core
         public Guid VersionControlId { get; set; }
         public virtual VersionControl VersionControl { get; set; }        
         public virtual ICollection<Asset> Assets { get; set; }
-        public bool IsIgnored { get; set; }
+        public bool IsIgnored { get; set; } = false;
     }   
 }

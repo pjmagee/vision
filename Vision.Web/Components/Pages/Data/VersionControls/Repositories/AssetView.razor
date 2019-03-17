@@ -1,12 +1,6 @@
 ﻿@page "/data/vcs/{VersionControlId:guid}/repositories/{RepositoryId:guid}/assets/{AssetId:guid}/"
 
-<BreadcrumbsComponent>
-    <li class="breadcrumb-item">Data</li>
-    <li class="breadcrumb-item">Version control systems</li>
-    <li class="breadcrumb-item"><a href="@($"/data/vcs/{VersionControlId}")">Repositories</a></li>
-    <li class="breadcrumb-item"><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}")">@Repository?.WebUrl</a></li>
-    <li class="breadcrumb-item active">@Asset?.Asset</li>
-</BreadcrumbsComponent>
+<BreadcrumbsComponent AssetId="@AssetId" RepositoryId="@RepositoryId" VersionControlId="@VersionControlId"></BreadcrumbsComponent>
 
 <RefreshComponent Target="TaskScopeKind.Asset" Id="@AssetId"></RefreshComponent>
 
@@ -15,14 +9,7 @@
         <h6 class="m-0 font-weight-bold text-primary">Dependencies</h6>
     </div>
     <div class="card-body">
-        @if (Dependencies != null)
-        {
-            <AssetDependenciesComponent Items="Dependencies"></AssetDependenciesComponent>
-        }
-        else
-        {
-            <LoaderComponent></LoaderComponent>
-        }
+        <AssetDependenciesComponent AssetId="@AssetId"></AssetDependenciesComponent>
     </div>
 </div>
 
@@ -31,14 +18,7 @@
         <h6 class="m-0 font-weight-bold text-primary">Frameworks</h6>
     </div>
     <div class="card-body">
-        @if (Frameworks != null)
-        {
-            <FrameworksComponent Items="Frameworks"></FrameworksComponent>
-        }
-        else
-        {
-            <LoaderComponent></LoaderComponent>
-        }
+        <FrameworksComponent AssetId="@AssetId"></FrameworksComponent>
     </div>
 </div>
 
@@ -47,21 +27,5 @@
     [Parameter] Guid AssetId { get; set; }
     [Parameter] Guid RepositoryId { get; set; }
     [Parameter] Guid VersionControlId { get; set; }
-
-    [Inject] AssetsService AssetsService { get; set; }
-    [Inject] RepositoriesService RepositoriesService { get; set; }    
-
-    IEnumerable<FrameworkDto> Frameworks { get; set; }
-    IEnumerable<AssetDependencyDto> Dependencies { get; set; }
-    AssetDto Asset { get; set; }
-    RepositoryDto Repository { get; set; }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        Repository = await RepositoriesService.GetRepositoryByIdAsync(RepositoryId);
-        Asset = await AssetsService.GetAssetByIdAsync(AssetId);
-        Dependencies = await AssetsService.GetDependenciesByAssetIdAsync(AssetId);
-        Frameworks = await AssetsService.GetFrameworksByAssetId(AssetId);
-    }
 }
 

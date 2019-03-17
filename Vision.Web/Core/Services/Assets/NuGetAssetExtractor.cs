@@ -135,18 +135,32 @@ namespace Vision.Web.Core
 
         public string ExtractPublishName(Asset asset)
         {
-            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(asset.Raw)))
+            try
             {
-                using (var reader = new XmlTextReader(stream))
+                using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(asset.Raw)))
                 {
-                    XDocument document = XDocument.Load(reader);
-                    
-                    string packageId = document.XPathSelectElement("//*[local-name() = '" + "PackageId" + "']")?.Value;
-                    string assemblyName = document.XPathSelectElement("//*[local-name() = '" + "AssemblyName" + "']")?.Value;
+                    using (var reader = new XmlTextReader(stream))
+                    {
+                        XDocument document = XDocument.Load(reader);
 
-                    return packageId ?? assemblyName ?? Path.GetFileNameWithoutExtension(asset.Path);
+                        string packageId = document.XPathSelectElement("//*[local-name() = '" + "PackageId" + "']")?.Value;                        
+
+                        if (packageId != null)
+                            return packageId;
+
+                        string assemblyName = document.XPathSelectElement("//*[local-name() = '" + "AssemblyName" + "']")?.Value;
+
+                        if (assemblyName != null)
+                            return assemblyName;
+                    }
                 }
             }
+            catch(Exception e)
+            {
+                logger.LogError(e, $"Error extracting publish name from {asset.Path}.");
+            }
+
+            return Path.GetFileNameWithoutExtension(asset.Path);
         }
     }
 }

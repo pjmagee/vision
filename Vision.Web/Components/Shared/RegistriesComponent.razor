@@ -1,4 +1,6 @@
-﻿<table class="table table-striped table-bordered table-sm" style="width: 100%">
+﻿
+
+<BlazorTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
     <thead>
         <tr>
             <th>Kind</th>
@@ -13,34 +15,49 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Items)
+        @if (Items != null)
         {
-        <tr>
-            <td class="@item.Kind.GetIconClass()">@SvgService.GetSvg(item.Kind)</td>
-            <td><a href="@($"/data/registries/{item.RegistryId}")">@item.Endpoint</a></td>
-            <td>@item.Dependencies</td>
-            <td>@item.IsPublic</td>
-            <td>@item.IsEnabled</td>
-            <td title="@item.ApiKey">@(string.IsNullOrWhiteSpace(item.ApiKey) ? "Empty" : "Set")</td>
-            <td title="@item.Username">@(string.IsNullOrWhiteSpace(item.Username) ? "Empty" : "Set")</td>
-            <td title="@item.Password">@(string.IsNullOrWhiteSpace(item.Password) ? "Empty" : "Set")</td>
-            <td>
-                <a href="@($"/sources/edit/registries/{item.RegistryId}")">Edit</a>
-            </td>
-        </tr>
+            @foreach (var item in Items)
+            {
+                <tr>
+                    <td class="@item.Kind.GetIconClass()">@SvgService.GetSvg(item.Kind)</td>
+                    <td><a href="@($"/data/registries/{item.RegistryId}")">@item.Endpoint</a></td>
+                    <td>@item.Dependencies</td>
+                    <td>@item.IsPublic</td>
+                    <td>@item.IsEnabled</td>
+                    <td title="@item.ApiKey">@(string.IsNullOrWhiteSpace(item.ApiKey) ? "Empty" : "Set")</td>
+                    <td title="@item.Username">@(string.IsNullOrWhiteSpace(item.Username) ? "Empty" : "Set")</td>
+                    <td title="@item.Password">@(string.IsNullOrWhiteSpace(item.Password) ? "Empty" : "Set")</td>
+                    <td>
+                        <a href="@($"/sources/edit/registries/{item.RegistryId}")">Edit</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
         }
     </tbody>
-</table>
+</BlazorTable>
+
+<PagerComponent Pager="Items" Page="@(async(p) => await PageAsync(p))"></PagerComponent>
 
 @functions
 {
-    [Parameter] IEnumerable<RegistryDto> Items { get; set; }
+    PaginatedList<RegistryDto> Items { get; set; }
 
-    [Inject] IJSRuntime JSRunTime { get; set; }
+    [Inject] RegistriesService Service { get; set; }
     [Inject] SvgService SvgService { get; set; }
 
-    protected override async Task OnAfterRenderAsync()
+    protected override async Task OnParametersSetAsync()
     {
-        await JSRunTime.InvokeAsync<object>("dataTable");
+        await PageAsync(1);
+    }
+
+    async Task PageAsync(int page)
+    {
+        Items = await Service.GetAsync(page);
+        StateHasChanged();
     }
 }

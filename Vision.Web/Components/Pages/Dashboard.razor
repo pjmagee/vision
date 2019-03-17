@@ -59,10 +59,10 @@
 {
     IEnumerable<MetricItem> Items { get ; set; }
 
-    [Inject] DashboardService DashboardService { get; set; }
+    [Inject] MetricItemsService MetricItemsService { get; set; }
 
     protected async override Task OnInitAsync()
     {        
-        Items = await DashboardService.GetCountsAsync();
+        Items = await MetricItemsService.GetCountsAsync();
     }
 }

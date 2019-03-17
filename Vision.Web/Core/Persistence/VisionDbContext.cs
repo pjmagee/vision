@@ -56,9 +56,9 @@
                 entity.HasKey(x => x.Id);
                 entity.Property(x => x.Endpoint).IsRequired();
                 entity.Property(x => x.Kind).IsRequired();
-                entity.Property(x => x.ApiKey); //.HasConversion<StringToProtectedStringConverter>();
-                entity.Property(x => x.Username); //.HasConversion<StringToProtectedStringConverter>();
-                entity.Property(x => x.Password); //.HasConversion<StringToProtectedStringConverter>();
+                entity.Property(x => x.ApiKey);
+                entity.Property(x => x.Username);
+                entity.Property(x => x.Password);
             });
 
             modelBuilder.Entity<Asset>(entity =>

@@ -1,16 +1,17 @@
-﻿<div class="table-responsive">
-    <table class="table table-striped table-bordered table-sm" style="width: 100%">
-        <thead>
-            <tr>
-                <th>Kind</th>
-                <th>Endpoint</th>
-                <th>ApiKey (Encrypted)</th>
-                <th>Username (Encrypted)</th>
-                <th>Password (Encrypted)</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
+﻿<BlazorTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
+    <thead>
+        <tr>
+            <th>Kind</th>
+            <th>Endpoint</th>
+            <th>ApiKey (Encrypted)</th>
+            <th>Username (Encrypted)</th>
+            <th>Password (Encrypted)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Items != null)
+        {
             @foreach (var item in Items)
             {
                 <tr>
@@ -24,20 +25,32 @@
                     </td>
                 </tr>
             }
-        </tbody>
-    </table>
-</div>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </tbody>
+</BlazorTable>
+
+<PagerComponent Pager="Items" Page="@(async(p) => await PageAsync(p))"></PagerComponent>
 
 @functions
 {
-    [Parameter] IEnumerable<CiCdDto> Items { get; set; }
-        
-    [Inject] IJSRuntime JSRuntime { get; set; }
+    PaginatedList<CiCdDto> Items { get; set; }
+
+    [Inject] CiCdsService Service { get; set; }
     [Inject] SvgService SvgService { get; set; }
 
-    protected override async Task OnAfterRenderAsync()
+    protected override async Task OnParametersSetAsync()
     {
-        await JSRuntime.InvokeAsync<object>("dataTable");
+        await PageAsync(1);
+    }
+
+    async Task PageAsync(int page)
+    {
+        Items = await Service.GetAsync(page);
+        StateHasChanged();
     }
 }
 

@@ -1,36 +1,71 @@
-﻿<table class="table table-striped table-bordered table-sm" style="width: 100%">
+﻿
+
+<BlazorTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
     <thead>
         <tr>
             <th>Kind</th>
             <th>Name</th>
             <th>Assets</th>
             <th>Versions</th>
-            @*<th>Actions</th>*@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Items)
+        @if (Items != null)
         {
-            <tr>
-                <td class="@item.Kind.GetIconClass()">@SvgService.GetSvg(item.Kind)</td>
-                <td><a href="@($"/data/dependencies/{item.DependencyId}")">@item.Name</a></td>
-                <td>@item.Assets</td>
-                <td>@item.Versions</td>
-                @*<td></td>*@
-            </tr>
+            @foreach (var item in Items)
+            {
+                <tr>
+                    <td class="@item.Kind.GetIconClass()">@SvgService.GetSvg(item.Kind)</td>
+                    <td><a href="@($"/data/dependencies/{item.DependencyId}")">@item.Name</a></td>
+                    <td>@item.Assets</td>
+                    <td>@item.Versions</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
         }
     </tbody>
-</table>
+</BlazorTable>
 
-@functions 
+<PagerComponent Pager="@Items" Page="@(async(p) => await PageAsync(p))"></PagerComponent>
+
+@functions
 {
-    [Parameter] IEnumerable<DependencyDto> Items { get; set; }
+    [Parameter] Guid? RegistryId { get; set; }
+    [Parameter] Guid? RepositoryId { get; set; }
+    [Parameter] DependencyKind[] Kinds { get; set; }
 
-    [Inject] IJSRuntime JSRuntime { get; set; }
     [Inject] SvgService SvgService { get; set; }
+    [Inject] DependenciesService Service { get; set; }
 
-    protected override async Task OnAfterRenderAsync()
+    PaginatedList<DependencyDto> Items { get; set; }    
+
+    protected override async Task OnParametersSetAsync()
     {
-        await JSRuntime.InvokeAsync<object>("dataTable");
+        await PageAsync(1);
+    }
+
+    async Task PageAsync(int page)
+    {
+        if(RepositoryId.HasValue)
+        {
+            Items = await Service.GetByRepositoryIdAsync(RepositoryId.Value, page);
+        }        
+        else if(RegistryId.HasValue)
+        {
+            Items = await Service.GetByRegistryIdAsync(RepositoryId.Value, page);
+        }
+        else if(Kinds != null)
+        {
+            Items = await Service.GetByKindsAsync(Kinds, page);
+        }
+        else
+        {
+            Items = await Service.GetAsync(page);
+        }
+
+        StateHasChanged();
     }
 }

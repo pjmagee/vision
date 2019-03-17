@@ -10,25 +10,6 @@
         <h6 class="m-0 font-weight-bold text-primary">Contionus integration &amp; Continious delivery sources</h6>
     </div>
     <div class="card-body">
-        @if (CiCds != null)
-        {
-            <CiCdsComponent Items="CiCds"></CiCdsComponent>
-        }
-        else
-        {
-            <LoaderComponent></LoaderComponent>
-        }
+        <CiCdsComponent></CiCdsComponent>
     </div>
 </div>
-
-@functions 
-{
-    [Inject] CiCdsService CiCdsService { get; set; }
-
-    private IEnumerable<CiCdDto> CiCds { get; set; }
-
-    protected override async Task OnInitAsync()
-    {
-        CiCds = await CiCdsService.GetAllAsync();
-    }
-}

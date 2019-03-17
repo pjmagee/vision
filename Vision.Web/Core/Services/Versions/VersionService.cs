@@ -8,11 +8,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Vision.Web.Core
 {
-    public class DependencyMetaData
+    
+
+    public interface IVersionService
     {
-        public string Latest { get; set; }
-        public string ProjectUrl { get; set; }
-        public string Name { get; set; }
+        bool Supports(DependencyKind kind);
+        Task<DependencyVersion> GetLatestMetaDataAsync(Dependency dependency);
     }
 
     public abstract class VersionService : IVersionService

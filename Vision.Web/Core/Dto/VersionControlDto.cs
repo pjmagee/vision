@@ -9,5 +9,7 @@
         public string Endpoint { get; set; }
         public string ApiKey { get; set; }
         public int Repositories { get; set; }
+
+        public bool IsEnabled { get; set; }
     }
 }

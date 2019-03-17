@@ -10,25 +10,6 @@
         <h6 class="m-0 font-weight-bold text-primary">Dependency registry sources</h6>
     </div>
     <div class="card-body">
-        @if (Registries != null)
-        {
-            <RegistriesComponent Items="Registries"></RegistriesComponent>
-        }
-        else
-        {
-            <LoaderComponent></LoaderComponent>
-        }
+        <RegistriesComponent></RegistriesComponent>
     </div>
 </div>
-
-@functions
-{
-    IEnumerable<RegistryDto> Registries { get; set; }
-
-    [Inject] RegistriesService RegistriesService { get; set; }
-
-    protected override async Task OnInitAsync()
-    {
-        Registries = await RegistriesService.GetAllAsync();
-    }
-}

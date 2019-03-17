@@ -1,4 +1,4 @@
-﻿<table class="table table-striped table-bordered table-sm" style="width: 100%">
+﻿<BlazorTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
     <thead>
         <tr>
             <th>Kind</th>
@@ -9,30 +9,44 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Items)
+        @if (Items != null)
         {
-        <tr>
-            <td class="@item.Kind.GetIconClass()">@SvgService.GetSvg(item.Kind)</td>
-            <td><a href="@($"/data/vcs/{item.VersionControlId}")">@item.Endpoint</a></td>
-            <td>@item.ApiKey</td>
-            <td>@item.Repositories</td>
-            <td>
-                <a href="@($"/sources/edit/vcs/{item.VersionControlId}")">Edit</a>
-            </td>
-        </tr>
+            @foreach (var item in Items)
+            {
+                <tr>
+                    <td class="@item.Kind.GetIconClass()">@SvgService.GetSvg(item.Kind)</td>
+                    <td><a href="@($"/data/vcs/{item.VersionControlId}")">@item.Endpoint</a></td>
+                    <td>@item.ApiKey</td>
+                    <td>@item.Repositories</td>
+                    <td>
+                        <a href="@($"/sources/edit/vcs/{item.VersionControlId}")">Edit</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
         }
     </tbody>
-</table>
+</BlazorTable>
+
+<PagerComponent Pager="Items" Page="@(async(p) => await PageAsync(p))"></PagerComponent>
 
 @functions
 {
-    [Parameter] IEnumerable<VersionControlDto> Items { get; set; }
-
-    [Inject] IJSRuntime JSRunTime { get; set; }
+    [Inject] VersionControlsService Service { get; set; }
     [Inject] SvgService SvgService { get; set; }
 
-    protected override async Task OnAfterRenderAsync()
+    PaginatedList<VersionControlDto> Items { get; set; }
+
+    protected override async Task OnInitAsync()
     {
-        await JSRunTime.InvokeAsync<object>("dataTable");
+        await PageAsync(1);
+    }
+
+    async Task PageAsync(int page)
+    {
+        Items = await Service.GetAsync(page);
     }
 }

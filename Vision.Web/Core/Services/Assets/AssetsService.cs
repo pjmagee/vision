@@ -1,7 +1,6 @@
 ﻿namespace Vision.Web.Core
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
@@ -15,7 +14,7 @@
             this.context = context;
         }
 
-        public async Task<AssetDto> GetAssetByIdAsync(Guid assetId)
+        public async Task<AssetDto> GetByIdAsync(Guid assetId)
         {
             Asset asset = await context.Assets.FindAsync(assetId);
 
@@ -29,35 +28,141 @@
             };
         }
 
-        public async Task<IEnumerable<AssetDependencyDto>> GetDependenciesByAssetIdAsync(Guid assetId)
+        public async Task<PaginatedList<AssetDto>> GetByDependencyIdAsync(Guid dependencyId, int pageIndex = 1, int pageSize = 10)
         {
-            return await context.AssetDependencies.Where(assetDependency => assetDependency.AssetId == assetId).Select(assetDependency => new AssetDependencyDto
-            {
-                Repository = assetDependency.Asset.Repository.WebUrl,
-                Dependency = assetDependency.Dependency.Name,
-                Version = assetDependency.DependencyVersion.Version,
-                AssetId = assetDependency.AssetId,
-                Asset = assetDependency.Asset.Path,
-                DependencyId = assetDependency.DependencyId,
-                DependencyVersionId = assetDependency.DependencyVersionId,
-                IsLatest = assetDependency.DependencyVersion.IsLatest,
-                RepositoryId = assetDependency.Asset.RepositoryId,
-                VersionControlId = assetDependency.Asset.Repository.VersionControlId
-            })
-            .ToListAsync();
+            var query = context.Assets
+                .Where(asset => context.AssetDependencies.Any(ad => ad.DependencyId == dependencyId && ad.AssetId == asset.Id))
+                .Select(asset => new AssetDto
+                {
+                    AssetId = asset.Id,
+                    Asset = asset.Path,
+                    Repository = asset.Repository.WebUrl,
+                    Kind = asset.Kind,
+                    Dependencies = context.AssetDependencies.Count(a => a.AssetId == asset.Id),
+                    RepositoryId = asset.RepositoryId,
+                    VersionControlId = asset.Repository.VersionControlId
+                })
+                .OrderByDescending(asset => asset.Dependencies);
+
+            return await PaginatedList<AssetDto>.CreateAsync(query, pageIndex, pageSize);
         }
 
-        public async Task<IEnumerable<FrameworkDto>> GetFrameworksByAssetId(Guid assetId)
+        public async Task<PaginatedList<AssetDto>> GetByVersionIdAsync(Guid versionId, int pageIndex = 1, int pageSize = 10)
         {
-            return await context.Frameworks
-                .Where(fw => context.AssetFrameworks.Any(af => af.AssetId == assetId && af.FrameworkId == fw.Id))
-                .Select(fw => new FrameworkDto
+            var query = context.Assets
+                .Where(asset => context.AssetDependencies.Any(ad => ad.DependencyVersionId == versionId && ad.AssetId == asset.Id))
+                .Select(asset => new AssetDto
                 {
-                    FrameworkId = fw.Id,
-                    Name = fw.Version,
-                    Assets = context.AssetFrameworks.Count(af => af.FrameworkId  == fw.Id)
+                    AssetId = asset.Id,
+                    Asset = asset.Path,
+                    Repository = asset.Repository.WebUrl,
+                    Kind = asset.Kind,
+                    Dependencies = context.AssetDependencies.Count(a => a.AssetId == asset.Id),
+                    RepositoryId = asset.RepositoryId,
+                    VersionControlId = asset.Repository.VersionControlId
                 })
-                .ToListAsync();
-        }        
+                .OrderByDescending(asset => asset.Dependencies);
+
+            return await PaginatedList<AssetDto>.CreateAsync(query, pageIndex, pageSize);
+        }
+
+        public async Task<PaginatedList<AssetDto>> GetByRepositoryIdAsync(Guid repositoryId, int pageIndex = 1, int pageSize = 10)
+        {
+            var query = context.Assets
+                .Where(asset => asset.RepositoryId == repositoryId)
+                .Select(asset => new AssetDto
+            {
+                AssetId = asset.Id,
+                Repository = asset.Repository.Url,
+                Dependencies = context.AssetDependencies.Count(assetDependency => assetDependency.AssetId == asset.Id),
+                Asset = asset.Path,
+                Kind = asset.Kind,
+                RepositoryId = asset.RepositoryId,
+                VersionControlId = asset.Repository.VersionControlId
+            })
+            .OrderByDescending(asset => asset.Dependencies);
+
+            return await PaginatedList<AssetDto>.CreateAsync(query, pageIndex, pageSize);
+        }
+
+        public async Task<PaginatedList<AssetDto>> GetDependentsByRepositoryId(Guid repositoryId, int pageIndex = 1, int pageSize = 10)
+        {
+            Repository repository = await context.Repositories.FindAsync(repositoryId);
+
+            var query = context.Assets.Where(asset => asset.RepositoryId == repository.Id)
+                .Where(asset => context.AssetDependencies.Where(assetDependency => assetDependency.AssetId == asset.Id).Any(ad => context.Dependencies.Any(dependency => ad.DependencyId == dependency.Id && string.Equals(dependency.RepositoryUrl, repository.Url) || string.Equals(dependency.RepositoryUrl, repository.WebUrl))))
+                .Select(asset => new AssetDto
+                {
+                    AssetId = asset.Id,
+                    Repository = asset.Repository.Url,
+                    Dependencies = context.AssetDependencies.Count(assetDependency => assetDependency.AssetId == asset.Id),
+                    Asset = asset.Path,
+                    RepositoryId = asset.RepositoryId,
+                    Kind = asset.Kind,
+                    VersionControlId = asset.Repository.VersionControlId
+                })
+                .OrderByDescending(asset => asset.Dependencies);
+
+            return await PaginatedList<AssetDto>.CreateAsync(query, pageIndex, pageSize);
+        }
+
+        public async Task<PaginatedList<AssetDto>> GetAsync(int pageIndex = 1, int pageSize = 10)
+        {
+            var query = context.Assets                
+                .Select(asset => new AssetDto
+                {
+                    AssetId = asset.Id,
+                    Asset = asset.Path,
+                    Kind = asset.Kind,
+                    Dependencies = context.AssetDependencies.Count(assetDependency => assetDependency.AssetId == asset.Id),
+                    Repository = asset.Repository.WebUrl,
+                    RepositoryId = asset.RepositoryId,
+                    VersionControlId = asset.Repository.VersionControlId
+                })
+                .OrderByDescending(asset => asset.Dependencies);
+
+            return await PaginatedList<AssetDto>.CreateAsync(query, pageIndex, pageSize);
+        }
+
+        public async Task<PaginatedList<AssetDto>> GetByFrameworkIdAsync(Guid frameworkId, int pageIndex = 1, int pageSize = 10)
+        {
+            var query = context.Assets
+                .Where(asset => context.AssetFrameworks.Any(af => af.AssetId == asset.Id && af.FrameworkId == frameworkId))
+                .Select(asset => new AssetDto
+                {
+                    AssetId = asset.Id,
+                    Asset = asset.Path,
+                    Kind = asset.Kind,
+                    Dependencies = context.AssetDependencies.Count(assetDependency => assetDependency.AssetId == asset.Id),
+                    Repository = asset.Repository.WebUrl,
+                    RepositoryId = asset.RepositoryId,
+                    VersionControlId = asset.Repository.VersionControlId
+                })
+                .OrderByDescending(asset => asset.Dependencies);
+
+            return await PaginatedList<AssetDto>.CreateAsync(query, pageIndex, pageSize);
+        }
+
+        public async Task<PaginatedList<AssetDto>> GetByVersionControlIdAsync(Guid versionControlId, int pageIndex = 1, int pageSize = 10)
+        {
+            VersionControl versionControl = await context.VersionControls.FindAsync(versionControlId);
+
+            var query = context.Assets
+                    .Where(asset => context.Repositories.Any(repository => repository.VersionControlId == versionControlId && asset.RepositoryId == repository.Id))
+                    .Select(asset => new AssetDto
+                    {
+                        Asset = asset.Path,
+                        AssetId = asset.Id,
+                        Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id),
+                        Repository = asset.Repository.Url,
+                        RepositoryId = asset.RepositoryId,
+                        VersionControlId = versionControlId
+                    })
+                    .OrderByDescending(a => a.Dependencies);
+
+            return await PaginatedList<AssetDto>.CreateAsync(query, pageIndex, pageSize);
+        }
+
+
     }
 }

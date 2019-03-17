@@ -7,80 +7,73 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in PagedItems)
+        @if (Items != null)
         {
-            <tr>
-                <td><a href="@($"/data/vcs/{item.VersionControlId}/repositories/{item.RepositoryId}")">@item.WebUrl</a></td>
-                <td>@item.Assets</td>
-                <td></td>
-            </tr>
+            @foreach (var item in Items)
+            {
+                <tr>
+                    <td><a href="@($"/data/vcs/{item.VersionControlId}/repositories/{item.RepositoryId}")">@item.WebUrl</a></td>
+                    <td>@item.Assets</td>
+                    <td>
+                        @if (item.IsIgnored)
+                        {
+                            <button class="btn btn-primary" onclick="@(async() => await ToggleIgnoreAsync(item))">Add</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary" onclick="@(async() => await ToggleIgnoreAsync(item))">Ignore</button>
+                        }
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
         }
     </tbody>
 </BlazorTable>
 
-<Pagination Alignment="Alignment.Right">
-    <PaginationItem IsDisabled="@(PagedItems.HasPreviousPage == false)">
-        <PaginationLink Href="#" onclick="@(() => Page(PagedItems.PageIndex - 1))" PaginationLinkType="PaginationLinkType.PreviousText" />
-    </PaginationItem>
-
-    @foreach (var page in Maker(PagedItems.PageIndex, PagedItems.TotalPages))
-    {
-        <PaginationItem IsActive="@(page.Item1 == PagedItems.PageIndex)">
-            <PaginationLink Href="#" onclick="@(() => Page(page.Item1))" PaginationLinkType="PaginationLinkType.Custom">@(page.Item2)</PaginationLink>
-        </PaginationItem>
-    }    
-
-    <PaginationItem IsDisabled="@(PagedItems.HasNextPage == false)">
-        <PaginationLink Href="#" onclick="@(() => Page(PagedItems.PageIndex + 1))" PaginationLinkType="PaginationLinkType.NextText" />
-    </PaginationItem>
-</Pagination>
+<PagerComponent Pager="Items" Page="@(async(p) => await PageAsync(p))"></PagerComponent>
 
 @functions
 {
-    [Parameter] PaginatedList<RepositoryDto> PagedItems { get; set; }
-    [Parameter] IEnumerable<RepositoryDto> Items { get; set; }
-    [Parameter] Action<int> Page { get; set; }
+    [Parameter] Guid? FrameworkId { get; set; }
+    [Parameter] Guid? VersionControlId { get; set; }
+    [Parameter] bool ShowIgnored { get; set; }
 
-    private static List<(int, string)> Maker(int c, int m)
+    [Inject] RepositoriesService Service { get; set; }
+
+    PaginatedList<RepositoryDto> Items { get; set; }
+
+    protected override async Task OnParametersSetAsync()
     {
-        int current = c;
-        int last = m;
-        int delta = 4;
-        int left = current - delta;
-        int right = current + delta + 1;
+        await PageAsync(page: 1);
+    }
 
-        List<int> range = new List<int>();
-        List<(int, string)> rangeWithDots = new List<(int, string)>();
+    async Task ToggleIgnoreAsync(RepositoryDto dto)
+    {
+        await Service.ToggleIgnoreAsync(dto.RepositoryId);
+        await PageAsync(Items.PageIndex);
+        StateHasChanged();
+        Refresh?.Invoke();
+    }
 
-        int l = 0;
-
-        for(int i = 1; i<=last; i++)
+    async Task PageAsync(int page = 1)
+    {
+        if(VersionControlId.HasValue)
         {
-            if(i == 1 || i == last || i>= left && i < right)
-            {
-                range.Add(i);
-            }
+            Items = await Service.GetByVersionControlIdAsync(VersionControlId.Value, ShowIgnored, page);
+        }
+        else if(FrameworkId.HasValue)
+        {
+            Items = await Service.GetByFrameworkIdAsync(FrameworkId.Value, ShowIgnored, page);
+        }
+        else
+        {
+            Items = await Service.GetAsync(ShowIgnored, page);
         }
 
-        foreach (var item in range)
-        {
-            if(l > 0)
-            {
-                if(item - l == 2)
-                {
-                    var result = (l + 1);
-
-                    rangeWithDots.Add((result, (l + 1).ToString()));
-                }
-                else if (item - l != 1)
-                {
-                    rangeWithDots.Add((item, "..."));
-                }
-            }
-            rangeWithDots.Add((item, item.ToString()));
-            l = item;
-        }
-
-        return rangeWithDots;
+        StateHasChanged();
     }
 }

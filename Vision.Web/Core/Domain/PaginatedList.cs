@@ -6,7 +6,16 @@ using System.Threading.Tasks;
 
 namespace Vision.Web.Core
 {
-    public class PaginatedList<T> : List<T>
+
+    public interface IPager
+    {
+        int PageIndex { get; }
+        int TotalPages { get; }
+        bool HasPreviousPage { get; }
+        bool HasNextPage { get;  }
+    }
+
+    public class PaginatedList<T> : List<T>, IPager
     {
         public int PageIndex { get; }
         public int TotalPages { get; }

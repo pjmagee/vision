@@ -10,25 +10,6 @@
         <h6 class="m-0 font-weight-bold text-primary">Version control sources</h6>
     </div>
     <div class="card-body">
-        @if (VersionControls != null)
-        {
-            <VersionControlsComponent Items="VersionControls"></VersionControlsComponent>
-        }
-        else
-        {
-            <LoaderComponent></LoaderComponent>
-        }
+        <VersionControlsComponent></VersionControlsComponent>
     </div>
 </div>
-
-@functions 
-{
-    [Inject] VersionControlsService VersionControlsService { get; set; }
-
-    IEnumerable<VersionControlDto> VersionControls { get; set; }
-
-    protected override async Task OnInitAsync()
-    {
-        VersionControls = await VersionControlsService.GetAllAsync();
-    }
-}

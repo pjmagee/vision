@@ -1,11 +1,9 @@
 ﻿namespace Vision.Web.Core
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.DataProtection;
-    using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
 
     public class VersionControlsService
@@ -19,19 +17,22 @@
             this.protector = provider.CreateProtector("Auth");
         }
 
-        public async Task<IEnumerable<VersionControlDto>> GetAllAsync()
+        public async Task<PaginatedList<VersionControlDto>> GetAsync(int pageIndex = 1, int pageSize = 10)
         {
-            return await context.VersionControls.Select(versionControl => new VersionControlDto
+            var query =context.VersionControls.Select(versionControl => new VersionControlDto
             {
                 Endpoint = versionControl.Endpoint,
                 ApiKey = versionControl.ApiKey,
                 Kind = versionControl.Kind,
                 VersionControlId = versionControl.Id,
                 Repositories = context.Repositories.Count(repository => repository.VersionControlId == versionControl.Id)
-            }).ToListAsync();
+            })
+            .OrderByDescending(vcs => vcs.Repositories);
+
+            return await PaginatedList<VersionControlDto>.CreateAsync(query, pageIndex, pageSize);
         }
 
-        public async Task<ActionResult<VersionControlDto>> CreateVersionControl(VersionControlDto post)
+        public async Task<VersionControlDto> CreateVersionControl(VersionControlDto post)
         {
             VersionControl versionControl = new VersionControl
             {
@@ -47,7 +48,7 @@
             return new VersionControlDto { Endpoint = versionControl.Endpoint, ApiKey = versionControl.ApiKey, Kind = versionControl.Kind, VersionControlId = versionControl.Id };
         }
 
-        public async Task<VersionControlDto> GetVersionControlByIdAsync(Guid versionControlId)
+        public async Task<VersionControlDto> GetByIdAsync(Guid versionControlId)
         {
             VersionControl versionControl = await context.VersionControls.FindAsync(versionControlId);
 
@@ -60,52 +61,5 @@
                 Repositories = await context.Repositories.CountAsync(x => x.VersionControlId == versionControl.Id)
             };
         }
-
-        public async Task<IEnumerable<MetricItems<RepositoryDto>>> GetRepositoriesMetricsByVersionControlIdAsync(Guid versionControlId)
-        {
-            IQueryable<Repository> orderedByLargest = context.Repositories.Where(repository => repository.VersionControlId == versionControlId).OrderBy(repository => context.Assets.Count(asset => asset.RepositoryId == repository.Id));
-
-            return new MetricItems<RepositoryDto>[]
-            {
-                new MetricItems<RepositoryDto>(MetricAlertKind.Standard, MetricCategoryKind.Repositories, "Top 5 smallest repositories", await orderedByLargest.TakeLast(5).Select(repository => new RepositoryDto {  }).ToArrayAsync()),
-                new MetricItems<RepositoryDto>(MetricAlertKind.Standard, MetricCategoryKind.Repositories, "Top 5 largest repositories", await orderedByLargest.Take(5).Select(repository => new RepositoryDto {  }).ToArrayAsync())
-            };
-        }
-
-        public async Task<PaginatedList<RepositoryDto>> GetRepositoriesByIdAsync(Guid versionControlId, int pageIndex = 1, int pageSize = 10)
-        {
-            IQueryable<RepositoryDto> repositories = context.Repositories
-                .Where(repository => repository.VersionControlId == versionControlId)
-                .Select(x => new RepositoryDto
-                {
-                    VersionControlId = x.VersionControlId,
-                    Assets = x.Assets.Count,
-                    Url = x.Url,
-                    WebUrl = x.WebUrl,
-                    RepositoryId = x.Id
-                });
-
-            return await PaginatedList<RepositoryDto>.CreateAsync(repositories, pageIndex, pageSize);
-        }
-
-        public async Task<IEnumerable<AssetDto>> GetAssetsByVersionControlIdAsync(Guid versionControlId)
-        {
-            VersionControl versionControl = await context.VersionControls.FindAsync(versionControlId);
-
-            return await context.Assets
-                    .Where(asset => context.Repositories.Any(repository => repository.VersionControlId == versionControlId && asset.RepositoryId == repository.Id))
-                    .Select(asset => new AssetDto
-                    {
-                        Asset = asset.Path,
-                        AssetId = asset.Id,
-                        Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id),
-                        Repository = asset.Repository.Url,
-                        RepositoryId = asset.RepositoryId,
-                        VersionControlId = versionControlId
-                    })
-                    .ToListAsync();
-        }
-
-
     }
 }

@@ -31,12 +31,12 @@ else
 {
     [Parameter] DependencyKind DependencyKind { get; set; }
 
-    [Inject] InsightsService InsightsService { get; set; }
+    [Inject] MetricItemsService Service { get; set; }
 
     IEnumerable<MetricItems<RepositoryDto>> Items { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        Items = await InsightsService.GetPublishingRepositoriesByDependencyKind(DependencyKind);
+        Items = await Service.GetPublishingRepositoriesByDependencyKind(DependencyKind);
     }
 }

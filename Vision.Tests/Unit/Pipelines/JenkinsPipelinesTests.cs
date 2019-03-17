@@ -33,9 +33,7 @@ namespace Vision.Tests.Unit.Pipelines
         [Fact]
         public async void Test()
         {
-            List<CiCdBuildDto> response = await sut.GetBuildsByRepositoryIdAsync(Guid.NewGuid());
-
-
+            
         }
     }
 }

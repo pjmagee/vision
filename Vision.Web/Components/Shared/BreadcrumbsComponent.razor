@@ -1,10 +1,135 @@
-﻿<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        @ChildContent
-    </ol>
-</nav>
+﻿<Breadcrumb>
+    @if (VersionControlId.HasValue && VersionControlId.HasValue && FrameworkId.HasValue)
+    {
+        <BreadcrumbItem>Data</BreadcrumbItem>
+        <BreadcrumbItem>Version control systems</BreadcrumbItem>
+        <BreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}")">Repositories</a></BreadcrumbItem>
+        <BreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}/frameworks")">Frameworks</a></BreadcrumbItem>
+        <BreadcrumbItem IsActive="true">@Framework?.Name</BreadcrumbItem>
+    }
+    else if (VersionControlId.HasValue && RepositoryId.HasValue && DependencyId.HasValue)
+    {
+        <BreadcrumbItem>Data</BreadcrumbItem>
+        <BreadcrumbItem>Version control systems</BreadcrumbItem>
+        <BreadcrumbItem> <a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}")">Repositories</a></BreadcrumbItem>
+        <BreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}/dependencies")">Dependencies</a></BreadcrumbItem>
+        <BreadcrumbItem IsActive="true">@Dependency?.Name</BreadcrumbItem>
+    }
+    else if (AssetId.HasValue && RepositoryId.HasValue && VersionControlId.HasValue)
+    {
+        <BreadcrumbItem>Data</BreadcrumbItem>
+        <BreadcrumbItem>Version control systems</BreadcrumbItem>
+        <BreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}")">Repositories</a></BreadcrumbItem>
+        <BreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}")">@Repository?.WebUrl</a></BreadcrumbItem>
+        <BreadcrumbItem IsActive="true">@Asset?.Asset</BreadcrumbItem>
+    }
+    else if (RepositoryId.HasValue && VersionControlId.HasValue)
+    {
+        <BreadcrumbItem>Data</BreadcrumbItem>
+        <BreadcrumbItem>Version control systems</BreadcrumbItem>
+        <BreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}")">@VersionControl?.Endpoint</a></BreadcrumbItem>
+        <BreadcrumbItem IsActive="true">@Repository?.WebUrl</BreadcrumbItem>
+    }
+    else if (DependencyId.HasValue && VersionId.HasValue)
+    {
+        <BreadcrumbItem>Data</BreadcrumbItem>
+        <BreadcrumbItem><a href="/data/dependencies">Dependencies</a></BreadcrumbItem>
+        <BreadcrumbItem><a href="@($"/data/dependencies/{DependencyId}")">@Dependency?.Name</a></BreadcrumbItem>
+        <BreadcrumbItem>Versions</BreadcrumbItem>
+        <BreadcrumbItem>@Version?.Version</BreadcrumbItem>
+    }
+    else if (VersionControlId.HasValue)
+    {
+        <BreadcrumbItem>Data</BreadcrumbItem>
+        <BreadcrumbItem>Version control systems</BreadcrumbItem>
+        <BreadcrumbItem IsActive="true">@VersionControl?.Endpoint</BreadcrumbItem>
+    }
+    else if (DependencyId.HasValue)
+    {
+        <BreadcrumbItem>Data</BreadcrumbItem>
+        <BreadcrumbItem><a href="/data/dependencies">Dependencies</a></BreadcrumbItem>
+        <BreadcrumbItem IsActive="true">@Dependency?.Name</BreadcrumbItem>
+    }
+    else if (FrameworkId.HasValue)
+    {
+        <BreadcrumbItem>Data</BreadcrumbItem>
+        <BreadcrumbItem><a href="/data/frameworks">Frameworks</a></BreadcrumbItem>
+        <BreadcrumbItem IsActive="true">@Framework?.Name</BreadcrumbItem>
+    }
+    else if (RegistryId.HasValue)
+    {
+        <BreadcrumbItem>Data</BreadcrumbItem>
+        <BreadcrumbItem><a href="/data/registries">Registries</a></BreadcrumbItem>
+        <BreadcrumbItem IsActive="true"><a href="@($"/data/registries/{RegistryId}")">@Registry?.Endpoint</a></BreadcrumbItem>
+    }
+    else
+    {
+        if (ChildContent != null)
+        {
+            @ChildContent
+        }
+    }
+</Breadcrumb>
 
-@functions 
+@functions
 {
+    [Parameter] Guid? RepositoryId { get; set; }
+    [Parameter] Guid? FrameworkId { get; set; }
+    [Parameter] Guid? VersionControlId { get; set; }
+    [Parameter] Guid? AssetId { get; set; }
+    [Parameter] Guid? DependencyId { get; set; }
+    [Parameter] Guid? VersionId { get; set; }
+    [Parameter] Guid? RegistryId { get; set; }
+
+    RepositoryDto Repository { get; set; }
+    VersionControlDto VersionControl { get; set; }
+    AssetDto Asset { get; set; }
+    DependencyDto Dependency { get; set; }
+    FrameworkDto Framework { get; set; }
+    DependencyVersionDto Version { get; set; }
+    RegistryDto Registry { get; set; }
+
     [Parameter] RenderFragment ChildContent { get; set; }
+
+    [Inject] RepositoriesService RepositoriesService { get; set; }
+    [Inject] FrameworksService FrameworksService { get; set; }
+    [Inject] VersionControlsService VersionControlsService { get; set; }
+    [Inject] AssetsService AssetsService { get; set; }
+    [Inject] RegistriesService RegistriesService { get; set; }
+    [Inject] DependenciesService DependenciesService { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (RepositoryId.HasValue)
+        {
+            Repository = await RepositoriesService.GetByIdAsync(RepositoryId.Value);
+        }
+
+        if (FrameworkId.HasValue)
+        {
+            Framework = await FrameworksService.GetByIdAsync(FrameworkId.Value);
+        }
+
+        if (VersionControlId.HasValue)
+        {
+            VersionControl = await VersionControlsService.GetByIdAsync(VersionControlId.Value);
+        }
+
+        if (AssetId.HasValue)
+        {
+            Asset = await AssetsService.GetByIdAsync(AssetId.Value);
+        }
+
+        if (RegistryId.HasValue)
+        {
+            Registry = await RegistriesService.GetByIdAsync(RegistryId.Value);
+        }
+
+        if (DependencyId.HasValue)
+        {
+            Dependency = await DependenciesService.GetByIdAsync(DependencyId.Value);
+        }
+
+        StateHasChanged();
+    }
 }

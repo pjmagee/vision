@@ -16,7 +16,6 @@ This project runs on .NET Core 3 Preview
 * Various js libraries (jQuery, datatables, chart.js)
 
 ## Github issues
-
 https://github.com/aspnet/AspNetCore/issues/5562  
  
 ## TODO
@@ -38,7 +37,11 @@ https://github.com/aspnet/AspNetCore/issues/5562
 * implement /insights/frameworks/  
 * implement /insights/versions/{vId}  
 
-* implement disabling/ignoring a Repository (could be legacy that we do not care about)
+* implement disabling/ignoring a repository
+* implement when refreshing an entire version control source that any ignored repositories are still persisted and not lost
+* implement ignored repositories have all their assets removed from the system
+
+* reintroduce API controllers for most of the sources
 
 * Integration tests should use Docker for API integration with: TeamCity, Jenkins & Bitbucket
 * Rename CICD's to Pipelines (Teamcity pipelines, Azure Pipelines, Jenkins Pipelines, etc etc)

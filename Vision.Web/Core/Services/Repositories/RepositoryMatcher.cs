@@ -3,11 +3,15 @@ using System;
 
 namespace Vision.Web.Core
 {
+    public interface IRepositoryMatcher
+    {
+        bool IsMatch(string one, string two);
+    }
+
     public class RepositoryMatcher : IRepositoryMatcher
     {
         private readonly ILogger<RepositoryMatcher> logger;
 
-        // This service allows more lienant approaches to certain repository links using git:// or https:// or http:// or ssh:// for a repository
         public RepositoryMatcher(ILogger<RepositoryMatcher> logger)
         {
             this.logger = logger;

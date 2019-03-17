@@ -1,10 +1,12 @@
 ﻿namespace Vision.Web.Core
 {
     using Docker.Registry.DotNet;
+    using Docker.Registry.DotNet.Authentication;
     using Docker.Registry.DotNet.Models;
     using Microsoft.AspNetCore.DataProtection;
     using Microsoft.Extensions.Logging;
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
 
     public class DockerVersionService : VersionService
@@ -18,30 +20,23 @@
 
         protected override async Task<DependencyVersion> GetLatestMetaDataAsync(Registry registry, Dependency dependency)
         {
-            // RegistryClientConfiguration clientConfig = new RegistryClientConfiguration(registry.Endpoint);
-            //if (!string.IsNullOrWhiteSpace(registry.Username) && !string.IsNullOrWhiteSpace(registry.Password))
-            //{
-            //    using (IRegistryClient client = clientConfig.CreateClient(new PasswordOAuthAuthenticationProvider(registry.Username, registry.Password)))
-            //    {
-            //        ListImageTagsResponse imageTags = await client.Tags.ListImageTagsAsync(dependency.Name, new ListImageTagsParameters());
-            //        return new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Version = imageTags.Name };
-            //    }
-            //}
-            //else
-            //{
-            //    using (IRegistryClient client = clientConfig.CreateClient())
-            //    {
-            //        ListImageTagsResponse imageTags = await client.Tags.ListImageTagsAsync(dependency.Name, new ListImageTagsParameters());
-            //        return new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Version = imageTags.Name };
-            //    }
-            //}
-
             RegistryClientConfiguration clientConfig = new RegistryClientConfiguration(new Uri(registry.Endpoint).GetComponents(UriComponents.HostAndPort, UriFormat.SafeUnescaped));
 
-            using (IRegistryClient client = clientConfig.CreateClient())
+            if (!string.IsNullOrWhiteSpace(registry.Username) && !string.IsNullOrWhiteSpace(registry.Password))
             {
-                ListImageTagsResponse imageTags = await client.Tags.ListImageTagsAsync(dependency.Name, new ListImageTagsParameters());
-                return new DependencyVersion { Dependency = dependency, Version = imageTags.Tags[imageTags.Tags.Length - 1] };
+                using (IRegistryClient client = clientConfig.CreateClient(new PasswordOAuthAuthenticationProvider(registry.Username, registry.Password)))
+                {
+                    ListImageTagsResponse imageTags = await client.Tags.ListImageTagsAsync(dependency.Name, new ListImageTagsParameters());
+                    return new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Version = imageTags.Tags.Last() };
+                }
+            }
+            else
+            {
+                using (IRegistryClient client = clientConfig.CreateClient())
+                {
+                    ListImageTagsResponse imageTags = await client.Tags.ListImageTagsAsync(dependency.Name, new ListImageTagsParameters());
+                    return new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Version = imageTags.Tags.Last() };
+                }
             }
         }
     }

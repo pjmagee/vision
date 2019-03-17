@@ -1,24 +1,13 @@
 ﻿@page "/data/frameworks/{FrameworkId:guid}"
 
-<BreadcrumbsComponent>
-    <li class="breadcrumb-item">Data</li>
-    <li class="breadcrumb-item"><a href="/data/frameworks">Frameworks</a></li>
-    <li class="breadcrumb-item active">@Framework?.Name</li>
-</BreadcrumbsComponent>
+<BreadcrumbsComponent FrameworkId="@FrameworkId"></BreadcrumbsComponent>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
     </div>
     <div class="card-body">
-        @if (Assets != null)
-        {
-            <AssetsComponent Items="Assets"></AssetsComponent>
-        }
-        else
-        {
-            <LoaderComponent></LoaderComponent>
-        }
+        <AssetsComponent FrameworkId="@FrameworkId"></AssetsComponent>
     </div>
 </div>
 
@@ -27,31 +16,11 @@
         <h6 class="m-0 font-weight-bold text-primary">Repositories</h6>
     </div>
     <div class="card-body">
-        @if (Repositories != null)
-        {
-            <RepositoriesComponent Items="Repositories"></RepositoriesComponent>
-        }
-        else
-        {
-            <LoaderComponent></LoaderComponent>
-        }
+        <RepositoriesComponent FrameworkId="@FrameworkId"></RepositoriesComponent>
     </div>
 </div>
 
 @functions 
 {
     [Parameter] Guid FrameworkId { get; set; }
-
-    IEnumerable<AssetDto> Assets { get; set; }
-    PaginatedList<RepositoryDto> Repositories { get; set; }
-    FrameworkDto Framework { get; set; }
-
-    [Inject] FrameworksService FrameworksService { get; set; }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        Framework = await FrameworksService.GetFrameworkByIdAsync(FrameworkId);
-        Repositories = await FrameworksService.GetRepositoriesByFrameworkIdAsync(FrameworkId);
-        Assets = await FrameworksService.GetAssetsByFrameworkIdAsync(FrameworkId);
-    }
 }

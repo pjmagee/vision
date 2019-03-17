@@ -1,10 +1,6 @@
 ﻿@page "/data/dependencies/{DependencyId:guid}"
 
-<BreadcrumbsComponent>
-    <li class="breadcrumb-item">Data</li>
-    <li class="breadcrumb-item"><a href="/data/dependencies">Dependencies</a></li>
-    <li class="breadcrumb-item active">@Dependency?.Name</li>
-</BreadcrumbsComponent>
+<BreadcrumbsComponent DependencyId="@DependencyId"></BreadcrumbsComponent>
 
 <RefreshComponent Target="TaskScopeKind.Dependency" Id="@DependencyId"></RefreshComponent>
 
@@ -13,14 +9,7 @@
         <h6 class="m-0 font-weight-bold text-primary">Versions</h6>
     </div>
     <div class="card-body">
-        @if (Versions != null)
-        {
-            <DependencyVersionsComponent Items="Versions"></DependencyVersionsComponent>
-        }
-        else
-        {
-            <LoaderComponent></LoaderComponent>
-        }
+        <DependencyVersionsComponent DependencyId="@DependencyId"></DependencyVersionsComponent>
     </div>
 </div>
 
@@ -29,31 +18,11 @@
         <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
     </div>
     <div class="card-body">
-        @if (AssetDependencies != null)
-        {
-            <DependencyAssetsComponent Items="AssetDependencies"></DependencyAssetsComponent>
-        }
-        else
-        {
-            <LoaderComponent></LoaderComponent>
-        }
+        <DependencyAssetsComponent DependencyId="@DependencyId"></DependencyAssetsComponent>
     </div>
 </div>
 
 @functions
 {
     [Parameter] Guid DependencyId { get; set; }
-
-    [Inject] DependenciesService DependenciesService { get; set; }
-
-    DependencyDto Dependency { get; set; }
-    IEnumerable<AssetDependencyDto> AssetDependencies { get; set; }
-    IEnumerable<DependencyVersionDto> Versions { get; set; }
-    
-    protected override async Task OnParametersSetAsync()
-    {
-        Dependency = await DependenciesService.GetDependencyByIdAsync(DependencyId);
-        AssetDependencies = await DependenciesService.GetAssetsByDependencyIdAsync(DependencyId);
-        Versions = await DependenciesService.GetVersionsByDependencyIdAsync(DependencyId);
-    }
 }

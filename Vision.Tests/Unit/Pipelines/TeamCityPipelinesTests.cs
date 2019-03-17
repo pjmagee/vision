@@ -1,8 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Vision.Web.Core;
 using Xunit;
 
@@ -32,11 +29,9 @@ namespace Vision.Tests.Unit.Pipelines
         }
 
         [Fact]
-        public async void Test()
+        public void Test()
         {
-            var response = await sut.GetBuildsByRepositoryIdAsync(Guid.NewGuid());
-
-            
+                      
         }
     }
 }

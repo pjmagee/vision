@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
@@ -11,16 +10,31 @@
     {
         private readonly VisionDbContext context;
         private readonly ICICDBuildsService buildsService;
-        private readonly RepositoryAssetsService repositoryAssetsService;
 
-        public RepositoriesService(VisionDbContext context, ICICDBuildsService buildsService, RepositoryAssetsService repositoryAssetsService)
+        public RepositoriesService(VisionDbContext context, ICICDBuildsService buildsService)
         {
             this.context = context;
             this.buildsService = buildsService;
-            this.repositoryAssetsService = repositoryAssetsService;
         }
 
-        public async Task<RepositoryDto> GetRepositoryByIdAsync(Guid repositoryId)
+        public async Task<RepositoryDto> ToggleIgnoreAsync(Guid repositoryId)
+        {
+            Repository repository = await context.Repositories.FindAsync(repositoryId);
+            repository.IsIgnored = !repository.IsIgnored;
+            await context.SaveChangesAsync();
+
+            return new RepositoryDto
+            {
+                VersionControlId = repository.VersionControlId,
+                Assets = await context.Assets.CountAsync(asset => asset.RepositoryId == repositoryId),
+                Url = repository.Url,
+                WebUrl = repository.WebUrl,
+                RepositoryId = repository.Id,
+                IsIgnored = repository.IsIgnored
+            };
+        }
+
+        public async Task<RepositoryDto> GetByIdAsync(Guid repositoryId)
         {
             Repository repository = await context.Repositories.FindAsync(repositoryId);
 
@@ -30,76 +44,68 @@
                 Assets = await context.Assets.CountAsync(asset => asset.RepositoryId == repositoryId),
                 Url = repository.Url,
                 WebUrl = repository.WebUrl,
-                RepositoryId = repository.Id
+                RepositoryId = repository.Id,
+                IsIgnored = repository.IsIgnored
             };
         }
 
-        public async Task<PaginatedList<AssetDto>> GetAssetsByRepositoryId(Guid repositoryId, int pageIndex = 1, int pageSize = 10)
+        public async Task<PaginatedList<RepositoryDto>> GetAsync(bool showIgnored = false, int pageIndex = 1, int pageSize = 10)
         {
-            var query = context.Assets.Where(asset => asset.RepositoryId == repositoryId).Select(asset => new AssetDto
-            {
-                AssetId = asset.Id,
-                Repository = asset.Repository.Url,
-                Dependencies = context.AssetDependencies.Count(assetDependency => assetDependency.AssetId == asset.Id),
-                Asset = asset.Path,
-                Kind = asset.Kind,
-                RepositoryId = asset.RepositoryId,
-                VersionControlId = asset.Repository.VersionControlId
-            });
-
-            return await PaginatedList<AssetDto>.CreateAsync(query, pageIndex, pageSize);
-        }
-
-        public async Task<IEnumerable<DependencyDto>> GetDependenciesByRepositoryId(Guid repositoryId)
-        {
-            // Find all Dependencies who's Project URl (META DATA FROM DEPENDENCY REGISTRY) matches this Repositories Git or Web Url
-            // TODO: Ensure all XpertHR Assets which create dependencies (nuspec files) have the repository in the nuspec <RepositoryUrl></RepositoryUrl>
-            Repository repository = await context.Repositories.FindAsync(repositoryId);
-            List<string> assetNames = await repositoryAssetsService.GetAssetPublishNamesByRepositoryIdAsync(repositoryId);
-
-            return await context.Dependencies.Where(dependency => assetNames.Contains(dependency.Name) || string.Equals(dependency.RepositoryUrl, repository.Url) || string.Equals(dependency.RepositoryUrl, repository.WebUrl)).Select(dependency => new DependencyDto
-            {
-                Assets = context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id),
-                DependencyId = dependency.Id,
-                Kind = dependency.Kind,
-                Name = dependency.Name,
-                RepositoryUrl = dependency.RepositoryUrl,
-                Versions = context.DependencyVersions.Count(dv => dv.DependencyId == dependency.Id)
-            })
-            .ToListAsync();
-        }
-
-        public async Task<IEnumerable<AssetDto>> GetDependentsByRepositoryId(Guid repositoryId)
-        {
-            Repository repository = await context.Repositories.FindAsync(repositoryId);
-
-            return await context.Assets
-                .Where(asset => context.AssetDependencies.Where(ad => ad.AssetId == asset.Id).Any(ad => context.Dependencies.Any(d => ad.DependencyId == d.Id && string.Equals(d.RepositoryUrl, repository.Url) || string.Equals(d.RepositoryUrl, repository.WebUrl))))
-                .Select(asset => new AssetDto
+             var query = context.Repositories
+                .Where(repository => repository.IsIgnored == showIgnored)
+                .Select(repository => new RepositoryDto
                 {
-                    AssetId = asset.Id,
-                    Repository = asset.Repository.Url,
-                    Dependencies = context.AssetDependencies.Count(assetDependency => assetDependency.AssetId == asset.Id),
-                    Asset = asset.Path,
-                    RepositoryId = asset.RepositoryId,
-                    Kind = asset.Kind,
-                    VersionControlId = asset.Repository.VersionControlId
+                    VersionControlId = repository.VersionControlId,
+                    Assets = context.Assets.Count(a => a.RepositoryId == repository.Id),
+                    Url = repository.Url,
+                    WebUrl = repository.WebUrl,
+                    RepositoryId = repository.Id,
+                    IsIgnored = repository.IsIgnored
                 })
-                .ToListAsync();
+                .OrderByDescending(r => r.Assets);
+
+            return await PaginatedList<RepositoryDto>.CreateAsync(query, pageIndex, pageSize);
         }
 
-        public async Task<IEnumerable<FrameworkDto>> GetFrameworksByRepositoryId(Guid repositoryId)
+        public async Task<PaginatedList<RepositoryDto>> GetByVersionControlIdAsync(Guid versionControlId, bool showIgnored = false, int pageIndex = 1, int pageSize = 10)
         {
-            return await context.Frameworks
-                .Where(fw => context.AssetFrameworks.Any(af => af.FrameworkId == fw.Id && context.Assets.Any(a => a.RepositoryId == repositoryId && af.AssetId == a.Id)))
-                .Select(framework => new FrameworkDto
+            var query = context.Repositories
+                .Where(repository => repository.IsIgnored == showIgnored)
+                .Where(repository => repository.VersionControlId == versionControlId)
+                .Select(repository => new RepositoryDto
                 {
-                    Assets = context.AssetFrameworks.Count(assetFramework => assetFramework.FrameworkId == framework.Id && assetFramework.Asset.RepositoryId == repositoryId),
-                    FrameworkId = framework.Id,
-                    Name = framework.Version
+                    VersionControlId = repository.VersionControlId,
+                    Assets = context.Assets.Count(a => a.RepositoryId == repository.Id),
+                    Url = repository.Url,
+                    WebUrl = repository.WebUrl,
+                    RepositoryId = repository.Id,
+                    IsIgnored = repository.IsIgnored
                 })
-                .ToListAsync();
+                .OrderByDescending(r => r.Assets);
+
+            return await PaginatedList<RepositoryDto>.CreateAsync(query, pageIndex, pageSize);
         }
+
+        public async Task<PaginatedList<RepositoryDto>> GetByFrameworkIdAsync(Guid frameworkId, bool showIgnored = false, int pageIndex = 1, int pageSize = 10)
+        {
+            var framework = await context.Frameworks.FindAsync(frameworkId);
+
+            var query = context.Repositories
+                .Where(repository => repository.IsIgnored == showIgnored)
+                .Where(repository => context.Assets.Any(asset => asset.RepositoryId == repository.Id && context.AssetFrameworks.Any(assetFramework => assetFramework.FrameworkId == frameworkId && assetFramework.AssetId == asset.Id)))
+                .Select(repository => new RepositoryDto
+                {
+                    Assets = context.Assets.Count(asset => asset.RepositoryId == repository.Id),
+                    VersionControlId = repository.VersionControlId,
+                    WebUrl = repository.WebUrl,
+                    Url = repository.Url,
+                    RepositoryId = repository.Id,
+                    IsIgnored = repository.IsIgnored
+                })
+                .OrderByDescending(r => r.Assets);
+
+            return await PaginatedList<RepositoryDto>.CreateAsync(query, pageIndex, pageSize);
+        }        
 
         public async Task<IEnumerable<CiCdBuildDto>> GetCiCdsByRepositoryId(Guid repositoryId)
         {

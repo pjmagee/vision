@@ -1,11 +1,6 @@
 ﻿@page "/data/vcs/{VersionControlId:guid}/repositories/{RepositoryId:guid}"
 
-<BreadcrumbsComponent>
-    <li class="breadcrumb-item">Data</li>
-    <li class="breadcrumb-item">Version control systems</li>
-    <li class="breadcrumb-item"><a href="@($"/data/vcs/{VersionControlId}")">@VersionControl?.Endpoint</a></li>
-    <li class="breadcrumb-item active">@Repository?.WebUrl</li>
-</BreadcrumbsComponent>
+<BreadcrumbsComponent VersionControlId="@VersionControlId" RepositoryId="@RepositoryId"></BreadcrumbsComponent>
 
 <RefreshComponent Target="TaskScopeKind.Repository" Id="@RepositoryId"></RefreshComponent>
 
@@ -14,14 +9,7 @@
         <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
     </div>
     <div class="card-body">
-        @if (Assets != null)
-        {
-            <AssetsComponent Items="Assets"></AssetsComponent>
-        }
-        else
-        {
-            <LoaderComponent></LoaderComponent>
-        }
+        <AssetsComponent VersionControlId="@VersionControlId" RepositoryId="@RepositoryId"></AssetsComponent>
     </div>
 </div>
 
@@ -30,14 +18,7 @@
         <h6 class="m-0 font-weight-bold text-primary">Contionus integration &amp; Continious delivery builds</h6>
     </div>
     <div class="card-body">
-        @if (Builds != null)
-        {
-            <CiCdBuildsComponent Items="Builds"></CiCdBuildsComponent>
-        }
-        else
-        {
-            <LoaderComponent></LoaderComponent>
-        }
+        <CiCdBuildsComponent RepositoryId="@RepositoryId"></CiCdBuildsComponent>
     </div>
 </div>
 
@@ -46,14 +27,7 @@
         <h6 class="m-0 font-weight-bold text-primary">Frameworks</h6>
     </div>
     <div class="card-body">
-        @if (Frameworks != null)
-        {
-            <FrameworksComponent Items="Frameworks"></FrameworksComponent>
-        }
-        else
-        {
-            <LoaderComponent></LoaderComponent>
-        }
+        <FrameworksComponent RepositoryId="@RepositoryId"></FrameworksComponent>
     </div>
 </div>
 
@@ -62,30 +36,25 @@
         <h6 class="m-0 font-weight-bold text-primary">Dependencies Published</h6>
     </div>
     <div class="card-body">
-        @if (Dependencies != null)
-        {
-            <DependenciesComponent Items="Dependencies"></DependenciesComponent>
-        }
-        else
-        {
-            <LoaderComponent></LoaderComponent>
-        }
+        <DependenciesComponent RepositoryId="@RepositoryId"></DependenciesComponent>
     </div>
 </div>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Dependent Assets</h6>
+        <h6 class="m-0 font-weight-bold text-primary">Repository Assets</h6>
     </div>
     <div class="card-body">
-        @if (Dependents != null)
-        {
-            <AssetsComponent Items="Dependents"></AssetsComponent>
-        }
-        else
-        {
-            <LoaderComponent></LoaderComponent>
-        }
+        <AssetsComponent VersionControlId="@VersionControlId" RepositoryId="@RepositoryId"></AssetsComponent>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">External Dependents</h6>
+    </div>
+    <div class="card-body">
+        <AssetsComponent VersionControlId="@VersionControlId" RepositoryId="@RepositoryId" Dependents="true"></AssetsComponent>
     </div>
 </div>
 
@@ -93,30 +62,4 @@
 {
     [Parameter] Guid VersionControlId { get; set; }
     [Parameter] Guid RepositoryId { get; set; }
-
-    RepositoryDto Repository { get; set; }
-    VersionControlDto VersionControl { get; set; }
-
-    IEnumerable<CiCdBuildDto> Builds { get; set; }
-    IEnumerable<AssetDto> Assets { get; set; }
-    IEnumerable<AssetDto> Dependents { get; set; }
-    IEnumerable<DependencyDto> Dependencies { get; set; }
-    IEnumerable<FrameworkDto> Frameworks { get; set; }
-
-    [Inject] AssetsService AssetsService { get; set; }
-    [Inject] CiCdsService CiCdsService { get; set; }
-    [Inject] RepositoriesService RepositoriesService { get; set; }
-    [Inject] DependenciesService DependenciesService { get; set; }
-    [Inject] VersionControlsService VersionControlsService { get; set; }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        VersionControl = await VersionControlsService.GetVersionControlByIdAsync(VersionControlId);        
-        Repository = await RepositoriesService.GetRepositoryByIdAsync(RepositoryId); 
-        Dependencies = await RepositoriesService.GetDependenciesByRepositoryId(RepositoryId);
-        Assets = await RepositoriesService.GetAssetsByRepositoryId(RepositoryId);
-        Dependents = await RepositoriesService.GetDependentsByRepositoryId(RepositoryId);
-        Frameworks = await RepositoriesService.GetFrameworksByRepositoryId(RepositoryId); 
-        Builds = await RepositoriesService.GetCiCdsByRepositoryId(RepositoryId);
-    }
 }

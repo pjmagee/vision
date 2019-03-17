@@ -1,4 +1,4 @@
-﻿<table class="table table-striped table-bordered table-sm" style="width: 100%">
+﻿<BlazorTable IsBordered="true" IsResponsive="true" IsSmall="true" IsStriped="true">
     <thead>
         <tr>
             <th>Name</th>
@@ -6,24 +6,56 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Items)
+        @if (Items != null)
         {
-            <tr>
-                <td><a href="@($"/data/frameworks/{item.FrameworkId}")">@item.Name</a></td>
-                <td>@item.Assets</td>
-            </tr>
+            @foreach (var item in Items)
+            {
+                <tr>
+                    <td><a href="@($"/data/frameworks/{item.FrameworkId}")">@item.Name</a></td>
+                    <td>@item.Assets</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
         }
     </tbody>
-</table>
+</BlazorTable>
+
+<PagerComponent Pager="Items" Page="@(async(p) => await PageAsync(p))"></PagerComponent>
 
 @functions
-{
-    [Parameter] IEnumerable<FrameworkDto> Items { get; set; }
+{    
+    [Parameter] Guid? RepositoryId { get; set; }
+    [Parameter] Guid? AssetId { get; set; }
 
-    [Inject] IJSRuntime JSRuntime { get; set; }
+    [Inject] FrameworksService FrameworksService { get; set; }
+    [Inject] SvgService SvgService { get; set; }
+    [Inject] FrameworksService Service { get; set; }
 
-    protected override async Task OnAfterRenderAsync()
+    PaginatedList<FrameworkDto> Items { get; set; }
+    
+    protected override async Task OnParametersSetAsync()
     {
-        await JSRuntime.InvokeAsync<object>("dataTable");
+        await PageAsync(page: 1);
+    }
+
+    async Task PageAsync(int page = 1)
+    {
+        if(RepositoryId.HasValue)
+        {
+            Items = await Service.GetByRepositoryIdAsync(RepositoryId.Value, page);
+        }
+        else if(AssetId.HasValue)
+        {
+            Items = await Service.GetByAssetIdAsync(AssetId.Value, page);
+        }       
+        else
+        {
+            Items = await Service.GetAsync(page);
+        }
+
+        StateHasChanged();
     }
 }

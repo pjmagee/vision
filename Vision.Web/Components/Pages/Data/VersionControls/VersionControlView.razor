@@ -1,11 +1,6 @@
 ﻿@page "/data/vcs/{VersionControlId:guid}"
-@page "/data/vcs/{VersionControlId:guid}/page/{PageIndex:int}"
 
-<BreadcrumbsComponent>
-    <li class="breadcrumb-item">Data</li>
-    <li class="breadcrumb-item"><a href="/data/vcs">Version control systems</a></li>
-    <li class="breadcrumb-item active" aria-current="page">@VersionControl?.Endpoint</li>
-</BreadcrumbsComponent>
+<BreadcrumbsComponent VersionControlId="@VersionControlId"></BreadcrumbsComponent>
 
 <RefreshComponent Target="TaskScopeKind.VersionControl" Id="@VersionControlId"></RefreshComponent>
 
@@ -14,32 +9,11 @@
         <h6 class="m-0 font-weight-bold text-primary">Repositories</h6>
     </div>
     <div class="card-body">
-        @if (Repositories != null)
-        {
-            <RepositoriesComponent PagedItems="Repositories" Page="@((int page) => UriHelper.NavigateTo($"/data/vcs/{VersionControlId}/page/{page}"))"></RepositoriesComponent>
-        }
-        else
-        {
-            <LoaderComponent></LoaderComponent>
-        }
+        <RepositoriesComponent VersionControlId="@VersionControlId"></RepositoriesComponent>
     </div>
 </div>
 
 @functions
 {
     [Parameter] Guid VersionControlId { get; set; }
-    [Parameter] int PageIndex { get; set; } = 1;
-    [Parameter] int PageSize { get; set; } = 10;
-
-    [Inject] VersionControlsService VersionControlsService { get; set; }
-    [Inject] IUriHelper UriHelper { get; set; }
-
-    PaginatedList<RepositoryDto> Repositories { get; set; }
-    VersionControlDto VersionControl { get; set; }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        VersionControl = await VersionControlsService.GetVersionControlByIdAsync(VersionControlId);
-        Repositories = await VersionControlsService.GetRepositoriesByIdAsync(VersionControlId, PageIndex, PageSize);
-    }
 }

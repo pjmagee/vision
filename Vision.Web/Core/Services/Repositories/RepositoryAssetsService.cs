@@ -17,11 +17,9 @@
             extractors = new IAssetExtractor[] { nugetNameExtractor, npmNameExtractor };
         }
 
-        public async Task<List<string>> GetAssetPublishNamesByRepositoryIdAsync(Guid repositoryId)
+        public async Task<List<string>> GetPublishedNamesByRepositoryIdAsync(Guid repositoryId)
         {
-            // Repository repository = await context.Repositories.FindAsync(repositoryId);
             var assets = await context.Assets.Where(asset => asset.RepositoryId == repositoryId).ToListAsync();
-
             return extractors.SelectMany(extractor => assets.Where(asset => extractor.Supports(asset.Kind)).Select(asset => extractor.ExtractPublishName(asset))).ToList();
         }
     }

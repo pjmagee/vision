@@ -79,7 +79,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        Registry = await RegistriesService.GetRegistryByIdAsync(RegistryId);
+        Registry = await RegistriesService.GetByIdAsync(RegistryId);
         context = new EditContext(Registry);
         context.AddDataAnnotationsValidation();
     }

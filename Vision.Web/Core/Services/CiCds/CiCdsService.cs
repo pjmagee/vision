@@ -1,11 +1,9 @@
 ﻿namespace Vision.Web.Core
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.DataProtection;
-    using Microsoft.EntityFrameworkCore;
 
     public class CiCdsService
     {
@@ -88,9 +86,9 @@
             };
         }
 
-        public async Task<IEnumerable<CiCdDto>> GetAllAsync()
+        public async Task<PaginatedList<CiCdDto>> GetAsync(int pageIndex = 1, int pageSize = 10)
         {
-            return await context.CiCds.Select(cicd => new CiCdDto
+            var query = context.CiCds.Select(cicd => new CiCdDto
             {
                 ApiKey = cicd.ApiKey,
                 CiCdId = cicd.Id,
@@ -98,7 +96,9 @@
                 Kind = cicd.Kind,
                 Username = cicd.Username,
                 Password = cicd.Password
-            }).ToListAsync();
+            });
+
+            return await PaginatedList<CiCdDto>.CreateAsync(query, pageIndex, pageSize);
         }
     }
 }

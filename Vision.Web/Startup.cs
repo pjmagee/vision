@@ -8,11 +8,10 @@ using Vision.Web.Core;
 using Vision.Web.Components;
 using Microsoft.Extensions.Hosting;
 using Vision.Web.Hubs;
+using NSwag;
 
 namespace Vision.Web
 {
-    
-
     public class Startup
     {
         private readonly IConfiguration configuration;
@@ -40,44 +39,38 @@ namespace Vision.Web
 
             RegisterVersionControlServices(services);
             RegisterAssetServices(services);
-            RegisterDependencyVersionServices(services);
+            RegisterDependencyServices(services);
             RegisterCiCdServices(services);
             RegisterRazorComponentServices(services);
 
-            services.AddScoped<DashboardService>();
-            services.AddScoped<InsightsService>();
-            services.AddScoped<DependenciesService>();
-            services.AddScoped<FrameworksService>();
-            services.AddScoped<RepositoriesService>();
-            services.AddScoped<RegistriesService>();
+            services.AddScoped<MetricItemsService>();
 
             RegisterSystemRefreshServices(services);
 
             services.AddCors(options => options.AddPolicy("CorsPolicy", builder => builder.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin()));
 
-            // services.AddScoped(provider => new HttpClient() { BaseAddress = new Uri(provider.GetRequiredService<IUriHelper>().GetBaseUri()) });
 
-            //services.AddSwaggerDocument(config => 
-            //{
-            //    config.PostProcess = document =>
-            //    {
-            //        document.Info.Version = "v1";
-            //        document.Info.Title = "Vision API";
-            //        document.Info.Description = "Vision API for asset and dependency reporting for the organisation";
-            //        document.Info.TermsOfService = "None";
-            //        document.Info.Contact = new SwaggerContact
-            //        {
-            //            Name = "Patrick Magee",
-            //            Email = "patrick.magee@reedbusiness.com",
-            //            Url = "https://github.com/pjmagee"
-            //        };
-            //        document.Info.License = new SwaggerLicense
-            //        {
-            //            Name = "Use under LICX",
-            //            Url = "https://example.com/license"
-            //        };
-            //    };
-            //});
+            services.AddSwaggerDocument(config =>
+            {
+                config.PostProcess = document =>
+                {
+                    document.Info.Version = "v1";
+                    document.Info.Title = "Vision API";
+                    document.Info.Description = "Vision API for asset and dependency reporting for the organisation";
+                    document.Info.TermsOfService = "None";
+                    document.Info.Contact = new SwaggerContact
+                    {
+                        Name = "Patrick Magee",
+                        Email = "patrick.magee@reedbusiness.com",
+                        Url = "https://github.com/pjmagee"
+                    };
+                    document.Info.License = new SwaggerLicense
+                    {
+                        Name = "Use under LICX",
+                        Url = "https://example.com/license"
+                    };
+                };
+            });
         }
 
         private static void RegisterSystemRefreshServices(IServiceCollection services)
@@ -101,9 +94,11 @@ namespace Vision.Web
             services.AddScoped<ICICDBuildsService, AggregateCICDBuildsService>();
         }
 
-        private static void RegisterDependencyVersionServices(IServiceCollection services)
+        private static void RegisterDependencyServices(IServiceCollection services)
         {
-            services.AddScoped<DependencyVersionsService>();
+            services.AddScoped<RegistriesService>();
+            services.AddScoped<DependencyVersionService>();
+            services.AddScoped<DependenciesService>();
 
             services.AddScoped<NuGetVersionService>();
             services.AddScoped<DockerVersionService>();
@@ -113,8 +108,10 @@ namespace Vision.Web
         
         private static void RegisterAssetServices(IServiceCollection services)
         {
+            services.AddScoped<FrameworksService>();
             services.AddScoped<AssetsService>();
             services.AddScoped<RepositoryAssetsService>();
+            services.AddScoped<AssetDependenciesService>();
 
             services.AddScoped<NpmAssetExtractor>();
             services.AddScoped<NuGetAssetExtractor>();
@@ -125,6 +122,8 @@ namespace Vision.Web
         private static void RegisterVersionControlServices(IServiceCollection services)
         {
             services.AddScoped<VersionControlsService>();
+            services.AddScoped<RepositoriesService>();
+
             services.AddScoped<IRepositoryMatcher, RepositoryMatcher>();
             services.AddScoped<BitBucketService>();
             services.AddScoped<GitlabService>();

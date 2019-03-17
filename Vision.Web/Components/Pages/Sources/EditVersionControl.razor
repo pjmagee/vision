@@ -1,0 +1,73 @@
+﻿@page "/sources/edit/vcs/{VersionControlId:guid}"
+
+<BreadcrumbsComponent>
+    <li class="breadcrumb-item">Sources</li>
+    <li class="breadcrumb-item">Edit</li>
+    <li class="breadcrumb-item active">Registry</li>
+</BreadcrumbsComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Update</h6>
+    </div>
+    <div class="card-body">
+        @if (VersionControl != null)
+        {
+            <EditForm EditContext="@context">
+                <ValidationSummary></ValidationSummary>
+                <div class="form-group">
+                    <input type="text" class="form-control" bind="VersionControl.Endpoint" placeholder="Endpoint" />
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" bind="VersionControl.ApiKey" placeholder="API Key" />
+                </div>
+                <div class="form-group">
+                    <select type="text" class="form-control" bind="VersionControl.Kind" placeholder="Type">
+                        @foreach (var kind in Enum.GetValues(typeof(VersionControlKind)).Cast<DependencyKind>())
+                        {
+                            <option value="@kind">@kind.ToString()</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" bind="VersionControl.IsEnabled" id="isEnabled" />
+                        <label class="form-check-label" for="isEnabled">Enabled</label>
+                    </div>
+                </div>
+                <button onclick="@Update" type="button" class="btn btn-primary">Update</button>
+            </EditForm>
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
+        }
+    </div>
+</div>
+
+@functions
+{
+    [Parameter] Guid VersionControlId { get; set; }
+
+    [Inject] VersionControlsService VersionControlsService { get; set; }
+    [Inject] IUriHelper UriHelper { get; set; }
+
+    VersionControlDto VersionControl { get; set; }
+    EditContext context { get; set; }
+
+    protected async Task Update()
+    {
+        if (context.Validate())
+        {
+            // await VersionControlsService.UpdateAsync(VersionControl);
+            UriHelper.NavigateTo("/data/vcs");
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        VersionControl = await VersionControlsService.GetByIdAsync(VersionControlId);
+        context = new EditContext(VersionControl);
+        context.AddDataAnnotationsValidation();
+    }
+}

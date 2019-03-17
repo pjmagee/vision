@@ -1,11 +1,9 @@
 ﻿namespace Vision.Web.Core
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.DataProtection;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
 
     public class RegistriesService
@@ -65,9 +63,9 @@
             return new RegistryDto { Endpoint = entity.Endpoint, ApiKey = entity.ApiKey, Kind = entity.Kind, RegistryId = entity.Id, IsPublic = dto.IsPublic, IsEnabled = dto.IsEnabled };
         }
 
-        public async Task<IEnumerable<RegistryDto>> GetAllAsync()
+        public async Task<PaginatedList<RegistryDto>> GetAsync(int pageIndex = 1, int pageSize = 10)
         {
-            return await context.Registries.Select(registry => new RegistryDto
+            var query = context.Registries.Select(registry => new RegistryDto
             {
                 ApiKey = string.IsNullOrWhiteSpace(registry.ApiKey) ? null : protector.Unprotect(registry.ApiKey),
                 Username = string.IsNullOrWhiteSpace(registry.Username) ? null : protector.Unprotect(registry.Username),
@@ -77,12 +75,13 @@
                 IsEnabled = registry.IsEnabled,
                 IsPublic = registry.IsPublic,
                 Kind = registry.Kind,
-                RegistryId = registry.Id                
-            })
-            .ToListAsync();
+                RegistryId = registry.Id
+            });
+
+            return await PaginatedList<RegistryDto>.CreateAsync(query, pageIndex, pageSize);
         }
 
-        public async Task<RegistryDto> GetRegistryByIdAsync(Guid registryId)
+        public async Task<RegistryDto> GetByIdAsync(Guid registryId)
         {
             Registry entity = await context.Registries.FindAsync(registryId);
 
@@ -98,21 +97,6 @@
                 Kind = entity.Kind,
                 RegistryId = entity.Id
             };
-        }
-
-        public async Task<IEnumerable<DependencyDto>> GetDependenciesByRegistryIdAsync(Guid registryId)
-        {
-            return await context.Dependencies
-                .Where(d => d.RegistryId == registryId)
-                .Select(entity => new DependencyDto
-                {
-                    Name = entity.Name,
-                    RepositoryUrl = entity.RepositoryUrl,
-                    Versions = context.DependencyVersions.Count(x => x.DependencyId == entity.Id),
-                    Assets = context.AssetDependencies.Count(x => x.DependencyId == entity.Id),
-                    DependencyId = entity.Id,
-                    Kind = entity.Kind
-                }).ToListAsync();
-        }
+        }               
     }
 }

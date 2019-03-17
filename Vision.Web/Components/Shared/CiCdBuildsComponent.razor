@@ -1,4 +1,4 @@
-﻿<table class="table table-striped table-bordered table-sm" style="width: 100%">
+﻿<BlazorTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
     <thead>
         <tr>
             <th>Kind</th>
@@ -7,30 +7,40 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Items)
+        @if (Items != null)
         {
-            <tr>
-                <td class="@item.Kind.GetIconClass()">
-                    @SvgService.GetSvg(item.Kind)
-                </td>
-                <td>@item.Name</td>
-                <td>
-                    <a href="@item.WebUrl" target="_blank">@item.WebUrl (Open in new window)</a>
-                </td>
-            </tr>
+            @foreach (var item in Items)
+            {
+                <tr>
+                    <td class="@item.Kind.GetIconClass()">
+                        @SvgService.GetSvg(item.Kind)
+                    </td>
+                    <td>@item.Name</td>
+                    <td>
+                        <a href="@item.WebUrl" target="_blank">@item.WebUrl (Open in new window)</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <LoaderComponent></LoaderComponent>
         }
     </tbody>
-</table>
+</BlazorTable>
 
 @functions
 {
-    [Parameter] IEnumerable<CiCdBuildDto> Items { get; set; }
+    [Parameter] Guid RepositoryId { get; set; }
 
-    [Inject] IJSRuntime JSRuntime { get; set; }
     [Inject] SvgService SvgService { get; set; }
+    [Inject] ICICDBuildsService CiCdsService { get; set; }
 
-    protected override async Task OnAfterRenderAsync()
+    List<CiCdBuildDto> Items { get; set; }
+
+    protected override async Task OnParametersSetAsync()
     {
-        await JSRuntime.InvokeAsync<object>("dataTable");
+        Items = await CiCdsService.GetBuildsByRepositoryIdAsync(RepositoryId);
+        StateHasChanged();
     }
 }

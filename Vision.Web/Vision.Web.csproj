@@ -27,11 +27,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Api\" />
+    <Folder Include="Components\Pages\Insights\" />
     <Folder Include="wwwroot\lib\" />
   </ItemGroup>
 
   <ItemGroup>
-    <UpToDateCheckInput Include="@(Content->WithMetadataValue('Extension', '.razor'))" />
+    <UpToDateCheckInput Include="@(Content-&gt;WithMetadataValue('Extension', '.razor'))" />
   </ItemGroup>
 
 </Project>
