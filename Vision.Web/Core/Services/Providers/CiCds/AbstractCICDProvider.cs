@@ -32,7 +32,7 @@ namespace Vision.Web.Core
 
             List<CiCdBuildDto> builds = new List<CiCdBuildDto>();
 
-            foreach (CiCd cicd in await context.CiCds.Where(cicd => cicd.Kind == Kind).ToListAsync())
+            foreach (CiCd cicd in await context.CiCds.Where(cicd => cicd.Kind == Kind && cicd.IsEnabled).ToListAsync())
             {
                 List<CiCdBuildDto> results = await GetBuildsAsync(repository, cicd);
                 builds.AddRange(results);

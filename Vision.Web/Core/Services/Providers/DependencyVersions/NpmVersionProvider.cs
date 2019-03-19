@@ -20,14 +20,10 @@ namespace Vision.Web.Core
 
         protected override async Task<DependencyVersion> GetLatestMetaDataAsync(Registry registry, Dependency dependency)
         {
-            string query = new Uri(new Uri(registry.Endpoint), new Uri($"/{dependency.Name}", UriKind.Relative)).ToString();
-
-            logger.LogInformation($"Checking {query} for latest version");
-
+            string query = new Uri(new Uri(registry.Endpoint.Trim('/') + "/", UriKind.Absolute), new Uri($"{dependency.Name}", UriKind.Relative)).ToString();
             string json = await client.GetStringAsync(query);
             JObject resp = JObject.Parse(json);
             string latest = resp["dist-tags"]["latest"].ToString();
-
             return new DependencyVersion { Version = latest, IsLatest = true, Dependency = dependency, DependencyId = dependency.Id };
         }
     }

@@ -1,17 +1,17 @@
 ﻿<Breadcrumb>
-    @if (VersionControlId.HasValue && VersionControlId.HasValue && FrameworkId.HasValue)
+    @if (VersionControlId.HasValue && VersionControlId.HasValue && FrameworkId.HasValue && RepositoryId.HasValue)
     {
         <BreadcrumbItem>Data</BreadcrumbItem>
         <BreadcrumbItem>Version control systems</BreadcrumbItem>
-        <BreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}")">Repositories</a></BreadcrumbItem>
+        <BreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}")">@Repository.WebUrl</a></BreadcrumbItem>
         <BreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}/frameworks")">Frameworks</a></BreadcrumbItem>
         <BreadcrumbItem IsActive="true">@Framework?.Name</BreadcrumbItem>
     }
     else if (VersionControlId.HasValue && RepositoryId.HasValue && DependencyId.HasValue)
     {
         <BreadcrumbItem>Data</BreadcrumbItem>
-        <BreadcrumbItem>Version control systems</BreadcrumbItem>
-        <BreadcrumbItem> <a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}")">Repositories</a></BreadcrumbItem>
+        <BreadcrumbItem>@VersionControl.</BreadcrumbItem>
+        <BreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}")">@Repository.WebUrl</a></BreadcrumbItem>
         <BreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}/dependencies")">Dependencies</a></BreadcrumbItem>
         <BreadcrumbItem IsActive="true">@Dependency?.Name</BreadcrumbItem>
     }
@@ -19,7 +19,6 @@
     {
         <BreadcrumbItem>Data</BreadcrumbItem>
         <BreadcrumbItem>Version control systems</BreadcrumbItem>
-        <BreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}")">Repositories</a></BreadcrumbItem>
         <BreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}")">@Repository?.WebUrl</a></BreadcrumbItem>
         <BreadcrumbItem IsActive="true">@Asset?.Asset</BreadcrumbItem>
     }

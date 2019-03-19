@@ -97,11 +97,12 @@
             context.AssetFrameworks.RemoveRange(asset.Frameworks);
             await context.SaveChangesAsync();
             
-            IEnumerable<Extract> items = assetExtractor.ExtractFrameworks(asset);
+            IEnumerable<Extract> extracts = assetExtractor.ExtractFrameworks(asset);
 
-            var tasks = items.Select(extract => AssignAssetFrameworksAsync(extract, asset)).ToArray();
-
-            await Task.WhenAll(tasks);
+            foreach(var extract in extracts)
+            {
+                await AssignAssetFrameworksAsync(extract, asset);
+            }            
         }
 
         public async Task RefreshVersionControlByIdAsync(Guid versionControlId)
@@ -128,8 +129,7 @@
 
         private async Task AssignAssetFrameworksAsync(Extract extracted, Asset asset)
         {            
-            string version = extracted.Version;
-            Framework framework = await GetOrCreateFramework(version);
+            Framework framework = await GetOrCreateFramework(extracted);
 
             if (context.Entry(framework).State == EntityState.Detached)
             {
@@ -140,15 +140,15 @@
             await context.SaveChangesAsync();
         }
 
-        private async Task<Framework> GetOrCreateFramework(string version)
+        private async Task<Framework> GetOrCreateFramework(Extract extract)
         {
-            return await context.Frameworks.FirstOrDefaultAsync(d => d.Version == version) ?? new Framework { Version = version };
+            return await context.Frameworks.FirstOrDefaultAsync(d => d.Name == extract.Name && d.Version == extract.Version) ?? new Framework { Name = extract.Name, Version = extract.Version };
         }
 
-        private async Task AssignAssetDependencies(Extract extracted, Asset asset)
+        private async Task AssignAssetDependencies(Extract extract, Asset asset)
         {
-            string version = extracted.Version;
-            string name = extracted.Name;
+            string version = extract.Version;
+            string name = extract.Name;
 
             Dependency dependency = await GetOrCreateDependency(asset.Kind, name);
 
@@ -210,13 +210,9 @@
         {
             Dependency dependency = await context.Dependencies.FindAsync(dependencyId);
 
-            Task<DependencyVersion> versionTask = versionProvider.GetLatestMetaDataAsync(dependency);
-            Task<List<DependencyVersion>> currentVersionsTask = context.DependencyVersions.Where(x => x.DependencyId == dependencyId).ToListAsync();
 
-            await Task.WhenAll(versionTask, currentVersionsTask);
-
-            DependencyVersion latestVersion = versionTask.Result;
-            List<DependencyVersion> currentVersions = currentVersionsTask.Result;
+            DependencyVersion latestVersion = await versionProvider.GetLatestMetaDataAsync(dependency);
+            List<DependencyVersion> currentVersions = await context.DependencyVersions.Where(x => x.DependencyId == dependencyId).ToListAsync();
 
             if (currentVersions.All(current => current.Version != latestVersion.Version))
             {

@@ -40,7 +40,7 @@
             @if (Items.Count == 0)
             {
                 <tr>
-                    <td colspan="3">
+                    <td colspan="4">
                         No assets found.
                     </td>
                 </tr>
@@ -49,7 +49,7 @@
         else
         {
             <tr>
-                <td colspan="3">
+                <td colspan="4">
                     <LoaderComponent></LoaderComponent>
                 </td>
             </tr>
@@ -75,6 +75,10 @@
 
     DependencyKind? Kind { get; set; }
 
+    List<DependencyKind> kinds = new List<DependencyKind>();
+
+    int PageSize = 10;
+
     protected override async Task OnParametersSetAsync()
     {
         await PageAsync(1);
@@ -89,40 +93,43 @@
         else
         {
             Kind = null;
-        }        
+        }
 
         await PageAsync(Items.PageIndex);
     }
 
     async Task PageAsync(int page)
     {
+        kinds.Clear();
+        if (Kind.HasValue) kinds.Add(Kind.Value);
+
         if (Dependents && RepositoryId.HasValue)
         {
-            Items = await AssetService.GetDependentsByRepositoryId(RepositoryId.Value, page);
+            Items = await AssetService.GetDependentsByRepositoryId(RepositoryId.Value, kinds, page, PageSize);
         }
         else if (RepositoryId.HasValue)
         {
-            Items = await AssetService.GetByRepositoryIdAsync(RepositoryId.Value, page);
+            Items = await AssetService.GetByRepositoryIdAsync(RepositoryId.Value, kinds, page, PageSize);
         }
         else if (VersionControlId.HasValue)
         {
-            Items = await AssetService.GetByVersionControlIdAsync(VersionControlId.Value, page);
+            Items = await AssetService.GetByVersionControlIdAsync(VersionControlId.Value, kinds, page, PageSize);
         }
         else if (DependencyId.HasValue)
         {
-            Items = await AssetService.GetByDependencyIdAsync(DependencyId.Value, page);
+            Items = await AssetService.GetByDependencyIdAsync(DependencyId.Value, kinds, page, PageSize);
         }
         else if (VersionId.HasValue)
         {
-            Items = await AssetService.GetByVersionIdAsync(VersionId.Value, page);
+            Items = await AssetService.GetByVersionIdAsync(VersionId.Value, kinds, page, PageSize);
         }
         else if (FrameworkId.HasValue)
         {
-            Items = await AssetService.GetByFrameworkIdAsync(FrameworkId.Value, page);
+            Items = await AssetService.GetByFrameworkIdAsync(FrameworkId.Value, kinds, page, PageSize);
         }
         else
         {
-            Items = await AssetService.GetAsync(page, kind: Kind);
+            Items = await AssetService.GetAsync(kinds, page);
         }
 
         StateHasChanged();

@@ -23,7 +23,7 @@
                 </div>
                 <div class="form-group">
                     <select type="text" class="form-control" bind="VersionControl.Kind" placeholder="Type">
-                        @foreach (var kind in Enum.GetValues(typeof(VersionControlKind)).Cast<DependencyKind>())
+                        @foreach (var kind in Enum.GetValues(typeof(VersionControlKind)).Cast<VersionControlKind>())
                         {
                             <option value="@kind">@kind.ToString()</option>
                         }

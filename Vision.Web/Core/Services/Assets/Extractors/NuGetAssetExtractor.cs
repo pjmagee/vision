@@ -87,7 +87,7 @@ namespace Vision.Web.Core
                                                                 select framework);
 
 
-                        var results = targetFrameworks.Concat(targetFramework).Select(fw => new Extract("Framework", fw?.Trim())).ToList();
+                        var results = targetFrameworks.Concat(targetFramework).Select(fw => new Extract(".NET Framework", fw?.Trim())).ToList();
 
                         logger.LogInformation($"Extracted {results.Count} frameworks for asset {asset.Path}");
 

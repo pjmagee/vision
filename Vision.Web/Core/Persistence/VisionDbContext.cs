@@ -81,7 +81,7 @@
                 entity.HasKey(x => x.Id);
                 entity.Property(x => x.RegistryId).IsRequired(false);
                 entity.Property(x => x.RepositoryUrl).IsRequired(false);
-                entity.Property(e => e.Kind).HasConversion(new EnumToStringConverter<DependencyKind>());
+                entity.Property(e => e.Kind);
                 entity.HasMany(x => x.Versions).WithOne(v => v.Dependency).HasForeignKey(x => x.DependencyId);
                 entity.HasMany(x => x.Assets).WithOne(x => x.Dependency).HasForeignKey(x => x.DependencyId);
             });
@@ -103,27 +103,60 @@
             {
                 entity.HasKey(x => x.Id);
                 entity.Property(x => x.Endpoint).IsRequired();
-                entity.Property(x => x.IsEnabled).HasDefaultValue(true);
             });
 
             modelBuilder.
                 Entity<VersionControl>()
-                .HasData(new VersionControl { ApiKey = "MjM0OTkxODc4NzgzOh4dBCIn5N5DxaMqpreiybxov3e2", IsEnabled = true, Kind = VersionControlKind.Bitbucket, Endpoint = "http://stash.xpa.rbxd.ds:8090" });
+                .HasData(
+                    new VersionControl
+                    {
+                        ApiKey = "MjM0OTkxODc4NzgzOh4dBCIn5N5DxaMqpreiybxov3e2",
+                        IsEnabled = true,
+                        Kind = VersionControlKind.Bitbucket,
+                        Endpoint = "http://stash.xpa.rbxd.ds:8090"
+                    }
+                 );
 
             modelBuilder.
                 Entity<Registry>()
                 .HasData(
-                    new Registry { IsPublic = false, IsEnabled = true, Kind = DependencyKind.NuGet, Endpoint = "https://nexus3.xpa.rbxd.ds/repository/nuget-group/" },
-                    new Registry { IsPublic = false, IsEnabled = true, Kind = DependencyKind.Npm, Endpoint = "https://nexus3.xpa.rbxd.ds/repository/npm-group/" },
-                    new Registry { IsPublic = false, IsEnabled = true, Kind = DependencyKind.Docker, Endpoint = "https://nexus3.xpa.rbxd.ds/repository/docker-group/" });
+                    new Registry
+                    {
+                        IsPublic = false,
+                        IsEnabled = true,
+                        Kind = DependencyKind.NuGet,
+                        Endpoint = "https://nexus3.xpa.rbxd.ds/repository/nuget-group/"
+                    },
+                    new Registry
+                    {
+                        IsPublic = false,
+                        IsEnabled = true,
+                        Kind = DependencyKind.Npm,
+                        Endpoint = "https://nexus3.xpa.rbxd.ds/repository/npm-group/"
+                    },
+                    new Registry
+                    {
+                        IsPublic = false,
+                        IsEnabled = true,
+                        Kind = DependencyKind.Docker, Endpoint = "nexus3.xpa.rbxd.ds:8080"
+                    },
+                    new Registry
+                    {
+                        IsPublic = true,
+                        IsEnabled = true,
+                        Kind = DependencyKind.NuGet,
+                        Endpoint = "https://api.nuget.org/v3/index.json"
+                    }
+                );
 
             modelBuilder.
                 Entity<CiCd>()
                 .HasData(
-                    new CiCd { IsEnabled = true, Kind = CiCdKind.TeamCity, Endpoint = "http://teamcity.xpa.rbxd.ds:8080" },
-                    new CiCd { IsEnabled = true, Kind = CiCdKind.TeamCity, Endpoint = "http://dataservices.teamcity.xpa.rbxd.ds:8080" },
-                    new CiCd { IsEnabled = true, Kind = CiCdKind.TeamCity, Endpoint = "http://xpaqhsctrd100v.xpa.rbxd.ds:8080" },
-                    new CiCd { IsEnabled = true, Kind = CiCdKind.Jenkins, Endpoint = "https://jenkins.xpa.rbxd.ds/", ApiKey = "11c7147cf44cf7072cad8305ba26af6139" });
+                    new CiCd { IsEnabled = false, Kind = CiCdKind.TeamCity, Endpoint = "http://teamcity.xpa.rbxd.ds:8080" },
+                    new CiCd { IsEnabled = false, Kind = CiCdKind.TeamCity, Endpoint = "http://dataservices.teamcity.xpa.rbxd.ds:8080" },
+                    new CiCd { IsEnabled = false, Kind = CiCdKind.TeamCity, Endpoint = "http://xpaqhsctrd100v.xpa.rbxd.ds:8080" },
+                    new CiCd { IsEnabled = false, Kind = CiCdKind.Jenkins, Endpoint = "https://jenkins.xpa.rbxd.ds/", ApiKey = "11c7147cf44cf7072cad8305ba26af6139" }
+                );
         }
     }
 }

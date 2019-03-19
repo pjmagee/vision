@@ -15,7 +15,8 @@
         {
             var query = context.Frameworks.Select(framework => new FrameworkDto
             {
-                Name = framework.Version,
+                Name = framework.Name,
+                Version = framework.Version,
                 FrameworkId = framework.Id,
                 Assets = context.AssetFrameworks.Count(af => af.FrameworkId == framework.Id)
             })
@@ -30,7 +31,8 @@
 
             return new FrameworkDto
             {
-                Name = framework.Version,
+                Name = framework.Name,
+                Version = framework.Version,
                 FrameworkId = framework.Id,
                 Assets = await context.AssetFrameworks.CountAsync(assetFramework => assetFramework.FrameworkId == frameworkId)
             };
@@ -43,7 +45,8 @@
                 .Select(fw => new FrameworkDto
                 {
                     FrameworkId = fw.Id,
-                    Name = fw.Version,
+                    Name = fw.Name,
+                    Version = fw.Version,
                     Assets = context.AssetFrameworks.Count(af => af.FrameworkId == fw.Id)
                 })
                 .OrderByDescending(fw => fw.Assets);
@@ -54,12 +57,14 @@
         public async Task<IPaginatedList<FrameworkDto>> GetByRepositoryIdAsync(Guid repositoryId, int pageIndex = 1, int pageSize = 10)
         {
             var query = context.Frameworks
-                .Where(fw => context.AssetFrameworks.Any(af => af.FrameworkId == fw.Id && context.Assets.Any(a => a.RepositoryId == repositoryId && af.AssetId == a.Id)))
+                .Where(framework => context.AssetFrameworks
+                    .Any(assetFramework => assetFramework.FrameworkId == framework.Id && context.Assets.Any(a => a.RepositoryId == repositoryId && assetFramework.AssetId == a.Id)))
                 .Select(framework => new FrameworkDto
                 {
                     Assets = context.AssetFrameworks.Count(assetFramework => assetFramework.FrameworkId == framework.Id && assetFramework.Asset.RepositoryId == repositoryId),
                     FrameworkId = framework.Id,
-                    Name = framework.Version
+                    Name = framework.Name,
+                    Version = framework.Version,
                 })
                 .OrderByDescending(f => f.Assets);
 

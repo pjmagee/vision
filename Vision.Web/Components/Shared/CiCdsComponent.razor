@@ -6,6 +6,8 @@
             <th>ApiKey (Encrypted)</th>
             <th>Username (Encrypted)</th>
             <th>Password (Encrypted)</th>
+            <th>Enabled</th>
+            <th>Guest Enabled</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -20,6 +22,8 @@
                     <td title="@item.ApiKey">@(string.IsNullOrWhiteSpace(item.ApiKey) ? "Empty" : "Set")</td>
                     <td title="@item.Username">@(string.IsNullOrWhiteSpace(item.Username) ? "Empty" : "Set")</td>
                     <td title="@item.Password">@(string.IsNullOrWhiteSpace(item.Password) ? "Empty" : "Set")</td>
+                    <th>@(item.IsEnabled ? "Enabled" : "Disabled")</th>
+                    <th>@(item.IsGuestEnabled ? "Enabled" : "Disabled")</th>
                     <td>
                         <a href="@($"/sources/edit/cicds/{item.CiCdId}")">Edit</a>
                     </td>
@@ -29,7 +33,7 @@
             @if (Items.Count == 0)
             {
                 <tr>
-                    <td colspan="3">
+                    <td colspan="8">
                         No CI/CD sources found.
                     </td>
                 </tr>

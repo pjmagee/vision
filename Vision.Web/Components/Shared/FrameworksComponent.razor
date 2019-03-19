@@ -2,6 +2,7 @@
     <thead>
         <tr>
             <th>Name</th>
+            <th>Version</th>
             <th>Assets</th>
         </tr>
     </thead>
@@ -12,7 +13,17 @@
             {
                 <tr>
                     <td><a href="@($"/data/frameworks/{item.FrameworkId}")">@item.Name</a></td>
+                    <td>@item.Version</td>
                     <td>@item.Assets</td>
+                </tr>
+            }
+
+            @if (Items.Count == 0)
+            {
+                <tr>
+                    <td colspan="3">
+                        No frameworks found.
+                    </td>
                 </tr>
             }
         }

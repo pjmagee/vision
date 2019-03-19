@@ -17,16 +17,9 @@
             this.assetService = assetService;
         }
 
-        public async Task<IPaginatedList<DependencyDto>> GetAsync(int pageIndex = 1, int pageSize = 10, DependencyKind? kind = null)
+        public async Task<IPaginatedList<DependencyDto>> GetAsync(int pageIndex = 1, int pageSize = 10)
         {
-            var query = context.Dependencies.AsQueryable();
-
-            if (kind.HasValue)
-            {
-                query = query.Where(dependency => dependency.Kind == kind);
-            }
-
-            var paging = query.Select(dependency => new DependencyDto
+            var paging = context.Dependencies.Select(dependency => new DependencyDto
             {
                 DependencyId = dependency.Id,
                 Name = dependency.Name,

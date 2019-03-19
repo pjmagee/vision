@@ -25,7 +25,7 @@ namespace Vision.Web.Core
         {
             List<Registry> registries = await context.Registries
                 .Where(registry => registry.Kind == dependency.Kind && registry.IsEnabled)
-                .OrderBy(registry => registry.IsPublic)
+                .OrderByDescending(registry => !registry.IsPublic)
                 .ToListAsync();
 
             foreach (Registry registry in registries)
@@ -35,11 +35,6 @@ namespace Vision.Web.Core
                     logger.LogInformation($"Searching latest version for {dependency.Name} at registry: {registry.Endpoint}.");
 
                     DependencyVersion result = await GetLatestMetaDataAsync(registry, dependency);
-
-                    if (result == null)
-                    {
-                        throw new InvalidOperationException($"DependencyVersion returned for {dependency.Name} is null.");
-                    }
 
                     logger.LogInformation($"Found latest version {result.Version} for {dependency.Name}");
 
