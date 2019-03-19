@@ -82,7 +82,7 @@
 
                 bool publishes = await context.Dependencies
                     .Where(d => d.Kind == dependencyKind)
-                    .AnyAsync(dependency => assetNames.Contains(dependency.Name) || (string.Equals(dependency.RepositoryUrl, repository.Url) || string.Equals(dependency.RepositoryUrl, repository.WebUrl)));
+                    .AnyAsync(dependency => assetNames.Contains(dependency.Name) || context.DependencyVersions.Any(dv => dv.DependencyId == dependency.Id && string.Equals(dv.ProjectUrl, repository.Url) || string.Equals(dv.ProjectUrl, repository.WebUrl)));
 
                 if (publishes)
                 {
@@ -113,8 +113,7 @@
                     Name = dependency.Name,
                     Kind = dependency.Kind,
                     Assets = context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id),
-                    Versions = context.DependencyVersions.Count(dv => dv.DependencyId == dependency.Id),
-                    RepositoryUrl = dependency.RepositoryUrl
+                    Versions = context.DependencyVersions.Count(dv => dv.DependencyId == dependency.Id)
                 })
                 .ToArrayAsync();
 

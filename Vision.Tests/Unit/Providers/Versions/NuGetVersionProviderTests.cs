@@ -19,7 +19,7 @@
         {
             options = new DbContextOptionsBuilder<VisionDbContext>().UseInMemoryDatabase("Registries").Options;
             context = new VisionDbContext(options);
-            sut = new NuGetVersionProvider(context, new DataProtectionStub(), Substitute.For<ILogger<NuGetVersionProvider>>());
+            sut = new NuGetVersionProvider(Substitute.For<ILogger<NuGetVersionProvider>>());
         }
 
         [Theory]
@@ -29,13 +29,11 @@
         public async Task NuGetApiTests(string endpoint, string package, string version)
         {
             // arrange
-            context.Registries.Add(new Registry { Endpoint = endpoint, IsEnabled = true, IsPublic = true, Kind = DependencyKind.NuGet });
-            context.SaveChanges();
-
+            RegistryDto registry = new RegistryDto { Endpoint = endpoint, IsEnabled = true, IsPublic = true, Kind = DependencyKind.NuGet };
             Dependency dependency = new Dependency { Name = package, Kind = DependencyKind.NuGet };
 
             // act
-            DependencyVersion latest = await sut.GetLatestMetaDataAsync(dependency);
+            DependencyVersion latest = await sut.GetLatestMetaDataAsync(registry, dependency);
 
             // assert
             Assert.Equal(version, latest.Version);

@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Logging;
 
 namespace Vision.Web.Core
@@ -14,14 +13,14 @@ namespace Vision.Web.Core
     {
         private static readonly HttpClient BuildsClient = new HttpClient(new HttpClientHandler { ServerCertificateCustomValidationCallback = delegate { return true; } });
 
-        public TeamCityProvider(VisionDbContext context, IRepositoryMatcher matcher, ILogger<TeamCityProvider> logger, IDataProtectionProvider provider) : base(context, provider, logger, matcher)
+        public TeamCityProvider(IRepositoryMatcher matcher, ILogger<TeamCityProvider> logger) : base(logger, matcher)
         {
 
         }
 
         protected override CiCdKind Kind => CiCdKind.TeamCity;
 
-        protected override async Task<List<CiCdBuildDto>> GetBuildsAsync(Repository repository, CiCd cicd)
+        protected override async Task<List<CiCdBuildDto>> TryGetBuildsAsync(RepositoryDto repository, CiCdDto cicd)
         {
             var builds = new List<CiCdBuildDto>();
 
@@ -30,14 +29,11 @@ namespace Vision.Web.Core
                 var authMode = cicd.IsGuestEnabled ? "guestAuth" : "httpAuth";                
                 var query = cicd.Endpoint.Trim('/') + $"/{authMode}/app/rest/vcs-roots";
 
-                logger.LogInformation($"Checking {query} for builds related to {repository.WebUrl}");
+                logger.LogTrace($"Checking {query} for builds related to {repository.WebUrl}");
 
                 if (!string.IsNullOrWhiteSpace(cicd.Username) && !string.IsNullOrWhiteSpace(cicd.Password))
                 {
-                    var username = Base64Encode(protector.Unprotect(cicd.Username));
-                    var password = Base64Encode(protector.Unprotect(cicd.Password));
-
-                    BuildsClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("basic", $"{username}:{password}");
+                    BuildsClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("basic", $"{cicd.Username}:{cicd.Password}");
                 }
 
                 var vcsRootsResponse = await BuildsClient.GetAsync(query, HttpCompletionOption.ResponseContentRead);
@@ -58,20 +54,20 @@ namespace Vision.Web.Core
                         var webUri = projectElement.Attribute("webUrl").Value;
                         var vcsUrl = vcsElement?.Attribute("value").Value;
 
-                        if (IsMatch(vcsUrl, repository.Url))
+                        if (matcher.IsMatch(vcsUrl, repository.Url))
                         {
-                            builds.Add(new CiCdBuildDto { Name = name, WebUrl = webUri, CiCdId = cicd.Id, Kind = cicd.Kind });
+                            builds.Add(new CiCdBuildDto { Name = name, WebUrl = webUri, CiCdId = cicd.CiCdId, Kind = cicd.Kind });
                         }
                     }
                     catch (Exception e)
                     {
-                        logger.LogError(e, $"Error finding build at {uri}");
+                        logger.LogTrace(e, $"Error finding build at {uri}");
                     }
                 }
             }
             catch (Exception e)
             {
-                logger.LogError(e, $"Error finding builds for {repository.WebUrl} at {cicd.Endpoint}");
+                logger.LogTrace(e, $"Error finding builds for {repository.WebUrl} at {cicd.Endpoint}");
             }
 
             return builds;

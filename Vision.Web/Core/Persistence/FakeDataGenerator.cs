@@ -161,8 +161,7 @@
                     {
                         Registry registry = registryPicker.Pick();
                         d.Registry = registry;
-                        d.RegistryId = registry.Id;
-                        d.RepositoryUrl = registry.IsPublic ? $"{publicPicker.Pick()}/{d.Name}.git" : privatePicker.Pick().Url;
+                        d.RegistryId = registry.Id;                    
                     })
                     .With(d => d.Updated = DateTime.Now.Add(new TimeSpan(GetRandom.Int(-150, 0), GetRandom.Int(0, 10), GetRandom.Int(0, 10), GetRandom.Int(0, 10), GetRandom.Int(0, 500))))
                     .Build()

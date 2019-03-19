@@ -1,9 +1,11 @@
 ﻿namespace Vision.Web.Core
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.DataProtection;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
 
     public class RegistryService : IRegistryService
@@ -97,6 +99,26 @@
                 Kind = entity.Kind,
                 RegistryId = entity.Id
             };
+        }
+
+        public async Task<List<RegistryDto>> GetEnabledByKindAsync(DependencyKind kind)
+        {
+            return await context.Registries
+                .Where(registry => registry.Kind == kind && registry.IsEnabled)
+                .OrderBy(registry => !registry.IsPublic)
+                .Select(registry => new RegistryDto
+                {
+                    ApiKey = string.IsNullOrWhiteSpace(registry.ApiKey) ? null : protector.Unprotect(registry.ApiKey),
+                    Username = string.IsNullOrWhiteSpace(registry.Username) ? null : protector.Unprotect(registry.Username),
+                    Password = string.IsNullOrWhiteSpace(registry.Password) ? null : protector.Unprotect(registry.Password),
+                    Dependencies = context.Dependencies.Count(d => d.RegistryId == registry.Id),
+                    Endpoint = registry.Endpoint,
+                    IsEnabled = registry.IsEnabled,
+                    IsPublic = registry.IsPublic,
+                    Kind = registry.Kind,
+                    RegistryId = registry.Id
+                })
+                .ToListAsync();
         }
     }
 }

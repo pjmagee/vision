@@ -37,13 +37,13 @@ namespace Vision.Web.Core
                     extracts.Add(new Extract(pair[0].Replace("\"", "").Trim(), pair[1].Replace("\"", "").Trim()));
                 }
 
-                logger.LogInformation($"Extracted {extracts.Count} dependencies for {asset.Path}");
+                logger.LogTrace($"Extracted {extracts.Count} dependencies for {asset.Path}");
 
                 return extracts;                
             }
             catch(Exception e)
             {
-                logger.LogError(e, $"Could not extract dependencies for {asset.Path}");
+                logger.LogTrace(e, $"Could not extract dependencies for {asset.Path}");
             }            
 
             return Enumerable.Empty<Extract>();
@@ -66,14 +66,14 @@ namespace Vision.Web.Core
                         extracts.Add(new Extract(prop.Name, prop.Value.ToString()));
                     }
 
-                    logger.LogInformation($"Extracted {extracts.Count} engines for {asset.Repository.WebUrl} : {asset.Path}");
+                    logger.LogTrace($"Extracted {extracts.Count} engines for {asset.Repository.WebUrl} : {asset.Path}");
                 }
 
                 return extracts;
             }            
             catch (Exception e)
             {
-                logger.LogError(e, $"Could not extract engines for {asset.Repository.WebUrl} : {asset.Path} ");
+                logger.LogTrace(e, $"Could not extract engines for {asset.Repository.WebUrl} : {asset.Path} ");
             }
 
             return Enumerable.Empty<Extract>();
@@ -87,7 +87,7 @@ namespace Vision.Web.Core
             }
             catch (Exception e)
             {
-                logger.LogError(e, $"Could not extract name from {asset.Path}");
+                logger.LogTrace(e, $"Could not extract name from {asset.Path}");
             }
 
             return string.Empty;

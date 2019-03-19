@@ -7,16 +7,16 @@ namespace Vision.Web.Core
 {
     public class GitlabProvider : IVersionControlProvider
     {
-        public async Task<IEnumerable<Asset>> GetAssetsAsync(Repository repository)
+        public async Task<IEnumerable<Asset>> GetAssetsAsync(VersionControlDto versionControl, Repository repository)
         {
-            if (repository.VersionControl.Kind != VersionControlKind.Gitlab) return await Task.FromResult(Enumerable.Empty<Asset>());
-            throw new NotImplementedException("TODO");
+            return await Task.FromResult(Enumerable.Empty<Asset>());
         }
 
         public async Task<IEnumerable<Repository>> GetRepositoriesAsync(VersionControl source)
         {
-            if (source.Kind != VersionControlKind.Gitlab) return await Task.FromResult(Enumerable.Empty<Repository>());
-            throw new NotImplementedException("TODO");
+            return await Task.FromResult(Enumerable.Empty<Repository>());
         }
+
+        public bool Supports(VersionControlKind kind) => kind == VersionControlKind.Gitlab;
     }
 }

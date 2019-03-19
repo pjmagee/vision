@@ -21,6 +21,7 @@ namespace Vision.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDataProtection();
+            services.AddMemoryCache();
 
             services
                 .AddDbContext<VisionDbContext>(options => options
@@ -87,9 +88,11 @@ namespace Vision.Web
         private static void RegisterCiCdServices(IServiceCollection services)
         {
             services.AddScoped<ICiCdService, CiCdService>();
-            services.AddScoped<TeamCityProvider>();
-            services.AddScoped<JenkinsProvider>();
-            services.AddScoped<ICICDProvider, AggregateCICDProvider>();
+
+            services.AddScoped<ICiCdProvider, TeamCityProvider>();
+            services.AddScoped<ICiCdProvider, JenkinsProvider>();
+
+            services.AddScoped<IAggregateCICDBuildsProvider, AggregateCICDBuildsProvider>();
         }
 
         private static void RegisterDependencyServices(IServiceCollection services)
@@ -98,10 +101,12 @@ namespace Vision.Web
             services.AddScoped<IDependencyVersionService, DependencyVersionService>();
             services.AddScoped<IDependencyService, DependencyService>();
 
-            services.AddScoped<NuGetVersionProvider>();
-            services.AddScoped<DockerVersionProvider>();
-            services.AddScoped<NpmVersionProvider>();
-            services.AddScoped<IVersionProvider, AggregateVersionProvider>();
+            services.AddScoped<IDependencyVersionProvider, NuGetVersionProvider>();
+            services.AddScoped<IDependencyVersionProvider, DockerVersionProvider>();
+            services.AddScoped<IDependencyVersionProvider, NpmVersionProvider>();
+            // services.AddScoped<IDependencyVersionProvider, PyPiVersionProvider>();
+
+            services.AddScoped<IAggregateDependencyVersionProvider, AggregateDependencyVersionProvider>();
         }
         
         private static void RegisterAssetServices(IServiceCollection services)
@@ -110,10 +115,12 @@ namespace Vision.Web
             services.AddScoped<IAssetService, AssetService>();
             services.AddScoped<IAssetDependencyService, AssetDependencyService>();
 
-            services.AddScoped<NpmAssetExtractor>();
-            services.AddScoped<NuGetAssetExtractor>();
-            services.AddScoped<DockerAssetExtractor>();            
-            services.AddScoped<IAssetExtractor, AggregateAssetExtractor>();
+            services.AddScoped<IAssetExtractor, NpmAssetExtractor>();
+            services.AddScoped<IAssetExtractor, NuGetAssetExtractor>();
+            services.AddScoped<IAssetExtractor, DockerAssetExtractor>();
+            // services.AddScoped<IAssetExtractor, PyPiAssetExtractor>();
+
+            services.AddScoped<IAggregateAssetExtractor, AggregateAssetExtractor>();
         }
 
         private static void RegisterVersionControlServices(IServiceCollection services)
@@ -122,9 +129,9 @@ namespace Vision.Web
             services.AddScoped<IRepositoryService, RepositoryService>();
             services.AddScoped<IRepositoryMatcher, RepositoryMatcher>();
 
-            services.AddScoped<BitBucketProvider>();
-            services.AddScoped<GitlabProvider>();
-            services.AddScoped<IVersionControlProvider, AggregateVersionControlProvider>();
+            services.AddScoped<IVersionControlProvider, BitBucketProvider>();
+            services.AddScoped<IVersionControlProvider, GitlabProvider>();
+            services.AddScoped<IAggregateVersionControlProvider, AggregateVersionControlProvider>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

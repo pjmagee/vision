@@ -26,7 +26,6 @@
                 Kind = dependency.Kind,
                 Versions = context.DependencyVersions.Count(dv => dv.DependencyId == dependency.Id),
                 Assets = context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id),
-                RepositoryUrl = dependency.RepositoryUrl
             })
             .OrderByDescending(d => d.Assets)
             .ThenByDescending(d => d.Versions);
@@ -43,14 +42,13 @@
             List<string> assetNames = await assetService.GetPublishedNamesByRepositoryIdAsync(repositoryId);
 
             var query = context.Dependencies
-                .Where(dependency => assetNames.Contains(dependency.Name) || string.Equals(dependency.RepositoryUrl, repository.Url) || string.Equals(dependency.RepositoryUrl, repository.WebUrl))
+                .Where(dependency => assetNames.Contains(dependency.Name) || context.DependencyVersions.Any(dv => dv.DependencyId == dependency.Id && string.Equals(dv.ProjectUrl, repository.Url) || string.Equals(dv.ProjectUrl, repository.WebUrl)))
                 .Select(dependency => new DependencyDto
                 {
                     Assets = context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id),
                     DependencyId = dependency.Id,
                     Kind = dependency.Kind,
                     Name = dependency.Name,
-                    RepositoryUrl = dependency.RepositoryUrl,
                     Versions = context.DependencyVersions.Count(dv => dv.DependencyId == dependency.Id)
                 })
                 .OrderByDescending(d => d.Assets)
@@ -66,7 +64,6 @@
                  .Select(entity => new DependencyDto
                  {
                      Name = entity.Name,
-                     RepositoryUrl = entity.RepositoryUrl,
                      Versions = context.DependencyVersions.Count(x => x.DependencyId == entity.Id),
                      Assets = context.AssetDependencies.Count(x => x.DependencyId == entity.Id),
                      DependencyId = entity.Id,
@@ -86,8 +83,7 @@
                 Name = dependency.Name,
                 Kind = dependency.Kind,
                 Versions = context.DependencyVersions.Count(dv => dv.DependencyId == dependency.Id),
-                Assets = context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id),
-                RepositoryUrl = dependency.RepositoryUrl
+                Assets = context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id)
             })
             .OrderByDescending(d => d.Assets)
             .ThenByDescending(d => d.Versions);
@@ -104,7 +100,6 @@
                 Name = dependency.Name,
                 Kind = dependency.Kind,
                 DependencyId = dependency.Id,
-                RepositoryUrl = dependency.RepositoryUrl,
                 Assets = await context.AssetDependencies.CountAsync(assetDependency => assetDependency.DependencyId == dependencyId),
                 Versions = await context.DependencyVersions.CountAsync(dependencyVersion => dependencyVersion.DependencyId == dependencyId),
             };

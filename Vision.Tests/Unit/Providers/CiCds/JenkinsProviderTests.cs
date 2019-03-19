@@ -18,7 +18,7 @@ namespace Vision.Tests.Unit.Pipelines
             var options = new DbContextOptionsBuilder<VisionDbContext>().UseInMemoryDatabase("Jenkins").UseLazyLoadingProxies().Options;
             context = new VisionDbContext(options);
             repositoryMatcher = new RepositoryMatcher(new LoggerFactory().CreateLogger<RepositoryMatcher>());
-            sut = new JenkinsProvider(context, repositoryMatcher, new LoggerFactory().CreateLogger<JenkinsProvider>(), new DataProtectionStub());
+            sut = new JenkinsProvider(repositoryMatcher, new LoggerFactory().CreateLogger<JenkinsProvider>());
         }
 
         [Theory]        

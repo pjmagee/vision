@@ -1,4 +1,6 @@
-﻿namespace Vision.Web.Core
+﻿using Microsoft.AspNetCore.DataProtection;
+
+namespace Vision.Web.Core
 {
     public class Registry : Entity
     {
@@ -8,6 +10,6 @@
         public DependencyKind Kind { get; set; }        
         public string ApiKey { get; set; }        
         public string Username { get; set; }
-        public string Password { get; set; }        
+        public string Password { get; set; }
     }
 }

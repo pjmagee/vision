@@ -12,21 +12,21 @@
     {
         private readonly VisionDbContext context;
 
-        private readonly IVersionControlProvider versionControlProvider;
-        private readonly IVersionProvider versionProvider;
-        private readonly IAssetExtractor assetExtractor;        
+        private readonly IAggregateVersionControlProvider aggregateVersionControlProvider;
+        private readonly IAggregateDependencyVersionProvider aggregateVersionProvider;
+        private readonly IAggregateAssetExtractor aggregateAssetExtractor;
         private readonly ILogger<RefreshService> logger;
 
         public RefreshService(
             VisionDbContext context,
-            IVersionControlProvider versionControlService,
-            IAssetExtractor assetExtractor,
-            IVersionProvider versionService,
+            IAggregateVersionControlProvider versionControlService,
+            IAggregateAssetExtractor aggregateAssetExtractor,
+            IAggregateDependencyVersionProvider aggregateVersionProvider,
             ILogger<RefreshService> logger)
         {
-            this.versionControlProvider = versionControlService;
-            this.assetExtractor = assetExtractor;
-            this.versionProvider = versionService;
+            this.aggregateVersionControlProvider = versionControlService;
+            this.aggregateAssetExtractor = aggregateAssetExtractor;
+            this.aggregateVersionProvider = aggregateVersionProvider;
             this.logger = logger;
             this.context = context;
         }        
@@ -53,7 +53,7 @@
             context.Assets.RemoveRange(repository.Assets);
             await context.SaveChangesAsync();
 
-            IEnumerable<Asset> items = await versionControlProvider.GetAssetsAsync(repository);
+            IEnumerable<Asset> items = await aggregateVersionControlProvider.GetAssetsAsync(repository);
 
             foreach(Asset asset in items)
             {                
@@ -79,7 +79,7 @@
             context.AssetDependencies.RemoveRange(asset.Dependencies);
             await context.SaveChangesAsync();
 
-            IEnumerable<Extract> items = assetExtractor.ExtractDependencies(asset);
+            IEnumerable<Extract> items = aggregateAssetExtractor.ExtractDependencies(asset);
 
             foreach(Extract extract in items)
             {
@@ -97,7 +97,7 @@
             context.AssetFrameworks.RemoveRange(asset.Frameworks);
             await context.SaveChangesAsync();
             
-            IEnumerable<Extract> extracts = assetExtractor.ExtractFrameworks(asset);
+            IEnumerable<Extract> extracts = aggregateAssetExtractor.ExtractFrameworks(asset);
 
             foreach(var extract in extracts)
             {
@@ -113,7 +113,7 @@
             context.Repositories.RemoveRange(versionControl.Repositories);
             await context.SaveChangesAsync();
 
-            IEnumerable<Repository> items = await versionControlProvider.GetRepositoriesAsync(versionControl);
+            IEnumerable<Repository> items = await aggregateVersionControlProvider.GetRepositoriesAsync(versionControl);
 
             foreach(Repository repository in items)
             {
@@ -159,7 +159,7 @@
                 await context.SaveChangesAsync();
             }
 
-            DependencyVersion latest = await versionProvider.GetLatestMetaDataAsync(dependency);
+            DependencyVersion latest = await aggregateVersionProvider.GetLatestMetaDataAsync(dependency);
 
             if (await context.DependencyVersions.AllAsync(dv => dv.Version != latest.Version))
             {
@@ -167,7 +167,7 @@
                 await context.SaveChangesAsync();
             }
 
-            DependencyVersion dependencyVersion = await GetOrCreateDependencyVersion(version, dependency);
+            DependencyVersion dependencyVersion = await GetOrCreateDependencyVersion(dependency, version);
 
             if (context.Entry(dependencyVersion).State == EntityState.Detached)
             {
@@ -192,26 +192,16 @@
                 new Dependency { Name = name, Kind = kind, Updated = DateTime.Now };
         }
 
-        private async Task<DependencyVersion> GetOrCreateDependencyVersion(string version, Dependency dependency)
+        private async Task<DependencyVersion> GetOrCreateDependencyVersion(Dependency dependency, string version)
         {
-
-            /* FIND AND SAVE CURRENT VERSION IF NEEDED */
-            return await context.DependencyVersions
-                .FirstOrDefaultAsync(v => v.DependencyId == dependency.Id && v.Version == version) ?? 
-                new DependencyVersion
-                {
-                    Dependency = dependency,
-                    DependencyId = dependency.Id,
-                    Version = version
-                };
+            DependencyVersion dependencyVersion = await context.DependencyVersions.FirstOrDefaultAsync(v => v.DependencyId == dependency.Id && v.Version == version);
+            return (dependencyVersion ?? new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Version = version });
         }
 
         public async Task RefreshDependencyByIdAsync(Guid dependencyId)
         {
-            Dependency dependency = await context.Dependencies.FindAsync(dependencyId);
-
-
-            DependencyVersion latestVersion = await versionProvider.GetLatestMetaDataAsync(dependency);
+            Dependency dependency = await context.Dependencies.FindAsync(dependencyId);            
+            DependencyVersion latestVersion = await aggregateVersionProvider.GetLatestMetaDataAsync(dependency);
             List<DependencyVersion> currentVersions = await context.DependencyVersions.Where(x => x.DependencyId == dependencyId).ToListAsync();
 
             if (currentVersions.All(current => current.Version != latestVersion.Version))

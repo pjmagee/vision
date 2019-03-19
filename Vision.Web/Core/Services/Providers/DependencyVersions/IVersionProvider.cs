@@ -2,9 +2,9 @@
 
 namespace Vision.Web.Core
 {
-    public interface IVersionProvider
+    public interface IDependencyVersionProvider
     {
         bool Supports(DependencyKind kind);
-        Task<DependencyVersion> GetLatestMetaDataAsync(Dependency dependency);
+        Task<DependencyVersion> GetLatestMetaDataAsync(RegistryDto registry, Dependency dependency);
     }
 }

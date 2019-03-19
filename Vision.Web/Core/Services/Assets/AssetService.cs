@@ -122,7 +122,7 @@
             }
 
             var paging = query
-                .Where(asset => context.AssetDependencies.Where(assetDependency => assetDependency.AssetId == asset.Id).Any(ad => context.Dependencies.Any(dependency => ad.DependencyId == dependency.Id && string.Equals(dependency.RepositoryUrl, repository.Url) || string.Equals(dependency.RepositoryUrl, repository.WebUrl))))
+                .Where(asset => context.AssetDependencies.Where(assetDependency => assetDependency.AssetId == asset.Id).Any(ad => context.Dependencies.Any(dependency => ad.DependencyId == dependency.Id && context.DependencyVersions.Any(dv => dv.DependencyId == dependency.Id && string.Equals(dv.ProjectUrl, repository.Url) || string.Equals(dv.ProjectUrl, repository.WebUrl)))))
                 .Select(asset => new AssetDto
                 {
                     AssetId = asset.Id,

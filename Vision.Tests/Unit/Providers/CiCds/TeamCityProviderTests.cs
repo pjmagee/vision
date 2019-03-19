@@ -16,7 +16,7 @@ namespace Vision.Tests.Unit.Pipelines
             var options = new DbContextOptionsBuilder<VisionDbContext>().UseInMemoryDatabase("TeamCity").UseLazyLoadingProxies().Options;
             context = new VisionDbContext(options);
             repositoryMatcher = new RepositoryMatcher(new LoggerFactory().CreateLogger<RepositoryMatcher>());
-            sut = new TeamCityProvider(context, repositoryMatcher, new LoggerFactory().CreateLogger<TeamCityProvider>(), new DataProtectionStub());
+            sut = new TeamCityProvider(repositoryMatcher, new LoggerFactory().CreateLogger<TeamCityProvider>());
         }
 
         [Theory]

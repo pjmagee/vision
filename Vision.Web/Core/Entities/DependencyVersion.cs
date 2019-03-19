@@ -6,6 +6,7 @@ namespace Vision.Web.Core
     public class DependencyVersion : Entity, IComparable<DependencyVersion>
     {
         public string Version { get; set; }
+        public string ProjectUrl { get; set; }
         public bool IsLatest { get; set; }
         public virtual Dependency Dependency { get; set; }
         public Guid DependencyId { get; set; }

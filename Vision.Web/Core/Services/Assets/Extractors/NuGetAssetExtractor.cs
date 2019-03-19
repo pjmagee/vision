@@ -59,10 +59,9 @@ namespace Vision.Web.Core
             }
             catch(Exception e)
             {
-                logger.LogError(e, $"Could not extract dependencies for asset {asset.Path}");
-            }
-
-            return Enumerable.Empty<Extract>();            
+                logger.LogTrace(e, $"Could not extract dependencies for asset {asset.Path}");
+                throw;
+            }         
         }
 
         public IEnumerable<Extract> ExtractFrameworks(Asset asset)
@@ -87,20 +86,19 @@ namespace Vision.Web.Core
                                                                 select framework);
 
 
-                        var results = targetFrameworks.Concat(targetFramework).Select(fw => new Extract(".NET Framework", fw?.Trim())).ToList();
+                        var extracts = targetFrameworks.Concat(targetFramework).Select(fw => new Extract(".NET Framework", fw?.Trim())).ToList();
 
-                        logger.LogInformation($"Extracted {results.Count} frameworks for asset {asset.Path}");
+                        logger.LogTrace($"Extracted {extracts.Count} frameworks for asset {asset.Path}");
 
-                        return results;
+                        return extracts;
                     }
                 }
             }
             catch(Exception e)
             {
-                logger.LogError(e, $"Could not extract frameworks for asset {asset.Path}");
+                logger.LogTrace(e, $"Could not extract frameworks for asset {asset.Path}");
+                throw;
             }
-
-            return Enumerable.Empty<Extract>();
         }
 
         private Extract FromNewReference(XElement reference)
@@ -152,15 +150,17 @@ namespace Vision.Web.Core
 
                         if (assemblyName != null)
                             return assemblyName;
+
+                        // Last resort :(
+                        return Path.GetFileNameWithoutExtension(asset.Path);
                     }
                 }
             }
             catch(Exception e)
             {
-                logger.LogError(e, $"Error extracting publish name from {asset.Path}.");
+                logger.LogTrace(e, $"Error extracting publish name from {asset.Path}.");
+                throw;
             }
-
-            return Path.GetFileNameWithoutExtension(asset.Path);
         }
     }
 }

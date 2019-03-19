@@ -10,6 +10,5 @@ namespace Vision.Web.Core
         Task<CiCdDto> GetByIdAsync(Guid cicdId);
         Task<CiCdDto> UpdateAsync(CiCdDto dto);
         Task<IPaginatedList<CiCdDto>> GetAsync(int pageIndex = 1, int pageSize = 10);
-        Task<IEnumerable<CiCdBuildDto>> GetBuildsByRepositoryIdAsync(Guid repositoryId);
     }
 }

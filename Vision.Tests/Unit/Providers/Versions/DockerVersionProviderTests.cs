@@ -18,7 +18,7 @@
         {
             var options = new DbContextOptionsBuilder<VisionDbContext>().UseInMemoryDatabase("Registries").Options;
             context = new VisionDbContext(options);
-            sut = new DockerVersionProvider(context, new DataProtectionStub(), Substitute.For<ILogger<DockerVersionProvider>>());
+            sut = new DockerVersionProvider(Substitute.For<ILogger<DockerVersionProvider>>());
         }        
 
         [Theory]
@@ -26,13 +26,12 @@
         public async Task DockerV2Api(string package, string expected)
         {
             // arrange
-            context.Registries.Add(new Registry { Endpoint = "https://registry-1.docker.io/v2/", IsEnabled = true, IsPublic = true, Kind = DependencyKind.Docker });
-            context.SaveChanges();
+            RegistryDto registry = new RegistryDto { Endpoint = "https://registry-1.docker.io/v2/", IsEnabled = true, IsPublic = true, Kind = DependencyKind.Docker };
 
             Dependency dependency = new Dependency { Name = package, Id = Guid.NewGuid(), Kind = DependencyKind.NuGet };
 
             // act
-            DependencyVersion latest = await sut.GetLatestMetaDataAsync(dependency);
+            DependencyVersion latest = await sut.GetLatestMetaDataAsync(registry, dependency);
 
             // assert
             Assert.Equal(expected, latest.Version);

@@ -19,7 +19,7 @@
         {
             options = new DbContextOptionsBuilder<VisionDbContext>().UseInMemoryDatabase("Registries").Options;
             context = new VisionDbContext(options);
-            sut = new NpmVersionProvider(context, new DataProtectionStub(), Substitute.For<ILogger<NpmVersionProvider>>());
+            sut = new NpmVersionProvider(Substitute.For<ILogger<NpmVersionProvider>>());
         }
 
         [Theory]
@@ -27,13 +27,11 @@
         public async Task NpmApiTest(string endpoint, string package, string expected)
         {
             // arrange
-            context.Registries.Add(new Registry { Endpoint = endpoint, IsEnabled = true, IsPublic = true, Kind = DependencyKind.Npm });
-            context.SaveChanges();
-
+            RegistryDto registry = new RegistryDto { Endpoint = endpoint, IsEnabled = true, IsPublic = true, Kind = DependencyKind.Npm };
             Dependency dependency = new Dependency { Name = package, Kind = DependencyKind.Npm };
 
             // act
-            DependencyVersion latest = await sut.GetLatestMetaDataAsync(dependency);
+            DependencyVersion latest = await sut.GetLatestMetaDataAsync(registry, dependency);
 
             // assert
             Assert.Equal(expected, latest.Version);

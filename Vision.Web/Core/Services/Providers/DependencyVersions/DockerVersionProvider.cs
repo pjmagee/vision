@@ -9,25 +9,29 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    public class DockerVersionProvider : AbstractVersionProvider
+    public class DockerVersionProvider : IDependencyVersionProvider
     {
-        public DockerVersionProvider(VisionDbContext context, IDataProtectionProvider provider, ILogger<DockerVersionProvider> logger) : base(context, provider, logger)
-        {
+        private readonly ILogger<DockerVersionProvider> logger;
 
+        public DockerVersionProvider(ILogger<DockerVersionProvider> logger)
+        {
+            this.logger = logger;
         }
 
-        public override bool Supports(DependencyKind kind) => kind == DependencyKind.Docker;
+        public bool Supports(DependencyKind kind) => kind == DependencyKind.Docker;
 
-        protected override async Task<DependencyVersion> GetLatestMetaDataAsync(Registry registry, Dependency dependency)
+        public async Task<DependencyVersion> GetLatestMetaDataAsync(RegistryDto registry, Dependency dependency)
         {
             RegistryClientConfiguration clientConfig = new RegistryClientConfiguration(new Uri(registry.Endpoint).GetComponents(UriComponents.HostAndPort, UriFormat.SafeUnescaped));
+
+            DependencyVersion version;
 
             if (!string.IsNullOrWhiteSpace(registry.Username) && !string.IsNullOrWhiteSpace(registry.Password))
             {
                 using (IRegistryClient client = clientConfig.CreateClient(new PasswordOAuthAuthenticationProvider(registry.Username, registry.Password)))
                 {
                     ListImageTagsResponse imageTags = await client.Tags.ListImageTagsAsync(dependency.Name, new ListImageTagsParameters());
-                    return new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Version = imageTags.Tags.Last() };
+                    version = new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Version = imageTags.Tags.Last(), IsLatest = true };
                 }
             }
             else
@@ -35,9 +39,11 @@
                 using (IRegistryClient client = clientConfig.CreateClient())
                 {
                     ListImageTagsResponse imageTags = await client.Tags.ListImageTagsAsync(dependency.Name, new ListImageTagsParameters());
-                    return new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Version = imageTags.Tags.Last() };
+                    version = new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Version = imageTags.Tags.Last(), IsLatest = true };
                 }
             }
+
+            return version;
         }
     }
 }

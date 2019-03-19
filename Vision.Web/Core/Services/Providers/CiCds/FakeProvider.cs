@@ -1,33 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FizzWare.NBuilder;
-using FizzWare.NBuilder.Generators;
-using Microsoft.EntityFrameworkCore;
 
 namespace Vision.Web.Core
 {
-    public class FakeProvider : ICICDProvider
+    public class FakeProvider : ICiCdProvider
     {
-
-        private readonly VisionDbContext context;
-
-        public FakeProvider(VisionDbContext context)
+        private static string[] FakeBuilds = new string[]
         {
-            this.context = context;
-        }
+            "Commit Build",
+            "Docker Build",
+            "Feature Tests",
+            "Integration Tests",
+            "Code Quality Scan",
+            "Security Scan",
+            "Deploy to DEV",
+            "Deploy to SYSTEST",
+            "Deploy to UAT",
+            "Deploy to OAT",
+            "Deploy to LIVE",
+        };
 
-        public async Task<List<CiCdBuildDto>> GetBuildsByRepositoryIdAsync(Guid repositoryId)
+        public Task<List<CiCdBuildDto>> GetBuildsAsync(RepositoryDto repository, CiCdDto cicd)
         {
-            Repository repository = await context.Repositories.FindAsync(repositoryId);
-            List<string> assets = await context.Assets.Where(x => x.RepositoryId == repositoryId).Select(x => x.Path).ToListAsync();
-            assets.ForEach(asset => asset = Path.GetFileNameWithoutExtension(asset));
-
-            string name = Pick<string>.RandomItemFrom(new[] { "Commit Build", "Feature Tests", "Integration Tests" });
-
-            return Enumerable.Range(0, GetRandom.Int(1, 4)).Select(x => new CiCdBuildDto { Name = name, WebUrl = "http://ci.rbxd.ds:8090/path/to/build/" }).ToList();
+            var picker = new UniqueRandomPicker<string>(With.Between(1).And(FakeBuilds.Length).Elements, new UniqueRandomGenerator());
+            var items = picker.From(FakeBuilds);            
+            return Task.FromResult(items.Select(x => new CiCdBuildDto { Name = x, WebUrl = $"http://ci.rbxd.ds:8090/path/to/build/{x}" }).ToList());
         }
 
         public bool Supports(CiCdKind Kind) => true;

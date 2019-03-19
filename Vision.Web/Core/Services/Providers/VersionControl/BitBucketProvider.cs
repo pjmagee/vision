@@ -21,12 +21,10 @@
             this.logger = logger;
         }
         
-        public async Task<IEnumerable<Asset>> GetAssetsAsync(Repository repository)
-        {
-            if (repository.VersionControl.Kind != VersionControlKind.Bitbucket) return Enumerable.Empty<Asset>();
+        public async Task<IEnumerable<Asset>> GetAssetsAsync(VersionControlDto versionControl, Repository repository)
+        {            
             List<Asset> results = new List<Asset>();
-
-            StashClient client = new StashClient(repository.VersionControl.Endpoint, repository.VersionControl.ApiKey, usePersonalAccessTokenForAuthentication: true);
+            StashClient client = new StashClient(versionControl.Endpoint, versionControl.ApiKey, usePersonalAccessTokenForAuthentication: true);
 
             ResponseWrapper<Project> projects = await client.Projects.Get();
 
@@ -61,9 +59,7 @@
         }
 
         public async Task<IEnumerable<Repository>> GetRepositoriesAsync(VersionControl versionControl)
-        {
-            if (versionControl.Kind != VersionControlKind.Bitbucket) return Enumerable.Empty<Repository>();
-
+        {  
             StashClient client = new StashClient(versionControl.Endpoint, versionControl.ApiKey, usePersonalAccessTokenForAuthentication: true);
 
             List<Repository> results = new List<Repository>();
@@ -91,5 +87,7 @@
 
             return results;
         }
+
+        public bool Supports(VersionControlKind kind) => kind == VersionControlKind.Bitbucket;
     }
 }

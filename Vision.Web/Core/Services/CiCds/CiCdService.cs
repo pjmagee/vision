@@ -9,10 +9,10 @@
     public class CiCdService : ICiCdService
     {
         private readonly VisionDbContext context;
-        private readonly ICICDProvider cicdProvider;
+        private readonly ICiCdProvider cicdProvider;
         private readonly IDataProtector protector;
 
-        public CiCdService(VisionDbContext context, IDataProtectionProvider provider, ICICDProvider cicdProvider)
+        public CiCdService(VisionDbContext context, IDataProtectionProvider provider, ICiCdProvider cicdProvider)
         {
             this.context = context;
             this.cicdProvider = cicdProvider;
@@ -102,11 +102,6 @@
             });            
 
             return await PaginatedList<CiCdDto>.CreateAsync(query, pageIndex, pageSize);
-        }
-
-        public async Task<IEnumerable<CiCdBuildDto>> GetBuildsByRepositoryIdAsync(Guid repositoryId)
-        {
-            return await cicdProvider.GetBuildsByRepositoryIdAsync(repositoryId);
         }
     }
 }

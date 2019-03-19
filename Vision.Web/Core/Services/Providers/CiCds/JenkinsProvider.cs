@@ -2,24 +2,24 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Net.Http;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using System.Xml.XPath;
-    using Microsoft.AspNetCore.DataProtection;
     using Microsoft.Extensions.Logging;
 
     public class JenkinsProvider : AbstractCICDProvider
     {
         private static readonly HttpClient HttpClient = new HttpClient(new HttpClientHandler { ServerCertificateCustomValidationCallback = delegate { return true; } });
-        public JenkinsProvider(VisionDbContext context, IRepositoryMatcher matcher, ILogger<JenkinsProvider> logger, IDataProtectionProvider provider) : base(context, provider, logger, matcher)
+        public JenkinsProvider(IRepositoryMatcher matcher, ILogger<JenkinsProvider> logger) : base(logger, matcher)
         {
             
         }
 
         protected override CiCdKind Kind => CiCdKind.Jenkins;
 
-        protected override async Task<List<CiCdBuildDto>> GetBuildsAsync(Repository repository, CiCd cicd)
+        protected override async Task<List<CiCdBuildDto>> TryGetBuildsAsync(RepositoryDto repository, CiCdDto cicd)
         {
             var builds = new List<CiCdBuildDto>();
 
@@ -27,7 +27,7 @@
             {
                 var query = cicd.Endpoint.Trim('/') + "/job/CI/api/xml";
 
-                logger.LogInformation($"Checking {query} for builds related to {repository.WebUrl}");
+                logger.LogTrace($"Checking {query} for builds related to {repository.WebUrl}");
 
                 var jobXml = await HttpClient.GetStringAsync(query);
                 var jobsDocument = XDocument.Parse(jobXml);
@@ -46,20 +46,20 @@
                         var vcsUrl = buildDocument.XPathSelectElement("//remoteUrl").Value;
                         var name = job.XPathSelectElement("name").Value;
 
-                        if (IsMatch(vcsUrl, repository.Url))
+                        if (matcher.IsMatch(vcsUrl, repository.Url))
                         {
-                            builds.Add(new CiCdBuildDto { Name = name, WebUrl = jobUrl, CiCdId = cicd.Id, Kind = cicd.Kind });
+                            builds.Add(new CiCdBuildDto { Name = name, WebUrl = jobUrl, CiCdId = cicd.CiCdId, Kind = cicd.Kind });
                         }
                     }
                     catch (Exception e)
                     {
-                        logger.LogError(e, $"Error finding build at {job}");
+                        logger.LogTrace(e, $"Error finding build at {job}");
                     }                    
-                }
+                }               
             }
             catch(Exception e)
             {
-                logger.LogError(e, $"Error finding builds for {repository.WebUrl} at {cicd.Endpoint}");
+                logger.LogTrace(e, $"Error finding builds for {repository.WebUrl} at {cicd.Endpoint}");
             }
 
             return builds;

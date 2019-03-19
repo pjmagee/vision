@@ -6,7 +6,6 @@ namespace Vision.Web.Core
     public class Dependency : Entity
     {
         public string Name { get; set; }
-        public string RepositoryUrl { get; set; }
         public DependencyKind Kind { get; set; }
         public DateTime Updated { get; set; }
         public Guid? RegistryId { get; set; }

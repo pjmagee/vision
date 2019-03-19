@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace Vision.Web.Core
 {
+
     public class DockerAssetExtractor : IAssetExtractor
     {
         private readonly ILogger<DockerAssetExtractor> logger;
