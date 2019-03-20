@@ -3,18 +3,17 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using Microsoft.AspNetCore.DataProtection;
     using Microsoft.EntityFrameworkCore;
 
     public class VersionControlService : IVersionControlService
     {
         private readonly VisionDbContext context;
-        private readonly IDataProtector protector;
+        private readonly IEncryptionService encryptionService;
 
-        public VersionControlService(VisionDbContext context, IDataProtectionProvider provider)
+        public VersionControlService(VisionDbContext context, IEncryptionService encryption)
         {
             this.context = context;
-            this.protector = provider.CreateProtector("Auth");
+            this.encryptionService = encryption;
         }
 
         public async Task<IPaginatedList<VersionControlDto>> GetAsync(int pageIndex = 1, int pageSize = 10)
@@ -23,8 +22,9 @@
             {
                 Endpoint = versionControl.Endpoint,
                 ApiKey = versionControl.ApiKey,
-                Kind = versionControl.Kind,
+                Kind =  versionControl.Kind,
                 VersionControlId = versionControl.Id,
+                IsEnabled = versionControl.IsEnabled,
                 Repositories = context.Repositories.Count(repository => repository.VersionControlId == versionControl.Id)
             })
             .OrderByDescending(vcs => vcs.Repositories);
@@ -32,14 +32,15 @@
             return await PaginatedList<VersionControlDto>.CreateAsync(query, pageIndex, pageSize);
         }
 
-        public async Task<VersionControlDto> CreateVersionControl(VersionControlDto post)
+        public async Task<VersionControlDto> CreateVersionControl(VersionControlDto dto)
         {
             VersionControl versionControl = new VersionControl
             {
                 Id = Guid.NewGuid(),
-                ApiKey = !string.IsNullOrWhiteSpace(post.ApiKey) ? protector.Protect(post.ApiKey) : null,
-                Endpoint = post.Endpoint,
-                Kind = post.Kind
+                ApiKey = encryptionService.Encrypt(dto.ApiKey),
+                Endpoint = dto.Endpoint,
+                Kind = dto.Kind,
+                IsEnabled = dto.IsEnabled
             };
 
             context.VersionControls.Add(versionControl);
@@ -51,6 +52,31 @@
         public async Task<VersionControlDto> GetByIdAsync(Guid versionControlId)
         {
             VersionControl versionControl = await context.VersionControls.FindAsync(versionControlId);
+
+            return new VersionControlDto
+            {
+                Endpoint = versionControl.Endpoint,
+                ApiKey = versionControl.ApiKey,
+                Kind = versionControl.Kind,
+                VersionControlId = versionControl.Id,
+                Repositories = await context.Repositories.CountAsync(x => x.VersionControlId == versionControl.Id)
+            };
+        }
+
+        public async Task<VersionControlDto> UpdateAsync(VersionControlDto dto)
+        {
+            var versionControl = context.VersionControls.Find(dto.VersionControlId);
+            versionControl.Endpoint = dto.Endpoint;
+            versionControl.Kind = dto.Kind;
+            versionControl.IsEnabled = dto.IsEnabled;
+
+            if (versionControl.ApiKey != dto.ApiKey)
+            {
+                versionControl.ApiKey = encryptionService.Encrypt(dto.ApiKey);
+            }
+
+            context.VersionControls.Update(versionControl);
+            await context.SaveChangesAsync();
 
             return new VersionControlDto
             {

@@ -5,7 +5,7 @@ namespace Vision.Web.Core
 {
     public interface IAggregateVersionControlProvider
     {
-        Task<IEnumerable<Asset>> GetAssetsAsync(Repository repository);
-        Task<IEnumerable<Repository>> GetRepositoriesAsync(VersionControl source);
+        Task<IEnumerable<Asset>> GetAssetsAsync(VersionControlDto versionControl, RepositoryDto repository);
+        Task<IEnumerable<Repository>> GetRepositoriesAsync(VersionControlDto source);
     }
 }

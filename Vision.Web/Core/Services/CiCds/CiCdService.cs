@@ -1,20 +1,18 @@
 ﻿namespace Vision.Web.Core
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Microsoft.AspNetCore.DataProtection;
-
+    
     public class CiCdService : ICiCdService
     {
         private readonly VisionDbContext context;
-        private readonly IDataProtector protector;
+        private readonly IEncryptionService encryptionService;
 
-        public CiCdService(VisionDbContext context, IDataProtectionProvider provider)
+        public CiCdService(VisionDbContext context, IEncryptionService encryptionService)
         {
             this.context = context;
-            this.protector = provider.CreateProtector("CICD.v1");
+            this.encryptionService = encryptionService;
         }
 
         public async Task<CiCdDto> GetByIdAsync(Guid cicdId)
@@ -41,9 +39,15 @@
             cicd.Kind = dto.Kind;
             cicd.IsEnabled = dto.IsEnabled;
             cicd.IsGuestEnabled = dto.IsGuestEnabled;
-            cicd.ApiKey = string.IsNullOrWhiteSpace(dto.ApiKey) ? null : protector.Protect(dto.ApiKey);
-            cicd.Username = string.IsNullOrWhiteSpace(dto.Username) ? null : protector.Protect(dto.Username);
-            cicd.Password = string.IsNullOrWhiteSpace(dto.Password) ? null : protector.Protect(dto.Password);
+
+            if(cicd.ApiKey != dto.ApiKey)
+                cicd.ApiKey = encryptionService.Encrypt(dto.ApiKey);
+
+            if (cicd.Username != dto.Username)
+                cicd.Username = encryptionService.Encrypt(dto.Username);
+
+            if (cicd.Password != dto.Password)
+                cicd.Password = encryptionService.Encrypt(dto.Password);
 
             context.CiCds.Update(cicd);
             await context.SaveChangesAsync();
@@ -68,9 +72,9 @@
                 Kind = dto.Kind,
                 IsEnabled = dto.IsEnabled,
                 IsGuestEnabled = dto.IsGuestEnabled,
-                ApiKey = string.IsNullOrWhiteSpace(dto.ApiKey) ? null : protector.Protect(dto.ApiKey),
-                Username = string.IsNullOrWhiteSpace(dto.Username) ? null : protector.Protect(dto.Username),
-                Password = string.IsNullOrWhiteSpace(dto.Password) ? null : protector.Protect(dto.Password)
+                ApiKey = encryptionService.Encrypt(dto.ApiKey),
+                Username = encryptionService.Encrypt(dto.Username),
+                Password = encryptionService.Encrypt(dto.Password)
             };
 
             context.CiCds.Add(cicd);

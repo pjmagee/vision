@@ -59,7 +59,7 @@
     {
         if (context.Validate())
         {
-            // await VersionControlsService.UpdateAsync(VersionControl);
+            await VersionControlService.UpdateAsync(VersionControl);
             UriHelper.NavigateTo("/data/vcs");
         }
     }

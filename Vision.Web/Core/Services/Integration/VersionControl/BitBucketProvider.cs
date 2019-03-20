@@ -21,7 +21,7 @@
             this.logger = logger;
         }
         
-        public async Task<IEnumerable<Asset>> GetAssetsAsync(VersionControlDto versionControl, Repository repository)
+        public async Task<IEnumerable<Asset>> GetAssetsAsync(VersionControlDto versionControl, RepositoryDto repository)
         {            
             List<Asset> results = new List<Asset>();
             StashClient client = new StashClient(versionControl.Endpoint, versionControl.ApiKey, usePersonalAccessTokenForAuthentication: true);
@@ -44,11 +44,11 @@
                         {
                             if (path.IsSupported())
                             {
-                                Atlassian.Stash.Entities.File file  = await client.Repositories.GetFileContents(project.Key, bitBucketRepository.Slug, path, new FileContentsOptions { Content = true, Limit = 10000 });
+                                File file  = await client.Repositories.GetFileContents(project.Key, bitBucketRepository.Slug, path, new FileContentsOptions { Content = true, Limit = 10000 });
 
-                                logger.LogInformation($"Adding '{path}' for repository {repository.Id}");
+                                logger.LogInformation($"Adding '{path}' for repository {repository.RepositoryId}");
 
-                                results.Add(new Asset { Id = Guid.NewGuid(), Repository = repository, Kind = path.GetDependencyKind(), Path = path, Raw = string.Join(Environment.NewLine, file.FileContents) });
+                                results.Add(new Asset { Id = Guid.NewGuid(), RepositoryId = repository.RepositoryId, Kind = path.GetDependencyKind(), Path = path, Raw = string.Join(Environment.NewLine, file.FileContents) });
                             }
                         }
                     }
@@ -58,7 +58,7 @@
             return results;
         }
 
-        public async Task<IEnumerable<Repository>> GetRepositoriesAsync(VersionControl versionControl)
+        public async Task<IEnumerable<Repository>> GetRepositoriesAsync(VersionControlDto versionControl)
         {  
             StashClient client = new StashClient(versionControl.Endpoint, versionControl.ApiKey, usePersonalAccessTokenForAuthentication: true);
 
@@ -75,8 +75,7 @@
                     results.Add(new Repository
                     {
                         Id = Guid.NewGuid(),
-                        VersionControl = versionControl,
-                        VersionControlId = versionControl.Id,
+                        VersionControlId = versionControl.VersionControlId,
                         WebUrl = repository.Links.Self[0].Href.ToString(),
                         Url = repository.Links.Clone[0].Href.ToString()
                     });

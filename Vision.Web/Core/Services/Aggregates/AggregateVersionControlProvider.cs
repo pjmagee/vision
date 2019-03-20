@@ -9,34 +9,22 @@ namespace Vision.Web.Core
 {
     public class AggregateVersionControlProvider : IAggregateVersionControlProvider
     {
-        private readonly IEnumerable<IVersionControlProvider> providers;
-        private readonly IVersionControlService versionControlService;
+        private readonly IEnumerable<IVersionControlProvider> providers;        
         private readonly ILogger<AggregateVersionControlProvider> logger;
-        private readonly IDataProtector protector;
-
-        public AggregateVersionControlProvider(
-            IVersionControlService versionControlService,
-            IDataProtectionProvider provider,
-            IEnumerable<IVersionControlProvider> providers,
-            ILogger<AggregateVersionControlProvider> logger)
+        
+        public AggregateVersionControlProvider(IEnumerable<IVersionControlProvider> providers, ILogger<AggregateVersionControlProvider> logger)
         {
-            this.providers = providers;
-            this.protector = provider.CreateProtector("VersionControl.v1");
-            this.versionControlService = versionControlService;
+            this.providers = providers;      
             this.logger = logger;
         }
 
-        public async Task<IEnumerable<Asset>> GetAssetsAsync(Repository repository)
+        public async Task<IEnumerable<Asset>> GetAssetsAsync(VersionControlDto versionControl, RepositoryDto repository)
         {
-            var versionControl = await versionControlService.GetByIdAsync(repository.VersionControlId);
-
-            // versionControl.ApiKey = protector.Unprotect(versionControl.ApiKey);            
-
             using (var scope = logger.BeginScope($"{nameof(GetAssetsAsync)}::[{repository.Url}]"))
             {
                 List<Asset> results = new List<Asset>();
 
-                foreach (IVersionControlProvider provider in providers.Where(p => p.Supports(repository.VersionControl.Kind)))
+                foreach (IVersionControlProvider provider in providers.Where(p => p.Supports(versionControl.Kind)))
                 {
                     try
                     {
@@ -47,7 +35,6 @@ namespace Vision.Web.Core
                     {
                         logger.LogError(e, $"{nameof(GetAssetsAsync)}::[{repository.Url}]::ERROR");
                     }
-
                 }
 
                 logger.LogInformation($"{nameof(GetAssetsAsync)}::[{repository.Url}]::RESULTS::{results.Count}");
@@ -56,17 +43,17 @@ namespace Vision.Web.Core
             }
         }
 
-        public async Task<IEnumerable<Repository>> GetRepositoriesAsync(VersionControl source)
+        public async Task<IEnumerable<Repository>> GetRepositoriesAsync(VersionControlDto versionControl)
         {
             List<Repository> results = new List<Repository>();
 
-            foreach (IVersionControlProvider provider in providers.Where(provider => provider.Supports(source.Kind)))
+            foreach (IVersionControlProvider provider in providers.Where(provider => provider.Supports(versionControl.Kind)))
             {
-                IEnumerable<Repository> repositories = await provider.GetRepositoriesAsync(source);
+                IEnumerable<Repository> repositories = await provider.GetRepositoriesAsync(versionControl);
                 results.AddRange(repositories);
             }
 
-            logger.LogInformation($"{nameof(GetRepositoriesAsync)}::[{source.Endpoint}]::RESULTS::{results.Count}");
+            logger.LogInformation($"{nameof(GetRepositoriesAsync)}::[{versionControl.Endpoint}]::RESULTS::{results.Count}");
 
             return results;
         }

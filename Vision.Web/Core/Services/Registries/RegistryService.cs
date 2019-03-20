@@ -4,74 +4,76 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Microsoft.AspNetCore.DataProtection;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
 
     public class RegistryService : IRegistryService
     {
-        private readonly IDataProtector protector;
+        private readonly IEncryptionService encryptionService;
         private readonly VisionDbContext context;
         private readonly ILogger<RegistryService> logger;
 
-        public RegistryService(VisionDbContext context, IDataProtectionProvider provider, ILogger<RegistryService> logger)
+        public RegistryService(VisionDbContext context, IEncryptionService encryptionService, ILogger<RegistryService> logger)
         {
-            this.protector = provider.CreateProtector("Registry");
+            this.encryptionService = encryptionService;
             this.context = context;
             this.logger = logger;
         }
 
         public async Task<RegistryDto> CreateAsync(RegistryDto dto)
         {
-            Registry entity = new Registry
+            Registry registry = new Registry
             {
-                Id = Guid.NewGuid(),
                 Endpoint = dto.Endpoint,
                 Kind = dto.Kind,
                 IsPublic = dto.IsPublic,
                 IsEnabled = dto.IsEnabled,
-                ApiKey = string.IsNullOrWhiteSpace(dto.ApiKey) ? null : protector.Protect(dto.ApiKey),
-                Username = string.IsNullOrWhiteSpace(dto.Username) ? null : protector.Protect(dto.Username),
-                Password = string.IsNullOrWhiteSpace(dto.Password) ? null : protector.Protect(dto.Password)
+                ApiKey = encryptionService.Encrypt(dto.ApiKey),
+                Username = encryptionService.Encrypt(dto.Username),
+                Password = encryptionService.Encrypt(dto.Password),
             };
 
-            context.Registries.Add(entity);
+            context.Registries.Add(registry);
             await context.SaveChangesAsync();
 
-            logger.LogInformation("Created registry {0}", entity.Id);
+            logger.LogInformation("Created registry {0}", registry.Id);
 
-            return new RegistryDto { Endpoint = entity.Endpoint, ApiKey = entity.ApiKey, Kind = entity.Kind, RegistryId = entity.Id, IsPublic = dto.IsPublic, IsEnabled = dto.IsEnabled };
+            return new RegistryDto { Endpoint = registry.Endpoint, ApiKey = registry.ApiKey, Kind = registry.Kind, RegistryId = registry.Id, IsPublic = dto.IsPublic, IsEnabled = dto.IsEnabled };
         }
 
         public async Task<RegistryDto> UpdateAsync(RegistryDto dto)
         {
-            Registry entity = new Registry
-            {
-                Id = dto.RegistryId,
-                Endpoint = dto.Endpoint,
-                Kind = dto.Kind,
-                IsPublic = dto.IsPublic,
-                IsEnabled = dto.IsEnabled,
-                ApiKey = string.IsNullOrWhiteSpace(dto.ApiKey) ? null : protector.Protect(dto.ApiKey),
-                Username = string.IsNullOrWhiteSpace(dto.Username) ? null : protector.Protect(dto.Username),
-                Password = string.IsNullOrWhiteSpace(dto.Password) ? null : protector.Protect(dto.Password)
-            };
+            var registry = context.Registries.Find(dto.RegistryId);
 
-            context.Registries.Update(entity);
+            registry.IsEnabled = dto.IsEnabled;
+            registry.IsPublic = dto.IsPublic;
+            registry.Kind = dto.Kind;
+            registry.Endpoint = dto.Endpoint;
+
+            if (registry.ApiKey != dto.ApiKey)
+                registry.ApiKey = encryptionService.Encrypt(dto.ApiKey);
+
+            if (registry.Username != dto.Username)
+                registry.Username = encryptionService.Encrypt(dto.Username);
+
+            if (registry.Password != dto.Password)
+                registry.Password = encryptionService.Encrypt(dto.Password);
+
+            context.Registries.Update(registry);
             await context.SaveChangesAsync();
 
-            logger.LogInformation("Updated registry {0}", entity.Id);
+            logger.LogInformation("Updated registry {0}", registry.Id);
 
-            return new RegistryDto { Endpoint = entity.Endpoint, ApiKey = entity.ApiKey, Kind = entity.Kind, RegistryId = entity.Id, IsPublic = dto.IsPublic, IsEnabled = dto.IsEnabled };
+            return new RegistryDto { Endpoint = registry.Endpoint, ApiKey = registry.ApiKey, Kind = registry.Kind, RegistryId = registry.Id, IsPublic = dto.IsPublic, IsEnabled = dto.IsEnabled };
         }
 
         public async Task<IPaginatedList<RegistryDto>> GetAsync(int pageIndex = 1, int pageSize = 10)
         {
             var query = context.Registries.Select(registry => new RegistryDto
             {
-                ApiKey = string.IsNullOrWhiteSpace(registry.ApiKey) ? null : protector.Unprotect(registry.ApiKey),
-                Username = string.IsNullOrWhiteSpace(registry.Username) ? null : protector.Unprotect(registry.Username),
-                Password = string.IsNullOrWhiteSpace(registry.Password) ? null : protector.Unprotect(registry.Password),
+                ApiKey = encryptionService.Decrypt(registry.ApiKey),
+                Username = encryptionService.Decrypt(registry.Username),
+                Password = encryptionService.Decrypt(registry.Password),
                 Dependencies = context.Dependencies.Count(d => d.RegistryId == registry.Id),
                 Endpoint = registry.Endpoint,
                 IsEnabled = registry.IsEnabled,
@@ -85,19 +87,19 @@
 
         public async Task<RegistryDto> GetByIdAsync(Guid registryId)
         {
-            Registry entity = await context.Registries.FindAsync(registryId);
+            Registry registry = await context.Registries.FindAsync(registryId);
 
             return new RegistryDto
             {
-                ApiKey = string.IsNullOrWhiteSpace(entity.ApiKey) ? null : protector.Unprotect(entity.ApiKey),
-                Username = string.IsNullOrWhiteSpace(entity.Username) ? null : protector.Unprotect(entity.Username),
-                Password = string.IsNullOrWhiteSpace(entity.Password) ? null : protector.Unprotect(entity.Password),
-                Dependencies = context.Dependencies.Count(d => d.RegistryId == entity.Id),
-                Endpoint = entity.Endpoint,
-                IsEnabled = entity.IsEnabled,
-                IsPublic = entity.IsPublic,
-                Kind = entity.Kind,
-                RegistryId = entity.Id
+                ApiKey = encryptionService.Decrypt(registry.ApiKey),
+                Username = encryptionService.Decrypt(registry.Username),
+                Password = encryptionService.Decrypt(registry.Password),
+                Dependencies = context.Dependencies.Count(d => d.RegistryId == registry.Id),
+                Endpoint = registry.Endpoint,
+                IsEnabled = registry.IsEnabled,
+                IsPublic = registry.IsPublic,
+                Kind = registry.Kind,
+                RegistryId = registry.Id
             };
         }
 
@@ -108,9 +110,9 @@
                 .OrderBy(registry => !registry.IsPublic)
                 .Select(registry => new RegistryDto
                 {
-                    ApiKey = string.IsNullOrWhiteSpace(registry.ApiKey) ? null : protector.Unprotect(registry.ApiKey),
-                    Username = string.IsNullOrWhiteSpace(registry.Username) ? null : protector.Unprotect(registry.Username),
-                    Password = string.IsNullOrWhiteSpace(registry.Password) ? null : protector.Unprotect(registry.Password),
+                    ApiKey = encryptionService.Decrypt(registry.ApiKey),
+                    Username = encryptionService.Decrypt(registry.Username),
+                    Password = encryptionService.Decrypt(registry.Password),
                     Dependencies = context.Dependencies.Count(d => d.RegistryId == registry.Id),
                     Endpoint = registry.Endpoint,
                     IsEnabled = registry.IsEnabled,

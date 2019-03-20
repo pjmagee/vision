@@ -12,21 +12,24 @@
     {
         private readonly VisionDbContext context;
 
-        private readonly IAggregateVersionControlProvider aggregateVersionControlProvider;
-        private readonly IAggregateDependencyVersionProvider aggregateVersionProvider;
-        private readonly IAggregateAssetExtractor aggregateAssetExtractor;
+        private readonly IAggregateVersionControlProvider versionControlProvider;
+        private readonly IAggregateDependencyVersionProvider versionProvider;
+        private readonly IAggregateAssetExtractor assetExtractor;
+        private readonly IEncryptionService encryptionService;
         private readonly ILogger<RefreshService> logger;
 
         public RefreshService(
             VisionDbContext context,
-            IAggregateVersionControlProvider versionControlService,
-            IAggregateAssetExtractor aggregateAssetExtractor,
-            IAggregateDependencyVersionProvider aggregateVersionProvider,
+            IEncryptionService encryptionService,
+            IAggregateVersionControlProvider versionControlProvider,
+            IAggregateAssetExtractor assetExtractor,
+            IAggregateDependencyVersionProvider versionProvider,
             ILogger<RefreshService> logger)
         {
-            this.aggregateVersionControlProvider = versionControlService;
-            this.aggregateAssetExtractor = aggregateAssetExtractor;
-            this.aggregateVersionProvider = aggregateVersionProvider;
+            this.versionControlProvider = versionControlProvider;
+            this.assetExtractor = assetExtractor;
+            this.versionProvider = versionProvider;
+            this.encryptionService = encryptionService;
             this.logger = logger;
             this.context = context;
         }        
@@ -47,13 +50,18 @@
         public async Task RefreshRepositoryByIdAsync(Guid repositoryId)
         {
             Repository repository = await context.Repositories.FindAsync(repositoryId);
+            VersionControl versionControl = await context.VersionControls.FindAsync(repository.VersionControlId);
 
             logger.LogInformation($"Refreshing repository: {repository.Url}");
             await context.Entry(repository).Collection(r => r.Assets).LoadAsync();
             context.Assets.RemoveRange(repository.Assets);
             await context.SaveChangesAsync();
 
-            IEnumerable<Asset> items = await aggregateVersionControlProvider.GetAssetsAsync(repository);
+            var versionControlDto = new VersionControlDto { ApiKey = versionControl.ApiKey, Endpoint = versionControl.Endpoint, VersionControlId = versionControl.Id, Kind = versionControl.Kind, IsEnabled = versionControl.IsEnabled };
+            var repositoryDto = new RepositoryDto { VersionControlId = repository.VersionControlId, Url = repository.Url, WebUrl = repository.WebUrl };
+
+            encryptionService.Decrypt(versionControlDto);
+            IEnumerable<Asset> items = await versionControlProvider.GetAssetsAsync(versionControlDto, repositoryDto);
 
             foreach(Asset asset in items)
             {                
@@ -79,7 +87,7 @@
             context.AssetDependencies.RemoveRange(asset.Dependencies);
             await context.SaveChangesAsync();
 
-            IEnumerable<Extract> items = aggregateAssetExtractor.ExtractDependencies(asset);
+            IEnumerable<Extract> items = assetExtractor.ExtractDependencies(asset);
 
             foreach(Extract extract in items)
             {
@@ -97,7 +105,7 @@
             context.AssetFrameworks.RemoveRange(asset.Frameworks);
             await context.SaveChangesAsync();
             
-            IEnumerable<Extract> extracts = aggregateAssetExtractor.ExtractFrameworks(asset);
+            IEnumerable<Extract> extracts = assetExtractor.ExtractFrameworks(asset);
 
             foreach(var extract in extracts)
             {
@@ -113,7 +121,10 @@
             context.Repositories.RemoveRange(versionControl.Repositories);
             await context.SaveChangesAsync();
 
-            IEnumerable<Repository> items = await aggregateVersionControlProvider.GetRepositoriesAsync(versionControl);
+            var versionControlDto = new VersionControlDto { ApiKey = versionControl.ApiKey, Endpoint = versionControl.Endpoint, Kind = versionControl.Kind, VersionControlId = versionControl.Id };
+            encryptionService.Decrypt(versionControlDto);
+
+            IEnumerable<Repository> items = await this.versionControlProvider.GetRepositoriesAsync(versionControlDto);
 
             foreach(Repository repository in items)
             {
@@ -159,7 +170,7 @@
                 await context.SaveChangesAsync();
             }
 
-            DependencyVersion latest = await aggregateVersionProvider.GetLatestMetaDataAsync(dependency);
+            DependencyVersion latest = await versionProvider.GetLatestMetaDataAsync(dependency);
 
             if (await context.DependencyVersions.AllAsync(dv => dv.Version != latest.Version))
             {
@@ -201,7 +212,7 @@
         public async Task RefreshDependencyByIdAsync(Guid dependencyId)
         {
             Dependency dependency = await context.Dependencies.FindAsync(dependencyId);            
-            DependencyVersion latestVersion = await aggregateVersionProvider.GetLatestMetaDataAsync(dependency);
+            DependencyVersion latestVersion = await versionProvider.GetLatestMetaDataAsync(dependency);
             List<DependencyVersion> currentVersions = await context.DependencyVersions.Where(x => x.DependencyId == dependencyId).ToListAsync();
 
             if (currentVersions.All(current => current.Version != latestVersion.Version))

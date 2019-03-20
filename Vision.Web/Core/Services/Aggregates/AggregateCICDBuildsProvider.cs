@@ -11,7 +11,7 @@ namespace Vision.Web.Core
     {
         private readonly IRepositoryService repositoryService;
         private readonly ICiCdService ciCdService;
-        private readonly IDataProtector protector;
+        private readonly IEncryptionService encryption;
         private readonly IMemoryCache cache;
         private readonly ILogger<AggregateCICDBuildsProvider> logger;
         private readonly IEnumerable<ICiCdProvider> providers;
@@ -19,14 +19,14 @@ namespace Vision.Web.Core
         public AggregateCICDBuildsProvider(
             IRepositoryService repositoryService,
             ICiCdService ciCdService,
-            IDataProtectionProvider provider,
+            IEncryptionService encryption,
             IMemoryCache cache,
             IEnumerable<ICiCdProvider> providers,
             ILogger<AggregateCICDBuildsProvider> logger)
         {
             this.repositoryService = repositoryService;
             this.ciCdService = ciCdService;
-            this.protector = provider.CreateProtector("CICD.v1");
+            this.encryption = encryption;
             this.cache = cache;
             this.logger = logger;
             this.providers = providers;
@@ -50,9 +50,7 @@ namespace Vision.Web.Core
                         {
                             try
                             {
-                                cicd.ApiKey = string.IsNullOrEmpty(cicd.ApiKey) ? cicd.ApiKey : protector.Unprotect(cicd.ApiKey);
-                                cicd.Username = string.IsNullOrEmpty(cicd.Username) ? cicd.Username : protector.Unprotect(cicd.Username);
-                                cicd.Password = string.IsNullOrEmpty(cicd.Password) ? cicd.Password : protector.Unprotect(cicd.Password);
+                                encryption.Decrypt(cicd);
 
                                 List<CiCdBuildDto> results = await provider.GetBuildsAsync(repository, cicd);
                                 builds.AddRange(results);

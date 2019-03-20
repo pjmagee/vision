@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
@@ -12,13 +11,12 @@ namespace Vision.Web.Core
     {
         private readonly IEnumerable<IDependencyVersionProvider> providers;
         private readonly IRegistryService registryService;
-        private readonly IDataProtector protector;
         private readonly IMemoryCache cache;
         private readonly ILogger<AggregateDependencyVersionProvider> logger;
 
         public AggregateDependencyVersionProvider(
             IRegistryService registryService,
-            IDataProtectionProvider protectionProvider,
+            IEncryptionService encryptionService,
             IMemoryCache cache,
             IEnumerable<IDependencyVersionProvider> providers,
             ILogger<AggregateDependencyVersionProvider> logger)
@@ -26,7 +24,6 @@ namespace Vision.Web.Core
             this.registryService = registryService;
             this.cache = cache;
             this.logger = logger;
-            this.protector = protectionProvider.CreateProtector("Registry.v1");
             this.providers = providers;
         }
 
@@ -54,10 +51,6 @@ namespace Vision.Web.Core
                 {
                     try
                     {
-                        // registry.ApiKey = protector.Unprotect(registry.ApiKey);
-                        // registry.Password = protector.Unprotect(registry.Password);
-                        // registry.Username = protector.Unprotect(registry.Username);
-
                         version = await GetVersionByProviderAndRegistry(dependency, service, registry);
                     }
                     catch (Exception e)
@@ -82,10 +75,6 @@ namespace Vision.Web.Core
 
         private async Task<DependencyVersion> GetVersionByProviderAndRegistry(Dependency dependency, IDependencyVersionProvider service, RegistryDto registry)
         {
-            // registry.ApiKey =  protector.Unprotect(registry.ApiKey);
-            // registry.Username = protector.Unprotect(registry.Username);
-            // registry.Password = protector.Unprotect(registry.Password);
-
             logger.LogInformation($"{nameof(GetVersionByProviderAndRegistry)}::[{dependency.Name}]::[{registry.Endpoint}]::SEARCH::");
 
             DependencyVersion version = null;

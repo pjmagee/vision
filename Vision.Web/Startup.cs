@@ -42,6 +42,7 @@ namespace Vision.Web
             RegisterCiCdServices(services);
             RegisterRazorComponentServices(services);
 
+            services.AddSingleton<IEncryptionService, EncryptionService>();
             services.AddScoped<FakeDataGenerator>();
             services.AddScoped<IMetricService, MetricService>();
 
