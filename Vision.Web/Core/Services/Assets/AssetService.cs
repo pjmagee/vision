@@ -9,9 +9,9 @@
     public class AssetService : IAssetService
     {
         private readonly VisionDbContext context;
-        private readonly IAssetExtractor extractor;
+        private readonly IAggregateAssetExtractor extractor;
 
-        public AssetService(VisionDbContext context, IAssetExtractor extractor)
+        public AssetService(VisionDbContext context, IAggregateAssetExtractor extractor)
         {
             this.context = context;
             this.extractor = extractor;

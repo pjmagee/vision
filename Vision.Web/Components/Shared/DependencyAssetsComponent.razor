@@ -3,6 +3,7 @@
         <tr>
             <th>@nameof(AssetDependencyDto.Asset)</th>
             <th>@nameof(AssetDependencyDto.Version)</th>
+            <th>@nameof(AssetDependencyDto.Repository)</th>
             <th>@nameof(AssetDependencyDto.IsLatest)</th>
         </tr>
     </thead>
@@ -14,6 +15,7 @@
                 <tr>
                     <td><a href="@($"/data/vcs/{item.VersionControlId}/repositories/{item.RepositoryId}/assets/{item.AssetId}")">@item.Asset</a></td>
                     <td><a href="@($"/data/dependencies/{item.DependencyId}/versions/{item.DependencyVersionId}")">@item.Version</a></td>
+                    <td><a href="@($"/data/vcs/{item.VersionControlId}/repositories/{item.RepositoryId}")">@item.Repository</a></td>
                     <td>@item.IsLatest</td>
                 </tr>
             }
@@ -21,7 +23,7 @@
             @if (Items.Count == 0)
             {
                 <tr>
-                    <td colspan="3">
+                    <td colspan="4">
                         No dependency assets found.
                     </td>
                 </tr>

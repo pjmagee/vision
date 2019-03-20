@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,13 +12,16 @@ namespace Vision.Web.Core
         private readonly IEnumerable<IVersionControlProvider> providers;
         private readonly IVersionControlService versionControlService;
         private readonly ILogger<AggregateVersionControlProvider> logger;
+        private readonly IDataProtector protector;
 
         public AggregateVersionControlProvider(
             IVersionControlService versionControlService,
+            IDataProtectionProvider provider,
             IEnumerable<IVersionControlProvider> providers,
             ILogger<AggregateVersionControlProvider> logger)
         {
             this.providers = providers;
+            this.protector = provider.CreateProtector("VersionControl.v1");
             this.versionControlService = versionControlService;
             this.logger = logger;
         }
@@ -25,6 +29,8 @@ namespace Vision.Web.Core
         public async Task<IEnumerable<Asset>> GetAssetsAsync(Repository repository)
         {
             var versionControl = await versionControlService.GetByIdAsync(repository.VersionControlId);
+
+            // versionControl.ApiKey = protector.Unprotect(versionControl.ApiKey);            
 
             using (var scope = logger.BeginScope($"{nameof(GetAssetsAsync)}::[{repository.Url}]"))
             {

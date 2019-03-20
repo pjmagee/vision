@@ -33,7 +33,7 @@ namespace Vision.Web.Core
 
                 if (!string.IsNullOrWhiteSpace(cicd.Username) && !string.IsNullOrWhiteSpace(cicd.Password))
                 {
-                    BuildsClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("basic", $"{cicd.Username}:{cicd.Password}");
+                    BuildsClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Base64Encode($"{cicd.Username}:{cicd.Password}"));
                 }
 
                 var vcsRootsResponse = await BuildsClient.GetAsync(query, HttpCompletionOption.ResponseContentRead);

@@ -9,14 +9,12 @@
     public class CiCdService : ICiCdService
     {
         private readonly VisionDbContext context;
-        private readonly ICiCdProvider cicdProvider;
         private readonly IDataProtector protector;
 
-        public CiCdService(VisionDbContext context, IDataProtectionProvider provider, ICiCdProvider cicdProvider)
+        public CiCdService(VisionDbContext context, IDataProtectionProvider provider)
         {
             this.context = context;
-            this.cicdProvider = cicdProvider;
-            this.protector = provider.CreateProtector("Auth");
+            this.protector = provider.CreateProtector("CICD.v1");
         }
 
         public async Task<CiCdDto> GetByIdAsync(Guid cicdId)
@@ -98,7 +96,9 @@
                 Endpoint = cicd.Endpoint,
                 Kind = cicd.Kind,
                 Username = cicd.Username,
-                Password = cicd.Password
+                Password = cicd.Password,
+                IsEnabled = cicd.IsEnabled,
+                IsGuestEnabled = cicd.IsGuestEnabled
             });            
 
             return await PaginatedList<CiCdDto>.CreateAsync(query, pageIndex, pageSize);

@@ -17,9 +17,9 @@ namespace Vision.Web
                     // FakeDataGenerator fakeDataGenerator = scope.ServiceProvider.GetRequiredService<FakeDataGenerator>();
                     // await fakeDataGenerator.SeedAsync();   
 
-                    var context = scope.ServiceProvider.GetRequiredService<VisionDbContext>();
-                    await context.Database.EnsureDeletedAsync();
-                    await context.Database.EnsureCreatedAsync();
+                    // var context = scope.ServiceProvider.GetRequiredService<VisionDbContext>();
+                    // await context.Database.EnsureDeletedAsync();
+                    // await context.Database.EnsureCreatedAsync();
                 }
 
                 await host.RunAsync();

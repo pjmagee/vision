@@ -20,6 +20,17 @@
             repository.IsIgnored = !repository.IsIgnored;
             await context.SaveChangesAsync();
 
+            if (repository.IsIgnored)
+            {
+                context.RemoveRange(context.Assets.Where(asset => asset.RepositoryId == repositoryId));
+            }
+            else
+            {
+                context.Tasks.Add(new SystemTask { Scope = TaskScopeKind.Repository, TargetId = repositoryId });
+            }
+
+            await context.SaveChangesAsync();
+
             return new RepositoryDto
             {
                 VersionControlId = repository.VersionControlId,

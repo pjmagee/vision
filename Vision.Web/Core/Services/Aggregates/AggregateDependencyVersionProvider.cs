@@ -18,7 +18,7 @@ namespace Vision.Web.Core
 
         public AggregateDependencyVersionProvider(
             IRegistryService registryService,
-            IDataProtectionProvider dataProtectorProvider,
+            IDataProtectionProvider protectionProvider,
             IMemoryCache cache,
             IEnumerable<IDependencyVersionProvider> providers,
             ILogger<AggregateDependencyVersionProvider> logger)
@@ -26,7 +26,7 @@ namespace Vision.Web.Core
             this.registryService = registryService;
             this.cache = cache;
             this.logger = logger;
-            this.protector = dataProtectorProvider.CreateProtector("REGISTRY");
+            this.protector = protectionProvider.CreateProtector("Registry.v1");
             this.providers = providers;
         }
 
@@ -54,6 +54,10 @@ namespace Vision.Web.Core
                 {
                     try
                     {
+                        // registry.ApiKey = protector.Unprotect(registry.ApiKey);
+                        // registry.Password = protector.Unprotect(registry.Password);
+                        // registry.Username = protector.Unprotect(registry.Username);
+
                         version = await GetVersionByProviderAndRegistry(dependency, service, registry);
                     }
                     catch (Exception e)
@@ -78,9 +82,9 @@ namespace Vision.Web.Core
 
         private async Task<DependencyVersion> GetVersionByProviderAndRegistry(Dependency dependency, IDependencyVersionProvider service, RegistryDto registry)
         {
-            registry.ApiKey = protector.Unprotect(registry.ApiKey);
-            registry.Username = protector.Unprotect(registry.Username);
-            registry.Password = protector.Unprotect(registry.Password);
+            // registry.ApiKey =  protector.Unprotect(registry.ApiKey);
+            // registry.Username = protector.Unprotect(registry.Username);
+            // registry.Password = protector.Unprotect(registry.Password);
 
             logger.LogInformation($"{nameof(GetVersionByProviderAndRegistry)}::[{dependency.Name}]::[{registry.Endpoint}]::SEARCH::");
 
