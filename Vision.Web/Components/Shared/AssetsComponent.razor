@@ -1,13 +1,18 @@
-﻿<BlazorForm IsInline="true" Class="mb-4">
-    <FormLabel Class="my-1 mr-2">Kind</FormLabel>
-    <select onchange="@(async(e) => await FilterAsync(e))" class="my-1 mr-sm-2 form-control">
-        <option>Any...</option>
-        @foreach (var kind in AppHelper.DependencyKinds)
-        {
-            <option value="@kind">@kind.GetName()</option>
-        }
-    </select>
-</BlazorForm>
+﻿@if(!Dependents)
+{
+    <div class="form-inline mb-4">
+        <FormLabel Class="my-1 mr-2">Kind</FormLabel>
+        <select onchange="@DropDownFilterAsync" class="form-control my-1 mr-sm-2">
+            <option>Any...</option>
+            @foreach (var kind in AppHelper.DependencyKinds)
+            {
+                <option value="@kind">@kind.GetName()</option>
+            }
+        </select>
+        <input class="form-control mr-sm-2" bind-value-oninput="@Search" type="text" />
+        <button type="button" class="btn btn-primary" onclick="@(async() => await PageAsync(Items.PageIndex))">Search</button>
+     </div>
+}
 
 <BlazorTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
     <thead>
@@ -69,11 +74,14 @@
     [Parameter] bool Dependents { get; set; }
 
     [Inject] IAssetService AssetService { get; set; }
+    [Inject] IDependencyService DependencyService { get; set; }
     [Inject] SvgService SvgService { get; set; }
 
     IPaginatedList<AssetDto> Items { get; set; }
 
+    // Filtering Properties    
     DependencyKind? Kind { get; set; }
+    string Search { get; set; }
 
     List<DependencyKind> kinds = new List<DependencyKind>();
 
@@ -84,7 +92,7 @@
         await PageAsync(1);
     }
 
-    async Task FilterAsync(UIChangeEventArgs args)
+    async Task DropDownFilterAsync(UIChangeEventArgs args)
     {
         if (Enum.TryParse(typeof(DependencyKind), (string)args.Value, true, out var kind))
         {
@@ -98,6 +106,11 @@
         await PageAsync(Items.PageIndex);
     }
 
+    async Task PageAsync(UIChangeEventArgs e)
+    {
+        await PageAsync(Items.PageIndex);
+    }
+
     async Task PageAsync(int page)
     {
         kinds.Clear();
@@ -105,31 +118,31 @@
 
         if (Dependents && RepositoryId.HasValue)
         {
-            Items = await AssetService.GetDependentsByRepositoryId(RepositoryId.Value, kinds, page, PageSize);
+            Items = await DependencyService.GetDependentsByRepositoryId(RepositoryId.Value, kinds, page, PageSize);
         }
         else if (RepositoryId.HasValue)
         {
-            Items = await AssetService.GetByRepositoryIdAsync(RepositoryId.Value, kinds, page, PageSize);
+            Items = await AssetService.GetByRepositoryIdAsync(RepositoryId.Value, kinds, page, PageSize, search: Search);
         }
         else if (VersionControlId.HasValue)
         {
-            Items = await AssetService.GetByVersionControlIdAsync(VersionControlId.Value, kinds, page, PageSize);
+            Items = await AssetService.GetByVersionControlIdAsync(VersionControlId.Value, kinds, page, PageSize, search: Search);
         }
         else if (DependencyId.HasValue)
         {
-            Items = await AssetService.GetByDependencyIdAsync(DependencyId.Value, kinds, page, PageSize);
+            Items = await AssetService.GetByDependencyIdAsync(DependencyId.Value, kinds, page, PageSize, search: Search);
         }
         else if (VersionId.HasValue)
         {
-            Items = await AssetService.GetByVersionIdAsync(VersionId.Value, kinds, page, PageSize);
+            Items = await AssetService.GetByVersionIdAsync(VersionId.Value, kinds, page, PageSize, search: Search);
         }
         else if (FrameworkId.HasValue)
         {
-            Items = await AssetService.GetByFrameworkIdAsync(FrameworkId.Value, kinds, page, PageSize);
+            Items = await AssetService.GetByFrameworkIdAsync(FrameworkId.Value, kinds, page, PageSize, search: Search);
         }
         else
         {
-            Items = await AssetService.GetAsync(kinds, page);
+            Items = await AssetService.GetAsync(kinds, page, search: Search);
         }
 
         StateHasChanged();

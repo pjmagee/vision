@@ -33,6 +33,43 @@
             return await PaginatedList<DependencyDto>.CreateAsync(paging, pageIndex, pageSize);
         }
 
+        public async Task<IPaginatedList<AssetDto>> GetDependentsByRepositoryId(Guid repositoryId, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10)
+        {
+            Repository repository = await context.Repositories.FindAsync(repositoryId);
+
+            var dependencies = await GetByRepositoryIdAsync(repositoryId, pageSize: 1000);
+
+            if (dependencies.Count == 0)
+                return new PaginatedList<AssetDto>(Enumerable.Empty<AssetDto>().ToList(), 0, 0, 0);
+
+            var assets = context.Assets.AsQueryable();
+            var filter = kinds.Cast<int>().ToArray();
+
+            if (filter.Any())
+            {
+                assets = assets.Where(asset => filter.Contains((int)asset.Kind));
+            }
+
+            foreach (var dependency in dependencies)
+            {
+                assets = assets.Where(asset => context.AssetDependencies.Any(ad => ad.DependencyId == dependency.DependencyId && ad.AssetId == asset.Id));
+            }
+
+            var paging = assets.Select(asset => new AssetDto
+            {
+                AssetId = asset.Id,
+                Repository = asset.Repository.Url,
+                Dependencies = context.AssetDependencies.Count(assetDependency => assetDependency.AssetId == asset.Id),
+                Asset = asset.Path,
+                RepositoryId = asset.RepositoryId,
+                Kind = asset.Kind,
+                VersionControlId = asset.Repository.VersionControlId
+            })
+            .OrderByDescending(asset => asset.Dependencies);
+
+            return await PaginatedList<AssetDto>.CreateAsync(paging.AsNoTracking(), pageIndex, pageSize);
+        }
+
         public async Task<IPaginatedList<DependencyDto>> GetByRepositoryIdAsync(Guid repositoryId, int pageIndex = 1, int pageSize = 10)
         {
             // Find all Dependencies who's Project URl (META DATA FROM DEPENDENCY REGISTRY) matches this Repositories Git or Web Url

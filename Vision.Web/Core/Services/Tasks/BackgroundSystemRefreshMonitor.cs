@@ -53,8 +53,9 @@
             {
                 if (await context.Assets.AnyAsync(a => a.RepositoryId == repository.Id))
                 {
-                    logger.LogInformation($"Removing assets from repository {repository.Id}");
-                    context.Assets.RemoveRange(context.Assets.Where(asset => asset.RepositoryId == repository.Id));
+                    logger.LogInformation($"Removing repository assocated  from repository {repository.Id}");
+                    context.AssetFrameworks.RemoveRange(context.AssetFrameworks.Where(af => af.Asset.Repository == repository));
+                    context.Assets.RemoveRange(context.Assets.Where(asset => asset.RepositoryId == repository.Id));                    
                     await context.SaveChangesAsync();
                 }
             }

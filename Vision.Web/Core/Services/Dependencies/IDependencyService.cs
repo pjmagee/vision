@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Vision.Web.Core
@@ -10,5 +11,6 @@ namespace Vision.Web.Core
         Task<IPaginatedList<DependencyDto>> GetByKindsAsync(DependencyKind[] kinds, int pageIndex = 1, int pageSize = 10);
         Task<IPaginatedList<DependencyDto>> GetByRegistryIdAsync(Guid registryId, int pageIndex = 1, int pageSize = 10);
         Task<IPaginatedList<DependencyDto>> GetByRepositoryIdAsync(Guid repositoryId, int pageIndex = 1, int pageSize = 10);
+        Task<IPaginatedList<AssetDto>> GetDependentsByRepositoryId(Guid repositoryId, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10);
     }
 }
