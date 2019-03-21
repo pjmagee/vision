@@ -23,7 +23,7 @@
         }
 
         [Theory]
-        [InlineData("https://registry.npmjs.org/", "@angular/core", "7.2.9")]
+        [InlineData("https://registry.npmjs.org/", "@angular/core", "7.2.10")]
         public async Task NpmApiTest(string endpoint, string package, string expected)
         {
             // arrange

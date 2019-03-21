@@ -157,12 +157,6 @@
                     .With(d => d.Id = Guid.NewGuid())
                     .With(d => d.Name = namePicker.Pick().Trim())
                     .With(d => d.Kind = kind)
-                    .And(d =>
-                    {
-                        Registry registry = registryPicker.Pick();
-                        d.Registry = registry;
-                        d.RegistryId = registry.Id;                    
-                    })
                     .With(d => d.Updated = DateTime.Now.Add(new TimeSpan(GetRandom.Int(-150, 0), GetRandom.Int(0, 10), GetRandom.Int(0, 10), GetRandom.Int(0, 10), GetRandom.Int(0, 500))))
                     .Build()
                     .Distinct();

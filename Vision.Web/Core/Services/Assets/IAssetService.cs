@@ -6,13 +6,13 @@ namespace Vision.Web.Core
 {
     public interface IAssetService
     {
-        Task<AssetDto> GetByIdAsync(Guid assetId);
-        Task<IPaginatedList<AssetDto>> GetAsync(IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10, string search = null);
-        Task<IPaginatedList<AssetDto>> GetByDependencyIdAsync(Guid dependencyId, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10, string search = null);
-        Task<IPaginatedList<AssetDto>> GetByFrameworkIdAsync(Guid frameworkId, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10, string search = null);
-        Task<IPaginatedList<AssetDto>> GetByRepositoryIdAsync(Guid repositoryId, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10, string search = null);
-        Task<IPaginatedList<AssetDto>> GetByVersionControlIdAsync(Guid versionControlId, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10, string search = null);
-        Task<IPaginatedList<AssetDto>> GetByVersionIdAsync(Guid versionId, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10, string search = null);
+        Task<AssetDto> GetByIdAsync(Guid id);
+        Task<IPaginatedList<AssetDto>> GetAsync(string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10);
+        Task<IPaginatedList<AssetDto>> GetByDependencyIdAsync(Guid id, string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10);
+        Task<IPaginatedList<AssetDto>> GetByFrameworkIdAsync(Guid id, string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10);
+        Task<IPaginatedList<AssetDto>> GetByRepositoryIdAsync(Guid id, string search, IEnumerable<DependencyKind> kinds, bool dependents, int pageIndex = 1, int pageSize = 10);        
+        Task<IPaginatedList<AssetDto>> GetByVersionControlIdAsync(Guid id, string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10);
+        Task<IPaginatedList<AssetDto>> GetByVersionIdAsync(Guid id, string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10);
         Task<List<string>> GetPublishedNamesByRepositoryIdAsync(Guid repositoryId);
     }
 }

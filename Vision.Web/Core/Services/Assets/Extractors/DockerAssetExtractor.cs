@@ -19,7 +19,7 @@ namespace Vision.Web.Core
 
         public IEnumerable<Extract> ExtractDependencies(Asset asset)
         {
-            var lines = asset.Raw.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
+            var lines = asset.Raw.Split(Environment.NewLine).Select(x => x.Trim());
             var ignores = new List<string>();
 
             foreach (var line in lines.Where(line => line.StartsWith("FROM", StringComparison.OrdinalIgnoreCase)))

@@ -1,11 +1,8 @@
-﻿
-
-<BlazorTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
+﻿<BlazorTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
     <thead>
         <tr>
             <th>Kind</th>
             <th>Endpoint</th>
-            <th>Dependencies</th>
             <th>Public</th>
             <th>Enabled</th>
             <th>API Key</th>
@@ -22,7 +19,6 @@
                 <tr>
                     <td class="@item.Kind.GetIconClass()">@SvgService.GetSvg(item.Kind)</td>
                     <td><a href="@($"/data/registries/{item.RegistryId}")">@item.Endpoint</a></td>
-                    <td>@item.Dependencies</td>
                     <td>@item.IsPublic</td>
                     <td>@item.IsEnabled</td>
                     <td title="@item.ApiKey">@(string.IsNullOrWhiteSpace(item.ApiKey) ? "Empty" : "Set")</td>
@@ -37,7 +33,7 @@
             @if (Items.Count == 0)
             {
                 <tr>
-                    <td colspan="3">
+                    <td colspan="8">
                         No registries found.
                     </td>
                 </tr>

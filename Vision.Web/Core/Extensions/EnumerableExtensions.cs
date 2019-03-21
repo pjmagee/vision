@@ -1,5 +1,6 @@
 ﻿namespace Vision.Web.Core
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -12,5 +13,7 @@
                 .GroupBy(x => x.Index / chunkSize)
                 .Select(x => x.Select(v => v.Value));
         }
+
+        public static int[] ToIntArray<T>(this IEnumerable<T> kinds) where T : Enum => (kinds ?? Enumerable.Empty<T>()).Cast<int>().ToArray();
     }
 }

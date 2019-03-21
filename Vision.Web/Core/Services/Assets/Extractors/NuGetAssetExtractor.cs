@@ -12,9 +12,21 @@ namespace Vision.Web.Core
 {
     public class NuGetAssetExtractor : IAssetExtractor
     {
-        const string PackageReference = "PackageReference";
-        const string DotNetCliToolReference = "DotNetCliToolReference";
-        const string Reference = "Reference";
+        private const string Framework = ".NET";
+
+        private const string PackageReference = "PackageReference";
+        private const string DotNetCliToolReference = "DotNetCliToolReference";
+        private const string Reference = "Reference";
+        
+        private const string TargetFramework = "TargetFramework";
+        private const string TargetFrameworks = "TargetFrameworks";
+        private const string TargetFrameworkVersion = "TargetFrameworkVersion";
+
+        private const string Version = "Version";
+        private const string Include = "Include";
+        private const string PackageId = "PackageId";
+        private const string AssemblyName = "AssemblyName";
+
         private readonly ILogger<NuGetAssetExtractor> logger;
 
         public bool Supports(DependencyKind kind) => kind == DependencyKind.NuGet;
@@ -46,7 +58,7 @@ namespace Vision.Web.Core
                         // Make it generic enough to find both the <Reference> element but it must have an Attribute of "Include" and contain the value "Version" within it.
                         List<Extract> oldPackageReference = document
                             .XPathSelectElements("//*[local-name() = '" + Reference + "']")
-                            .Where(x => x.HasAttributes && x.FirstAttribute.Name == "Include" && x.FirstAttribute.Value.Contains("Version"))
+                            .Where(x => x.HasAttributes && x.FirstAttribute.Name == Include && x.FirstAttribute.Value.Contains(Version))
                             .Select(FromOldReference).ToList();
 
                         var results = sdkPackageReference.Concat(oldPackageReference).ToList();
@@ -76,17 +88,17 @@ namespace Vision.Web.Core
                         XDocument document = XDocument.Load(reader);
 
                         IEnumerable<string> targetFramework = (from element in document.Descendants()
-                                                               where (element.Name.LocalName == "TargetFramework" || element.Name.LocalName == "TargetFrameworkVersion")
+                                                               where (element.Name.LocalName == TargetFramework || element.Name.LocalName == TargetFrameworkVersion)
                                                                select element.Value);
 
                         IEnumerable<string> targetFrameworks = (from element in document.Descendants()
-                                                                where element.Name.LocalName == "TargetFrameworks"
+                                                                where element.Name.LocalName == TargetFrameworks
                                                                 let multiple = element.Value
                                                                 from framework in multiple.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries)
                                                                 select framework);
 
 
-                        var extracts = targetFrameworks.Concat(targetFramework).Select(fw => new Extract(".NET Framework", fw?.Trim())).ToList();
+                        var extracts = targetFrameworks.Concat(targetFramework).Select(fw => new Extract(Framework, fw?.Trim())).ToList();
 
                         logger.LogTrace($"Extracted {extracts.Count} frameworks for asset {asset.Path}");
 
@@ -103,15 +115,15 @@ namespace Vision.Web.Core
 
         private Extract FromNewReference(XElement reference)
         {
-            var name = reference?.Attribute("Include")?.Value;
-            var version = reference?.Attribute("Version")?.Value ?? reference?.Element("Version")?.Value;
+            var name = reference?.Attribute(Include)?.Value;
+            var version = reference?.Attribute(Version)?.Value ?? reference?.Element(Version)?.Value;
 
             return new Extract(name?.Trim(), version?.Trim());
         }
 
         private Extract FromOldReference(XElement reference)
         {                     
-            var include = reference.Attribute("Include")?.Value;
+            var include = reference.Attribute(Include)?.Value;
             var segments = include.Split(',');
 
             string name = segments[0].Trim();
@@ -121,7 +133,7 @@ namespace Vision.Web.Core
             {
                 var pair = segment.Split('=');
 
-                if (pair[0].Trim() == "Version")
+                if (pair[0].Trim() == Version)
                 {
                     version = pair[1].Trim();
                     break;
@@ -141,12 +153,12 @@ namespace Vision.Web.Core
                     {
                         XDocument document = XDocument.Load(reader);
 
-                        string packageId = document.XPathSelectElement("//*[local-name() = '" + "PackageId" + "']")?.Value;                        
+                        string packageId = document.XPathSelectElement("//*[local-name() = '" + PackageId + "']")?.Value;                        
 
                         if (packageId != null)
                             return packageId;
 
-                        string assemblyName = document.XPathSelectElement("//*[local-name() = '" + "AssemblyName" + "']")?.Value;
+                        string assemblyName = document.XPathSelectElement("//*[local-name() = '" + AssemblyName + "']")?.Value;
 
                         if (assemblyName != null)
                             return assemblyName;

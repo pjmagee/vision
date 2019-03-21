@@ -7,7 +7,6 @@
     using System.Linq;
     using Vision.Web.Core;
     using Xunit;
-    using Xunit.Abstractions;
 
     public class DockerExtractorTests
     {
@@ -15,7 +14,7 @@
 
         public DockerExtractorTests()
         {
-            this.sut = new DockerAssetExtractor(Substitute.For<ILogger<DockerAssetExtractor>>());
+            sut = new DockerAssetExtractor(Substitute.For<ILogger<DockerAssetExtractor>>());
         }
                 
         [Theory]

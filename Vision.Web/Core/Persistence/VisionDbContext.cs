@@ -79,7 +79,6 @@
             modelBuilder.Entity<Dependency>((entity) =>
             {
                 entity.HasKey(x => x.Id);
-                entity.Property(x => x.RegistryId).IsRequired(false);
                 entity.Property(e => e.Kind);
                 entity.HasMany(x => x.Versions).WithOne(v => v.Dependency).HasForeignKey(x => x.DependencyId);
                 entity.HasMany(x => x.Assets).WithOne(x => x.Dependency).HasForeignKey(x => x.DependencyId);

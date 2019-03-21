@@ -1,9 +1,9 @@
 ﻿namespace Vision.Tests
 {
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.Logging;
     using NSubstitute;
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using Vision.Web.Core;
     using Xunit;
@@ -12,13 +12,11 @@
     {
         private readonly DependencyService sut;
         private readonly VisionDbContext context;
-        private readonly LoggerFactory loggerFactory;
 
         public DependencyServiceTests()
         {
-            loggerFactory = new LoggerFactory();
             context = new VisionDbContext(new DbContextOptionsBuilder<VisionDbContext>().UseInMemoryDatabase("DependencyServiceTests").Options);
-            sut = new DependencyService(context, Substitute.For<IAssetService>());
+            sut = new DependencyService(context, Substitute.For<IAggregateAssetExtractor>());
         }
 
         [Fact]
@@ -29,7 +27,7 @@
             await context.SaveChangesAsync();
 
             // Act
-            IPaginatedList<DependencyDto> result = await sut.GetByKindsAsync(new[] { DependencyKind.Docker });
+            IPaginatedList<DependencyDto> result = await sut.GetAsync(new[] { DependencyKind.Docker }, search: null);
 
             // Assert
             result[0].Name = "1";
@@ -44,7 +42,7 @@
             await context.SaveChangesAsync();
 
             // Act
-            IPaginatedList<DependencyDto> result = await sut.GetAsync();
+            IPaginatedList<DependencyDto> result = await sut.GetAsync(Enumerable.Empty<DependencyKind>(), null);
 
             // Assert
             Assert.Equal(1, result.TotalPages);
@@ -60,7 +58,6 @@
 
         public void Dispose()
         {
-            loggerFactory?.Dispose();
             context?.Dispose();
         }
     }

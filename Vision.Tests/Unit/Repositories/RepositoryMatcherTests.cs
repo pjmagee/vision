@@ -23,9 +23,9 @@ namespace Vision.Tests
         [InlineData("ssh://git@external:8080/key/project.git", "http://domain:8090/scm/key/project.git", false)]
         [InlineData("ssh://git@external:8080/key/project.git", "http://external:8090/scm/project2.git", false)]
         [InlineData("ssh://git@domain:8080/key/project.git", "ssh://git@domain:8080/key/project2.git", false)]
-        public void MatcherTests(string one, string two, bool expectedMatch)
+        public void MatcherTests(string one, string two, bool match)
         {
-            Assert.Equal(expectedMatch, repositoryMatcher.IsMatch(one, two));
+            Assert.Equal(expected: match, actual: repositoryMatcher.IsMatch(one, two));
         }
     }
 }

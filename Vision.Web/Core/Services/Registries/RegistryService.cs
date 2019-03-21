@@ -73,8 +73,7 @@
             {
                 ApiKey = encryptionService.Decrypt(registry.ApiKey),
                 Username = encryptionService.Decrypt(registry.Username),
-                Password = encryptionService.Decrypt(registry.Password),
-                Dependencies = context.Dependencies.Count(d => d.RegistryId == registry.Id),
+                Password = encryptionService.Decrypt(registry.Password),                
                 Endpoint = registry.Endpoint,
                 IsEnabled = registry.IsEnabled,
                 IsPublic = registry.IsPublic,
@@ -93,8 +92,7 @@
             {
                 ApiKey = encryptionService.Decrypt(registry.ApiKey),
                 Username = encryptionService.Decrypt(registry.Username),
-                Password = encryptionService.Decrypt(registry.Password),
-                Dependencies = context.Dependencies.Count(d => d.RegistryId == registry.Id),
+                Password = encryptionService.Decrypt(registry.Password),                
                 Endpoint = registry.Endpoint,
                 IsEnabled = registry.IsEnabled,
                 IsPublic = registry.IsPublic,
@@ -112,8 +110,7 @@
                 {
                     ApiKey = encryptionService.Decrypt(registry.ApiKey),
                     Username = encryptionService.Decrypt(registry.Username),
-                    Password = encryptionService.Decrypt(registry.Password),
-                    Dependencies = context.Dependencies.Count(d => d.RegistryId == registry.Id),
+                    Password = encryptionService.Decrypt(registry.Password),                    
                     Endpoint = registry.Endpoint,
                     IsEnabled = registry.IsEnabled,
                     IsPublic = registry.IsPublic,

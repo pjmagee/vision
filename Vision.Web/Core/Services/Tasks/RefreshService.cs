@@ -118,7 +118,7 @@
             VersionControl versionControl = await context.VersionControls.FindAsync(versionControlId);
 
             await context.Entry(versionControl).Collection(vcs => vcs.Repositories).LoadAsync();            
-            context.Repositories.RemoveRange(versionControl.Repositories);
+            context.Repositories.RemoveRange(versionControl.Repositories.Where(r => r.IsIgnored == false));
             await context.SaveChangesAsync();
 
             var versionControlDto = new VersionControlDto { ApiKey = versionControl.ApiKey, Endpoint = versionControl.Endpoint, Kind = versionControl.Kind, VersionControlId = versionControl.Id };

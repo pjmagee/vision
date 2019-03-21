@@ -1,6 +1,5 @@
 ﻿namespace Vision.Tests
 {
-    using Microsoft.AspNetCore.DataProtection;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using NSubstitute;

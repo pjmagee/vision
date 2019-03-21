@@ -21,7 +21,5 @@
         public bool IsEnabled { get; set; }
 
         public DependencyKind Kind { get; set; }
-                
-        public int Dependencies { get; set; }
     }
 }

@@ -10,11 +10,13 @@
     {
         private readonly VisionDbContext context;
         private readonly IAggregateAssetExtractor extractor;
+        private readonly IDependencyService dependencyService;
 
-        public AssetService(VisionDbContext context, IAggregateAssetExtractor extractor)
+        public AssetService(VisionDbContext context, IAggregateAssetExtractor extractor, IDependencyService dependencyService)
         {
             this.context = context;
             this.extractor = extractor;
+            this.dependencyService = dependencyService;
         }
 
         public async Task<AssetDto> GetByIdAsync(Guid assetId)
@@ -31,10 +33,10 @@
             };
         }
 
-        public async Task<IPaginatedList<AssetDto>> GetByDependencyIdAsync(Guid dependencyId, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10, string search = null)
+        public async Task<IPaginatedList<AssetDto>> GetByDependencyIdAsync(Guid dependencyId, string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10)
         {
             var query = context.Assets.AsQueryable();
-            var filter = kinds.Cast<int>().ToArray();
+            var filter = kinds.ToIntArray();
 
             if (filter.Any())
             {
@@ -62,10 +64,10 @@
             return await PaginatedList<AssetDto>.CreateAsync(paging.AsNoTracking(), pageIndex, pageSize);
         }
 
-        public async Task<IPaginatedList<AssetDto>> GetByVersionIdAsync(Guid versionId, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10, string search = null)
+        public async Task<IPaginatedList<AssetDto>> GetByVersionIdAsync(Guid versionId, string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10)
         {
             var query = context.Assets.AsQueryable();
-            var filter = kinds.Cast<int>().ToArray();
+            var filter = kinds.ToIntArray();
 
             if (filter.Any())
             {
@@ -94,11 +96,30 @@
             return await PaginatedList<AssetDto>.CreateAsync(paging.AsNoTracking(), pageIndex, pageSize);
         }
 
-        public async Task<IPaginatedList<AssetDto>> GetByRepositoryIdAsync(Guid repositoryId, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10, string search = null)
+        public async Task<IPaginatedList<AssetDto>> GetByRepositoryIdAsync(Guid repositoryId, string search, IEnumerable<DependencyKind> kinds, bool dependents, int pageIndex = 1, int pageSize = 10)
         {
-            var query = context.Assets.Where(asset => asset.RepositoryId == repositoryId).AsQueryable();
-            var filter = kinds.Cast<int>().ToArray();
+            var filter = kinds.ToIntArray();
+            var query = context.Assets.AsQueryable();
 
+            if (dependents)
+            {
+                var dependencies = await dependencyService.GetByRepositoryIdAsync(repositoryId, kinds, search, pageIndex, pageSize);
+
+                if (dependencies.Count == 0)
+                    return new PaginatedList<AssetDto>(Enumerable.Empty<AssetDto>().ToList(), 0, 0, 0);
+
+                query = context.Assets.Where(asset => asset.RepositoryId != repositoryId);          
+
+                foreach (var dependency in dependencies)
+                {
+                    query = query.Where(asset => context.AssetDependencies.Any(ad => ad.DependencyId == dependency.DependencyId && ad.AssetId == asset.Id));
+                }
+            }
+            else
+            {
+                query = context.Assets.Where(asset => asset.RepositoryId == repositoryId).AsQueryable();
+            }
+            
             if (filter.Any())
             {
                 query = query.Where(asset => filter.Contains((int)asset.Kind));
@@ -122,12 +143,12 @@
             .OrderByDescending(asset => asset.Dependencies);    
 
             return await PaginatedList<AssetDto>.CreateAsync(paging.AsNoTracking(), pageIndex, pageSize);
-        }
-        
-        public async Task<IPaginatedList<AssetDto>> GetAsync(IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10, string search = null)
+        }        
+
+        public async Task<IPaginatedList<AssetDto>> GetAsync(string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10)
         {
             var query = context.Assets.AsQueryable();
-            var filter = kinds.Cast<int>().ToArray();
+            var filter = kinds.ToIntArray();
 
             if (filter.Any())
             {
@@ -154,10 +175,10 @@
             return await PaginatedList<AssetDto>.CreateAsync(paging.AsNoTracking(), pageIndex, pageSize);
         }
 
-        public async Task<IPaginatedList<AssetDto>> GetByFrameworkIdAsync(Guid frameworkId, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10, string search = null)
+        public async Task<IPaginatedList<AssetDto>> GetByFrameworkIdAsync(Guid frameworkId, string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10)
         {
             var query = context.Assets.AsQueryable();
-            var filter = kinds.Cast<int>().ToArray();
+            var filter = kinds.ToIntArray();
 
             if (filter.Any())
             {
@@ -186,12 +207,12 @@
             return await PaginatedList<AssetDto>.CreateAsync(paging.AsNoTracking(), pageIndex, pageSize);
         }
 
-        public async Task<IPaginatedList<AssetDto>> GetByVersionControlIdAsync(Guid versionControlId, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10, string search = null)
+        public async Task<IPaginatedList<AssetDto>> GetByVersionControlIdAsync(Guid versionControlId, string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10)
         {
             VersionControl versionControl = await context.VersionControls.FindAsync(versionControlId);
 
             var query = context.Assets.Where(asset => context.Repositories.Any(repository => repository.VersionControlId == versionControlId && asset.RepositoryId == repository.Id));
-            var filter = kinds.Cast<int>().ToArray();
+            var filter = kinds.ToIntArray();
 
             if (filter.Any())
             {
@@ -219,7 +240,7 @@
 
         public async Task<List<string>> GetPublishedNamesByRepositoryIdAsync(Guid repositoryId)
         {
-            var assets = await context.Assets.Where(asset => asset.RepositoryId == repositoryId).AsNoTracking().ToListAsync();
+            List<Asset> assets = await context.Assets.Where(asset => asset.RepositoryId == repositoryId).AsNoTracking().ToListAsync();
             return assets.Select(asset => extractor.ExtractPublishName(asset)).ToList();
         }
     }

@@ -8,6 +8,7 @@
     using Vision.Web.Core;
     using Xunit;
 
+
     public class NuGetAssetExtractorTests
     {
         private readonly NuGetAssetExtractor sut;
@@ -74,7 +75,7 @@
             // act
             var frameworks = sut.ExtractFrameworks(new Asset { Raw = csproj }).ToList();
 
-            Assert.Equal("Framework", frameworks[0].Name);
+            Assert.Equal(".NET", frameworks[0].Name);
             Assert.Equal("netcoreapp2.0", frameworks[0].Version);
         }
 
@@ -87,10 +88,10 @@
             // act
             var frameworks = sut.ExtractFrameworks(new Asset { Raw = csproj }).ToList();
 
-            Assert.Equal("Framework", frameworks[0].Name);
+            Assert.Equal(".NET", frameworks[0].Name);
             Assert.Equal("netcoreapp2.0", frameworks[0].Version);
 
-            Assert.Equal("Framework", frameworks[1].Name);
+            Assert.Equal(".NET", frameworks[1].Name);
             Assert.Equal("netstandard2.0", frameworks[1].Version);
         }
 
