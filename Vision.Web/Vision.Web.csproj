@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <UpToDateCheckInput Include="@(Content-&gt;WithMetadataValue('Extension', '.razor'))" />
+    <UpToDateCheckInput Include="@(Content->WithMetadataValue('Extension', '.razor'))" />
   </ItemGroup>
 
 </Project>

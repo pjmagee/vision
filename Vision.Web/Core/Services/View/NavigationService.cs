@@ -15,11 +15,11 @@
             {
                 new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Dashboard",               Route = "dashboard", Icon = "fas fa-fw fa-tachometer-alt" },
                 new NavMenuItem { Type = NavMenuItemType.Seperator, Name = "Sources" },
-                new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Version control systems", Route = "sources/vcs", Icon = "fas fa-fw fa-code-branch" },
+                new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Version control", Route = "sources/vcs", Icon = "fas fa-fw fa-code-branch" },
                 new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "CI/CD",                   Route = "sources/cicds", Icon = "fas fa-fw fa-cogs" },
                 new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Registries",              Route = "sources/registries",  Icon = "fas fa-fw fa-archive" },
                 new NavMenuItem { Type = NavMenuItemType.Seperator, Name = "Data" },
-                new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Version control systems", Route = "data/vcs", Icon = "fas fa-fw fa-code-branch" },
+                new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Version control", Route = "data/vcs", Icon = "fas fa-fw fa-code-branch" },
                 new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Assets",                  Route = "data/assets", Icon = "fas fa-fw fa-table" },
                 new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "CI/CD",                   Route = "data/cicds", Icon = "fas fa-fw fa-cogs" },
                 new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Registries",              Route = "data/registries",  Icon = "fas fa-fw fa-archive" },                

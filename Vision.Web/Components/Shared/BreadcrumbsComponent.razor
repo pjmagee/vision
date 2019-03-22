@@ -2,7 +2,8 @@
     @if (VersionControlId.HasValue && VersionControlId.HasValue && FrameworkId.HasValue && RepositoryId.HasValue)
     {
         <BreadcrumbItem>Data</BreadcrumbItem>
-        <BreadcrumbItem>Version control systems</BreadcrumbItem>
+        <BreadcrumbItem><a href="@($"/data/vcs/")">Version Control</a></BreadcrumbItem>
+        <BreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}")">@VersionControl?.Endpoint</a></BreadcrumbItem>
         <BreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}")">@Repository.WebUrl</a></BreadcrumbItem>
         <BreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}/frameworks")">Frameworks</a></BreadcrumbItem>
         <BreadcrumbItem IsActive="true">@Framework?.Name</BreadcrumbItem>
@@ -10,7 +11,8 @@
     else if (VersionControlId.HasValue && RepositoryId.HasValue && DependencyId.HasValue)
     {
         <BreadcrumbItem>Data</BreadcrumbItem>
-        <BreadcrumbItem>@VersionControl.</BreadcrumbItem>
+        <BreadcrumbItem><a href="@($"/data/vcs/")">Version Control</a></BreadcrumbItem>
+        <BreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}")">@VersionControl?.Endpoint</a></BreadcrumbItem>
         <BreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}")">@Repository.WebUrl</a></BreadcrumbItem>
         <BreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}/dependencies")">Dependencies</a></BreadcrumbItem>
         <BreadcrumbItem IsActive="true">@Dependency?.Name</BreadcrumbItem>
@@ -18,30 +20,30 @@
     else if (AssetId.HasValue && RepositoryId.HasValue && VersionControlId.HasValue)
     {
         <BreadcrumbItem>Data</BreadcrumbItem>
-        <BreadcrumbItem>Version control systems</BreadcrumbItem>
+        <BreadcrumbItem><a href="@($"/data/vcs/")">Version Control</a></BreadcrumbItem>
+        <BreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}")">@VersionControl?.Endpoint</a></BreadcrumbItem>
         <BreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}")">@Repository?.WebUrl</a></BreadcrumbItem>
         <BreadcrumbItem IsActive="true">@Asset?.Asset</BreadcrumbItem>
     }
     else if (RepositoryId.HasValue && VersionControlId.HasValue)
     {
         <BreadcrumbItem>Data</BreadcrumbItem>
-        <BreadcrumbItem>Version control systems</BreadcrumbItem>
+        <BreadcrumbItem><a href="@($"/data/vcs/")">Version Control</a></BreadcrumbItem>
         <BreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}")">@VersionControl?.Endpoint</a></BreadcrumbItem>
-        <BreadcrumbItem IsActive="true">@Repository?.WebUrl</BreadcrumbItem>
+        <BreadcrumbItem IsActive="true"><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}")">@Repository?.WebUrl</a></BreadcrumbItem>
     }
     else if (DependencyId.HasValue && VersionId.HasValue)
     {
         <BreadcrumbItem>Data</BreadcrumbItem>
         <BreadcrumbItem><a href="/data/dependencies">Dependencies</a></BreadcrumbItem>
         <BreadcrumbItem><a href="@($"/data/dependencies/{DependencyId}")">@Dependency?.Name</a></BreadcrumbItem>
-        <BreadcrumbItem>Versions</BreadcrumbItem>
-        <BreadcrumbItem>@Version?.Version</BreadcrumbItem>
+        <BreadcrumbItem><a href="@($"/data/dependencies/{DependencyId}/versions/{VersionId}")">@Version?.Version</a></BreadcrumbItem>
     }
     else if (VersionControlId.HasValue)
     {
         <BreadcrumbItem>Data</BreadcrumbItem>
-        <BreadcrumbItem>Version control systems</BreadcrumbItem>
-        <BreadcrumbItem IsActive="true">@VersionControl?.Endpoint</BreadcrumbItem>
+        <BreadcrumbItem><a href="@($"/data/vcs/")">Version Control</a></BreadcrumbItem>
+        <BreadcrumbItem IsActive="true"><a href="@($"/data/vcs/{VersionControlId}")">@VersionControl?.Endpoint</a></BreadcrumbItem>
     }
     else if (DependencyId.HasValue)
     {
