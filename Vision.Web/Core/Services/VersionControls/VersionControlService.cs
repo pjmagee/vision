@@ -34,10 +34,12 @@
 
         public async Task<VersionControlDto> CreateVersionControl(VersionControlDto dto)
         {
+            encryptionService.Encrypt(dto);
+
             VersionControl versionControl = new VersionControl
             {
                 Id = Guid.NewGuid(),
-                ApiKey = encryptionService.Encrypt(dto.ApiKey),
+                ApiKey = dto.ApiKey,
                 Endpoint = dto.Endpoint,
                 Kind = dto.Kind,
                 IsEnabled = dto.IsEnabled
@@ -65,15 +67,13 @@
 
         public async Task<VersionControlDto> UpdateAsync(VersionControlDto dto)
         {
-            var versionControl = context.VersionControls.Find(dto.VersionControlId);
+            encryptionService.Encrypt(dto);
+
+            VersionControl versionControl = context.VersionControls.Find(dto.VersionControlId);
             versionControl.Endpoint = dto.Endpoint;
             versionControl.Kind = dto.Kind;
             versionControl.IsEnabled = dto.IsEnabled;
-
-            if (versionControl.ApiKey != dto.ApiKey)
-            {
-                versionControl.ApiKey = encryptionService.Encrypt(dto.ApiKey);
-            }
+            versionControl.ApiKey = dto.ApiKey;
 
             context.VersionControls.Update(versionControl);
             await context.SaveChangesAsync();

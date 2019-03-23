@@ -55,7 +55,7 @@
         {
             <tr>
                 <td colspan="4">
-                    <LoaderComponent></LoaderComponent>
+                    <LoaderComponent />
                 </td>
             </tr>
         }
@@ -71,6 +71,7 @@
     [Parameter] Guid? DependencyId { get; set; }
     [Parameter] Guid? VersionId { get; set; }
     [Parameter] Guid? FrameworkId { get; set; }
+    [Parameter] Guid? AssetId { get; set; }
     [Parameter] bool Dependents { get; set; }
 
     [Inject] IAssetService AssetService { get; set; }
@@ -127,9 +128,13 @@
         {
             Items = await AssetService.GetByFrameworkIdAsync(FrameworkId.Value, Search, Kinds, page, PageSize);
         }
+        else if(AssetId.HasValue)
+        {
+            Items = await AssetService.GetByAssetIdAsync(AssetId.Value, Search, Kinds, page, PageSize);
+        }
         else
         {
-            Items = await AssetService.GetAsync(Search, Kinds, page);
+            Items = await AssetService.GetAsync(Search, Kinds, page, PageSize);
         }
 
         StateHasChanged();

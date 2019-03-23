@@ -22,15 +22,17 @@
 
         public async Task<RegistryDto> CreateAsync(RegistryDto dto)
         {
+            encryptionService.Encrypt(dto);
+
             Registry registry = new Registry
             {
                 Endpoint = dto.Endpoint,
                 Kind = dto.Kind,
                 IsPublic = dto.IsPublic,
                 IsEnabled = dto.IsEnabled,
-                ApiKey = encryptionService.Encrypt(dto.ApiKey),
-                Username = encryptionService.Encrypt(dto.Username),
-                Password = encryptionService.Encrypt(dto.Password),
+                ApiKey = dto.ApiKey,
+                Username = dto.Username,
+                Password = dto.Password
             };
 
             context.Registries.Add(registry);
@@ -43,21 +45,16 @@
 
         public async Task<RegistryDto> UpdateAsync(RegistryDto dto)
         {
-            var registry = context.Registries.Find(dto.RegistryId);
+            encryptionService.Encrypt(dto);
 
+            Registry registry = context.Registries.Find(dto.RegistryId);
             registry.IsEnabled = dto.IsEnabled;
             registry.IsPublic = dto.IsPublic;
             registry.Kind = dto.Kind;
             registry.Endpoint = dto.Endpoint;
-
-            if (registry.ApiKey != dto.ApiKey)
-                registry.ApiKey = encryptionService.Encrypt(dto.ApiKey);
-
-            if (registry.Username != dto.Username)
-                registry.Username = encryptionService.Encrypt(dto.Username);
-
-            if (registry.Password != dto.Password)
-                registry.Password = encryptionService.Encrypt(dto.Password);
+            registry.ApiKey = dto.ApiKey;
+            registry.Username = dto.Username;
+            registry.Password = dto.Password;                
 
             context.Registries.Update(registry);
             await context.SaveChangesAsync();
@@ -71,9 +68,9 @@
         {
             var query = context.Registries.Select(registry => new RegistryDto
             {
-                ApiKey = encryptionService.Decrypt(registry.ApiKey),
-                Username = encryptionService.Decrypt(registry.Username),
-                Password = encryptionService.Decrypt(registry.Password),                
+                ApiKey = registry.ApiKey,
+                Username = registry.Username,
+                Password = registry.Password,                
                 Endpoint = registry.Endpoint,
                 IsEnabled = registry.IsEnabled,
                 IsPublic = registry.IsPublic,
@@ -88,17 +85,21 @@
         {
             Registry registry = await context.Registries.FindAsync(registryId);
 
-            return new RegistryDto
+            RegistryDto dto = new RegistryDto
             {
-                ApiKey = encryptionService.Decrypt(registry.ApiKey),
-                Username = encryptionService.Decrypt(registry.Username),
-                Password = encryptionService.Decrypt(registry.Password),                
+                ApiKey = registry.ApiKey,
+                Username = registry.Username,
+                Password = registry.Password,                
                 Endpoint = registry.Endpoint,
                 IsEnabled = registry.IsEnabled,
                 IsPublic = registry.IsPublic,
                 Kind = registry.Kind,
                 RegistryId = registry.Id
             };
+
+            encryptionService.Decrypt(dto);
+
+            return dto;
         }
 
         public async Task<List<RegistryDto>> GetEnabledByKindAsync(DependencyKind kind)
@@ -108,9 +109,9 @@
                 .OrderBy(registry => !registry.IsPublic)
                 .Select(registry => new RegistryDto
                 {
-                    ApiKey = encryptionService.Decrypt(registry.ApiKey),
-                    Username = encryptionService.Decrypt(registry.Username),
-                    Password = encryptionService.Decrypt(registry.Password),                    
+                    ApiKey = registry.ApiKey,
+                    Username = registry.Username,
+                    Password = registry.Password,                    
                     Endpoint = registry.Endpoint,
                     IsEnabled = registry.IsEnabled,
                     IsPublic = registry.IsPublic,

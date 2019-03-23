@@ -26,7 +26,7 @@
             }
             else
             {
-                context.Tasks.Add(new SystemTask { Scope = TaskScopeKind.Repository, TargetId = repositoryId });
+                context.Tasks.Add(new RefreshTask { Scope = TaskScopeKind.Repository, TargetId = repositoryId });
             }
 
             await context.SaveChangesAsync();
@@ -57,44 +57,53 @@
             };
         }
 
-        public async Task<IPaginatedList<RepositoryDto>> GetAsync(bool showIgnored = false, int pageIndex = 1, int pageSize = 10)
+        public async Task<IPaginatedList<RepositoryDto>> GetAsync(bool showIgnored, string search, int pageIndex = 1, int pageSize = 10)
         {
-            var query = context.Repositories
-               .Where(repository => repository.IsIgnored == showIgnored)
-               .Select(repository => new RepositoryDto
-               {
-                   VersionControlId = repository.VersionControlId,
-                   Assets = context.Assets.Count(a => a.RepositoryId == repository.Id),
-                   Url = repository.Url,
-                   WebUrl = repository.WebUrl,
-                   RepositoryId = repository.Id,
-                   IsIgnored = repository.IsIgnored
-               })
-               .OrderByDescending(r => r.Assets);
+            var query = context.Repositories.Where(repository => repository.IsIgnored == showIgnored);
 
-            return await PaginatedList<RepositoryDto>.CreateAsync(query, pageIndex, pageSize);
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(repository => repository.WebUrl.Contains(search) || repository.Url.Contains(search));
+            }
+
+            var paging = query.Select(repository => new RepositoryDto
+            {
+                VersionControlId = repository.VersionControlId,
+                Assets = context.Assets.Count(a => a.RepositoryId == repository.Id),
+                Url = repository.Url,
+                WebUrl = repository.WebUrl,
+                RepositoryId = repository.Id,
+                IsIgnored = repository.IsIgnored
+            })
+            .OrderByDescending(r => r.Assets);
+
+            return await PaginatedList<RepositoryDto>.CreateAsync(paging, pageIndex, pageSize);
         }
 
-        public async Task<IPaginatedList<RepositoryDto>> GetByVersionControlIdAsync(Guid versionControlId, bool showIgnored = false, int pageIndex = 1, int pageSize = 10)
+        public async Task<IPaginatedList<RepositoryDto>> GetByVersionControlIdAsync(Guid versionControlId, bool showIgnored, string search, int pageIndex = 1, int pageSize = 10)
         {
-            var query = context.Repositories
-                .Where(repository => repository.IsIgnored == showIgnored)
-                .Where(repository => repository.VersionControlId == versionControlId)
-                .Select(repository => new RepositoryDto
-                {
-                    VersionControlId = repository.VersionControlId,
-                    Assets = context.Assets.Count(a => a.RepositoryId == repository.Id),
-                    Url = repository.Url,
-                    WebUrl = repository.WebUrl,
-                    RepositoryId = repository.Id,
-                    IsIgnored = repository.IsIgnored
-                })
-                .OrderByDescending(r => r.Assets);
+            var query = context.Repositories.Where(repository => repository.IsIgnored == showIgnored).Where(repository => repository.VersionControlId == versionControlId);
 
-            return await PaginatedList<RepositoryDto>.CreateAsync(query, pageIndex, pageSize);
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(repository => repository.WebUrl.Contains(search) || repository.Url.Contains(search));
+            }
+
+            var paging = query.Select(repository => new RepositoryDto
+            {
+                VersionControlId = repository.VersionControlId,
+                Assets = context.Assets.Count(a => a.RepositoryId == repository.Id),
+                Url = repository.Url,
+                WebUrl = repository.WebUrl,
+                RepositoryId = repository.Id,
+                IsIgnored = repository.IsIgnored
+            })
+            .OrderByDescending(r => r.Assets);
+
+            return await PaginatedList<RepositoryDto>.CreateAsync(paging, pageIndex, pageSize);
         }
 
-        public async Task<IPaginatedList<RepositoryDto>> GetByFrameworkIdAsync(Guid frameworkId, bool showIgnored = false, int pageIndex = 1, int pageSize = 10)
+        public async Task<IPaginatedList<RepositoryDto>> GetByFrameworkIdAsync(Guid frameworkId, bool showIgnored, string search, int pageIndex = 1, int pageSize = 10)
         {
             var framework = await context.Frameworks.FindAsync(frameworkId);
 

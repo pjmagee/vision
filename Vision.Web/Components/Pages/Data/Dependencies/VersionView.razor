@@ -1,13 +1,13 @@
 ﻿@page "/data/dependencies/{DependencyId:guid}/versions/{VersionId:guid}"
 
-<BreadcrumbsComponent DependencyId="@DependencyId" VersionId="@VersionId"></BreadcrumbsComponent>
+<BreadcrumbsComponent DependencyId="@DependencyId" VersionId="@VersionId" />
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
     </div>
     <div class="card-body">
-        <AssetsComponent VersionId="@VersionId"></AssetsComponent>
+        <AssetsComponent VersionId="@VersionId" />
     </div>
 </div>
 

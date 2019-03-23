@@ -50,14 +50,14 @@
         }
         else
         {
-            <LoaderComponent></LoaderComponent>
+            <LoaderComponent />
         }
     </div>
 </div>
 
 @functions 
 {
-    IEnumerable<SystemTask> Items { get; set; }
+    IEnumerable<RefreshTask> Items { get; set; }
 
     [Inject] ISystemTaskService SystemTaskService { get; set; }
     [Inject] IJSRuntime Runtime { get; set; }

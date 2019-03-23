@@ -231,7 +231,7 @@
                 Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id),
                 Repository = asset.Repository.Url,
                 RepositoryId = asset.RepositoryId,
-                VersionControlId = versionControlId
+                VersionControlId = asset.Repository.VersionControlId
             })
             .OrderByDescending(a => a.Dependencies);
 
@@ -242,6 +242,37 @@
         {
             List<Asset> assets = await context.Assets.Where(asset => asset.RepositoryId == repositoryId).AsNoTracking().ToListAsync();
             return assets.Select(asset => extractor.ExtractPublishName(asset)).ToList();
+        }
+
+        public async Task<IPaginatedList<AssetDto>> GetByAssetIdAsync(Guid id, string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10)
+        {
+            var filter = kinds.ToIntArray();
+            var query = context.Assets.Where(asset => asset.Id != id).AsQueryable();
+
+            var dependencies = await dependencyService.GetByAssetIdAsync(id, kinds, search, pageIndex, pageSize);
+
+            if (dependencies.Count == 0)
+            {
+                return new PaginatedList<AssetDto>(Enumerable.Empty<AssetDto>().ToList(), 0, 0, 0);
+            }
+
+            foreach (var dependency in dependencies)
+            {
+                query = query.Where(asset => context.AssetDependencies.Any(ad => ad.DependencyId == dependency.DependencyId && ad.AssetId == asset.Id));
+            }
+
+            var paging = query.Select(asset => new AssetDto
+            {
+                Asset = asset.Path,
+                AssetId = asset.Id,
+                Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id),
+                Repository = asset.Repository.Url,
+                RepositoryId = asset.RepositoryId,
+                VersionControlId = asset.Repository.VersionControlId
+            })
+            .OrderByDescending(a => a.Dependencies);
+
+            return await PaginatedList<AssetDto>.CreateAsync(paging.AsNoTracking(), pageIndex, pageSize);
         }
     }
 }

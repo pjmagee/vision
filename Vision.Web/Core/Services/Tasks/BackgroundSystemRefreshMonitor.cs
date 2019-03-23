@@ -63,7 +63,7 @@
 
         private async Task HandleRefreshTasks(IRefreshService taskService, VisionDbContext context)
         {
-            IEnumerable<SystemTask> tasks = await context.Tasks.OrderByDescending(t => t.Created).Where(t => t.Completed == null).ToListAsync();
+            IEnumerable<RefreshTask> tasks = await context.Tasks.OrderByDescending(t => t.Created).Where(t => t.Completed == null).ToListAsync();
 
             foreach (var task in tasks)
             {

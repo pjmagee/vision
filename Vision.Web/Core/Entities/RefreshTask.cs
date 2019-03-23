@@ -1,7 +1,7 @@
 ﻿using System;
 namespace Vision.Web.Core
 {
-    public class SystemTask : Entity
+    public class RefreshTask : Entity
     {
         public TaskScopeKind Scope { get; set; }
         public DateTime Created { get; set; } = DateTime.Now;

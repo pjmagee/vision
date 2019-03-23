@@ -10,41 +10,62 @@
         <h6 class="m-0 font-weight-bold text-primary">Add new</h6>
     </div>
     <div class="card-body">
-        <form>
-            <div class="form-group">
-                <input type="text" class="form-control" bind="Registry.Endpoint" placeholder="Endpoint" />
-            </div>
-            <div class="form-group">
-                <input type="text" class="form-control" bind="Registry.ApiKey" placeholder="API Key" />
-            </div>
-            <div class="form-group">
-                <input type="text" class="form-control" bind="Registry.Username" placeholder="Username" />
-            </div>
-            <div class="form-group">
-                <input type="password" class="form-control" bind="Registry.Password" placeholder="Password" />
-            </div>
-            <div class="form-group">
-                <select type="text" class="form-control" bind="Registry.Kind" placeholder="Type">
+
+        <EditForm Model="@Model" OnValidSubmit="@Submit">
+            <DataAnnotationsValidator />
+            
+            <FormGroup>
+                <BlazorLabel>Endpoint</BlazorLabel>
+                <InputText Class="form-control" bind-Value="@Model.Endpoint" />
+                <ValidationMessage For="(() => Model.Endpoint)" />
+            </FormGroup> 
+            
+            <FormGroup>
+                <BlazorLabel>Api Key</BlazorLabel>
+                <InputText Class="form-control" bind-Value="@Model.ApiKey" />
+                <ValidationMessage For="@(() => Model.ApiKey)" />
+            </FormGroup>
+
+            <FormGroup>
+                <BlazorLabel>Username</BlazorLabel>
+                <InputText Class="form-control" bind-Value="@Model.Username" />
+                <ValidationMessage For="@(() => Model.Username)" />
+            </FormGroup>
+
+            <FormGroup>
+                <BlazorLabel>Password</BlazorLabel>
+                <InputText Class="form-control" bind-Value="@Model.Password" />
+                <ValidationMessage For="@(() => Model.Password)" />
+            </FormGroup>
+
+            <FormGroup>
+                <BlazorLabel>Kind</BlazorLabel>
+                <InputSelect Class="form-control" bind-Value="@Model.Kind">
+                    <option selected>Select</option>
                     @foreach (var kind in Enum.GetValues(typeof(DependencyKind)).Cast<DependencyKind>())
                     {
                         <option value="@kind">@kind.ToString()</option>
                     }
-                </select>
-            </div>
-            <div class="form-group">
+                </InputSelect>
+            </FormGroup>
+
+            <FormGroup>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" bind="Registry.IsPublic" id="isPublic" />
-                    <label class="form-check-label" for="isPublic">Public</label>
+                    <InputCheckbox Class="form-check-input" bind-Value="@Model.IsPublic"/>
+                    <BlazorLabel Class="form-check-label">Public</BlazorLabel>
                 </div>
-            </div>
-            <div class="form-group">
+            </FormGroup>
+
+            <FormGroup>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" bind="Registry.IsEnabled" id="isEnabled" />
-                    <label class="form-check-label" for="isEnabled">Enabled</label>
+                    <InputCheckbox Class="form-check-input"  bind-Value="@Model.IsEnabled" />
+                    <BlazorLabel Class="form-check-label">Enabled</BlazorLabel>                    
                 </div>
-            </div> 
-            <button onclick="@Submit" type="button" class="btn btn-primary">Save</button>
-        </form>
+            </FormGroup> 
+
+            <button type="submit" class="btn btn-primary">Save</button>
+        </EditForm>
+
     </div>
 </div>
 
@@ -52,10 +73,10 @@
 {
     [Inject] IRegistryService RegistryService { get; set; }
 
-    RegistryDto Registry { get; set; } = new RegistryDto();    
+    RegistryDto Model { get; set; } = new RegistryDto();    
 
     protected async Task Submit()
     {
-       await RegistryService.CreateAsync(Registry);
+       await RegistryService.CreateAsync(Model);
     }
 }

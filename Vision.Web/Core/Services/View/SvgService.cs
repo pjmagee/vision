@@ -17,7 +17,7 @@
             return kind switch
             {
                 DependencyKind.Docker => svgs["docker"],
-                DependencyKind.Gradle => svgs["java"],
+                DependencyKind.Gradle => svgs["gradle"],
                 DependencyKind.Maven => svgs["java"],
                 DependencyKind.Npm => svgs["npm"],
                 DependencyKind.NuGet => svgs["nuget"],

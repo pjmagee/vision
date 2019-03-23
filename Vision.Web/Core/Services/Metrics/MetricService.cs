@@ -5,122 +5,101 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Caching.Memory;
 
     public class MetricService : IMetricService
     {
-        private readonly VisionDbContext context;
-        private readonly IAssetService assetService;
+        private readonly VisionDbContext context;        
+        private readonly IMemoryCache cache;
 
-        public MetricService(VisionDbContext context, IAssetService assetService)
+        public MetricService(VisionDbContext context, IMemoryCache cache)
         {
             this.context = context;
-            this.assetService = assetService;
+            this.cache = cache;
         }
 
         public async Task<IEnumerable<MetricItem>> GetCountsAsync()
         {
-            IEnumerable<Task<MetricItem>> dependencies =
-                AppHelper.DependencyKinds.Select(async kind => new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Dependencies, kind, $"{kind} dependencies", await context.Dependencies.CountAsync(x => x.Kind == kind)));
+            const string Counts = "Dashboard.Counts";
 
-            IEnumerable<Task<MetricItem>> assets =
-                AppHelper.DependencyKinds.Select(async kind => new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Assets, kind, $"{kind} assets", await context.Assets.CountAsync(x => x.Kind == kind)));
-
-            var otherCounts = new MetricItem[]
+            if (!cache.TryGetValue(Counts, out List<MetricItem> counts))
             {
-                new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.VersionControls, $"Version control systems", await context.VersionControls.CountAsync()),
-                new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Registries, $"Registry sources", await context.Registries.CountAsync()),
-                new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.CiCds, $"CI/CD sources", await context.CiCds.CountAsync()),
-                new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Repositories, $"Repositories", await context.Repositories.CountAsync()),
-                new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Assets, $"Assets", await context.Assets.CountAsync()),
-                new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Dependencies, $"Dependencies", await context.Dependencies.CountAsync()),
-                new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Frameworks, $"Frameworks", await context.Frameworks.CountAsync()),
-            };
+                IEnumerable<Task<MetricItem>> dependencies = AppHelper.DependencyKinds.Select(async kind => new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Dependency, kind, $"{kind} dependencies", await context.Dependencies.CountAsync(x => x.Kind == kind)));
+                IEnumerable<Task<MetricItem>> assets = AppHelper.DependencyKinds.Select(async kind => new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Asset, kind, $"{kind} assets", await context.Assets.CountAsync(x => x.Kind == kind)));
 
-            return otherCounts.Concat(await Task.WhenAll(dependencies.Concat(assets).ToArray()));
-        }
-
-        public async Task<IEnumerable<MetricItems<RepositoryDto>>> GetRepositoriesMetricsByVersionControlIdAsync(Guid versionControlId)
-        {
-            IQueryable<Repository> orderedByLargest = context.Repositories.Where(repository => repository.VersionControlId == versionControlId).OrderBy(repository => context.Assets.Count(asset => asset.RepositoryId == repository.Id));
-
-            return new MetricItems<RepositoryDto>[]
-            {
-                new MetricItems<RepositoryDto>(MetricAlertKind.Standard, MetricCategoryKind.Repositories, "Top 5 smallest repositories", await orderedByLargest.TakeLast(5).Select(repository => new RepositoryDto {  }).ToArrayAsync()),
-                new MetricItems<RepositoryDto>(MetricAlertKind.Standard, MetricCategoryKind.Repositories, "Top 5 largest repositories", await orderedByLargest.Take(5).Select(repository => new RepositoryDto {  }).ToArrayAsync())
-            };
-        }
-
-        public async Task<IEnumerable<MetricItems<AssetDto>>> GetAssetInsightsByKindAsync(DependencyKind dependencyKind)
-        {
-            AssetDto[] assets = await context.Assets.Where(asset => asset.Kind == dependencyKind)
-                .OrderByDescending(asset => context.AssetDependencies.Count(ad => ad.AssetId == asset.Id))
-                .Select(asset => new AssetDto
+                var otherCounts = new MetricItem[]
                 {
-                    AssetId = asset.Id,
-                    Repository = asset.Repository.Url,
-                    Asset = asset.Path,
-                    Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id),
-                    VersionControlId = asset.Repository.VersionControlId,
-                    Kind = asset.Kind,
-                    RepositoryId = asset.RepositoryId
-                })
-                .ToArrayAsync();
+                    new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.VersionControl, $"Version controls", await context.VersionControls.CountAsync()),
+                    new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Registry, $"Registries", await context.Registries.CountAsync()),
+                    new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.CiCd, $"CICDs", await context.CiCds.CountAsync()),
+                    new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Repository, $"Repositories", await context.Repositories.CountAsync()),
+                    new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Asset, $"Assets", await context.Assets.CountAsync()),
+                    new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Dependency, $"Dependencies", await context.Dependencies.CountAsync()),
+                    new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Dependency, $"Asset dependencies", await context.AssetDependencies.CountAsync()),
+                    new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Framework, $"Frameworks", await context.Frameworks.CountAsync()),
+                    new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Framework, $"Asset frameworks", await context.AssetFrameworks.CountAsync()),
+                };
 
-            return new[]
-            {
-                new MetricItems<AssetDto>(MetricAlertKind.Standard, MetricCategoryKind.Assets, $"{dependencyKind} assets", assets)
-            };
+                counts = otherCounts.Concat(await Task.WhenAll(dependencies.Concat(assets).ToArray())).ToList();
+
+                cache.Set(Counts, counts, DateTimeOffset.Now.AddMinutes(5));
+            }
+
+            return counts;
         }
 
-        public async Task<IEnumerable<MetricItems<RepositoryDto>>> GetPublishingRepositoriesByDependencyKind(DependencyKind dependencyKind)
+        public async Task<IEnumerable<MetricItem>> GetMetricsAsync(Guid id, MetricCategoryKind targetKind)
         {
-            List<RepositoryDto> repositories = new List<RepositoryDto>();
+            List<MetricItem> items = new List<MetricItem>();
 
-            foreach (Repository repository in context.Repositories)
+            if (targetKind == MetricCategoryKind.Asset)
             {
-                List<string> assetNames = await assetService.GetPublishedNamesByRepositoryIdAsync(repository.Id);
+                items.Add(new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Dependency, $"Dependencies", await context.AssetDependencies.CountAsync(ad => ad.AssetId == id)));
+                items.Add(new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Framework, $"Frameworks", await context.AssetFrameworks.CountAsync(ad => ad.AssetId == id)));
+            }
 
-                bool publishes = await context.Dependencies
-                    .Where(d => d.Kind == dependencyKind)
-                    .AnyAsync(dependency => assetNames.Contains(dependency.Name) || context.DependencyVersions.Any(dv => dv.DependencyId == dependency.Id && string.Equals(dv.ProjectUrl, repository.Url) || string.Equals(dv.ProjectUrl, repository.WebUrl)));
+            if (targetKind == MetricCategoryKind.Dependency)
+            {
+                items.Add(new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Framework, $"Assets", await context.AssetDependencies.CountAsync(ad => ad.DependencyId == id)));
+                items.Add(new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Dependency, $"Versions", await context.DependencyVersions.CountAsync(ad => ad.DependencyId == id)));
 
-                if (publishes)
+                var dependencies = context.AssetDependencies.Where(ad => ad.DependencyId == id).GroupBy(dv => dv.DependencyVersionId);
+
+                Guid mostId = await dependencies.OrderByDescending(g => g.Count()).Select(g => g.Key).FirstOrDefaultAsync();
+                Guid leastId = await dependencies.OrderBy(g => g.Count()).Select(g => g.Key).FirstOrDefaultAsync();
+
+                var most = await context.DependencyVersions.FindAsync(mostId);
+                var least = await context.DependencyVersions.FindAsync(leastId);
+
+                var latest = await context.DependencyVersions.FirstOrDefaultAsync(dv => dv.DependencyId == id && dv.IsLatest);
+
+                if (latest != null)
                 {
-                    repositories.Add(new RepositoryDto
-                    {
-                        Assets = context.Assets.Count(a => a.RepositoryId == repository.Id),
-                        RepositoryId = repository.Id,
-                        Url = repository.Url,
-                        WebUrl = repository.WebUrl,
-                        VersionControlId = repository.VersionControlId,
-                    });
+                    items.Add(new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Dependency, $"Latest", latest.Version));
+                }
+
+                if (most != null)
+                {
+                    items.Add(new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Dependency, $"Most used", most.Version));
+                }
+                
+                if (least != null)
+                {
+                    items.Add(new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Dependency, $"Least used", least.Version));
                 }
             }
 
-            return new[]
+            if (targetKind == MetricCategoryKind.Repository)
             {
-                new MetricItems<RepositoryDto>(MetricAlertKind.Standard, MetricCategoryKind.Dependencies, $"Repositories that publish {dependencyKind} dependencies", repositories)
-            };
-        }
-
-        public async Task<IEnumerable<MetricItems<DependencyDto>>> GetDependencyInsightsByKindAsync(DependencyKind dependencyKind)
-        {
-            DependencyDto[] dependencies = await context.Dependencies.Where(dependency => dependency.Kind == dependencyKind)
-                .OrderByDescending(dependency => context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id))
-                .Select(dependency => new DependencyDto
+                items.Add(new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Framework, $"Assets", await context.Assets.CountAsync(ad => ad.RepositoryId == id)));
+                
+                foreach(var kind in AppHelper.DependencyKinds)
                 {
-                    DependencyId = dependency.Id,
-                    Name = dependency.Name,
-                    Kind = dependency.Kind,
-                    Assets = context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id),
-                    Versions = context.DependencyVersions.Count(dv => dv.DependencyId == dependency.Id)
-                })
-                .ToArrayAsync();
+                    items.Add(new MetricItem(MetricAlertKind.Standard, MetricCategoryKind.Dependency, kind, $"{kind}", await context.AssetDependencies.CountAsync(ad => ad.Asset.RepositoryId == id && ad.Asset.Kind == kind)));
+                }
+            }
 
-            return new[]
-            {
-                new MetricItems<DependencyDto>(MetricAlertKind.Standard, MetricCategoryKind.Dependencies, $"{dependencyKind} dependencies", dependencies)
-            };
+            return items;
         }
     }
 }

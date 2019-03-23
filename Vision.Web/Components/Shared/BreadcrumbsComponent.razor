@@ -55,7 +55,8 @@
     {
         <BreadcrumbItem>Data</BreadcrumbItem>
         <BreadcrumbItem><a href="/data/frameworks">Frameworks</a></BreadcrumbItem>
-        <BreadcrumbItem IsActive="true">@Framework?.Name</BreadcrumbItem>
+        <BreadcrumbItem>@Framework?.Name</BreadcrumbItem>
+        <BreadcrumbItem IsActive="true">@Framework?.Version</BreadcrumbItem>
     }
     else if (RegistryId.HasValue)
     {
@@ -136,7 +137,5 @@
         {
             Version = await VersionService.GetByIdAsync(VersionId.Value);
         }
-
-        StateHasChanged();
     }
 }

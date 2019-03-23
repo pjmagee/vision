@@ -15,43 +15,43 @@
             this.context = context;
         }
 
-        public async Task<IEnumerable<SystemTask>> GetAllAsync()
+        public async Task<IEnumerable<RefreshTask>> GetAllAsync()
         {
             return await context.Tasks.ToListAsync();
         }
 
-        public async Task<IEnumerable<SystemTask>> GetPendingTasksAsync()
+        public async Task<IEnumerable<RefreshTask>> GetPendingTasksAsync()
         {
             return await context.Tasks.Where(t => t.Completed == null).ToListAsync();
         }
 
-        public async Task<SystemTask> UpdateAssetAsync(Guid id)
+        public async Task<RefreshTask> UpdateAssetAsync(Guid id)
         {
-            SystemTask task = new SystemTask { Scope = TaskScopeKind.Asset, TargetId = id };
+            RefreshTask task = new RefreshTask { Scope = TaskScopeKind.Asset, TargetId = id };
             context.Tasks.Add(task);
             await context.SaveChangesAsync();
             return task;
         }
 
-        public async Task<SystemTask> UpdateDependencyAsync(Guid id)
+        public async Task<RefreshTask> UpdateDependencyAsync(Guid id)
         {
-            SystemTask task = new SystemTask { Scope = TaskScopeKind.Dependency, TargetId = id };
+            RefreshTask task = new RefreshTask { Scope = TaskScopeKind.Dependency, TargetId = id };
             context.Tasks.Add(task);
             await context.SaveChangesAsync();
             return task;
         }
 
-        public async Task<SystemTask> UpdateRepositoryAsync(Guid id)
+        public async Task<RefreshTask> UpdateRepositoryAsync(Guid id)
         {
-            SystemTask task = new SystemTask { Scope = TaskScopeKind.Repository, TargetId = id };
+            RefreshTask task = new RefreshTask { Scope = TaskScopeKind.Repository, TargetId = id };
             context.Tasks.Add(task);
             await context.SaveChangesAsync();
             return task;
         }
 
-        public async Task<SystemTask> UpdateVersionControlAsync(Guid id)
+        public async Task<RefreshTask> UpdateVersionControlAsync(Guid id)
         {
-            SystemTask task = new SystemTask { Scope = TaskScopeKind.VersionControl, TargetId = id };
+            RefreshTask task = new RefreshTask { Scope = TaskScopeKind.VersionControl, TargetId = id };
             context.Tasks.Add(task);
             await context.SaveChangesAsync();
             return task;

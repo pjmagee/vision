@@ -1,4 +1,9 @@
-﻿<BlazorTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
+﻿<div class="form-inline mb-4">
+    <input class="form-control mr-sm-2" bind-value-oninput="@Search" type="text" />
+    <button type="button" class="btn btn-primary" onclick="@(async() => await PageAsync(Items.PageIndex))">Search</button>
+</div>
+
+<BlazorTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
     <thead>
         <tr>
             <th>Url</th>
@@ -40,7 +45,7 @@
         {
             <tr>
                 <td colspan="3">
-                    <LoaderComponent></LoaderComponent>
+                    <LoaderComponent />
                 </td>
             </tr>
         }
@@ -58,32 +63,32 @@
     [Inject] IRepositoryService Service { get; set; }
 
     IPaginatedList<RepositoryDto> Items { get; set; }
+    string Search { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        await PageAsync(page: 1);
+        await PageAsync(1);
     }
 
     async Task ToggleIgnoreAsync(RepositoryDto dto)
     {
         await Service.ToggleIgnoreAsync(dto.RepositoryId);
         await PageAsync(Items.PageIndex);
-        StateHasChanged();
     }
 
     async Task PageAsync(int page = 1)
     {
-        if(VersionControlId.HasValue)
+        if (VersionControlId.HasValue)
         {
-            Items = await Service.GetByVersionControlIdAsync(VersionControlId.Value, ShowIgnored, page);
+            Items = await Service.GetByVersionControlIdAsync(VersionControlId.Value, ShowIgnored, Search, page);
         }
-        else if(FrameworkId.HasValue)
+        else if (FrameworkId.HasValue)
         {
-            Items = await Service.GetByFrameworkIdAsync(FrameworkId.Value, ShowIgnored, page);
+            Items = await Service.GetByFrameworkIdAsync(FrameworkId.Value, ShowIgnored, Search, page);
         }
         else
         {
-            Items = await Service.GetAsync(ShowIgnored, page);
+            Items = await Service.GetAsync(ShowIgnored, Search, page);
         }
 
         StateHasChanged();

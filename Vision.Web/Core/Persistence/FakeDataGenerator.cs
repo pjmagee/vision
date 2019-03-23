@@ -7,18 +7,17 @@
     using System.Threading.Tasks;
     using FizzWare.NBuilder;
     using FizzWare.NBuilder.Generators;
-    using Microsoft.AspNetCore.DataProtection;
 
     public class FakeDataGenerator
     {
         private readonly VisionDbContext context;
-        private readonly IDataProtector protector;
+        private readonly IEncryptionService encryptionService;
 
         private readonly static IList<DependencyKind> DependencyKinds = Enum.GetValues(typeof(DependencyKind)).Cast<DependencyKind>().ToList();
 
-        public FakeDataGenerator(VisionDbContext context, IDataProtectionProvider provider)
+        public FakeDataGenerator(VisionDbContext context, IEncryptionService encryptionService)
         {
-            this.protector = provider.CreateProtector("Registry");
+            this.encryptionService = encryptionService;
             this.context = context;
         }
 
@@ -95,37 +94,30 @@
             await context.SaveChangesAsync();
         }
 
-        
-        private static int GetAssetsByKind(DependencyKind kind)
-        {
-            switch (kind)
-            {
-                case DependencyKind.Docker:return GetRandom.Int(1, 5);
-                case DependencyKind.NuGet:
-                case DependencyKind.Maven: 
-                case DependencyKind.Gradle: return GetRandom.Int(1, 10);
-                case DependencyKind.Npm: return GetRandom.Int(1, 2);
-                case DependencyKind.PyPi:
-                case DependencyKind.RubyGem:return GetRandom.Int(1, 5);
-            }
-            throw new Exception("Unhandled kind for random number of assets");
-        }
 
-        private static int GetDependenciesForAsset(DependencyKind kind)
+        private static int GetAssetsByKind(DependencyKind kind) => kind switch
         {
-            switch (kind)
-            {
-                case DependencyKind.Docker: return GetRandom.Int(1, 2);
-                case DependencyKind.NuGet:
-                case DependencyKind.Maven:
-                case DependencyKind.Gradle: return GetRandom.Int(2, 15);
-                case DependencyKind.Npm: return GetRandom.Int(2, 15);
-                case DependencyKind.RubyGem:
-                case DependencyKind.PyPi: return GetRandom.Int(2, 10);
-            }
-            throw new Exception("Unhandled kind for number of dependencies to return");
-        } 
+            DependencyKind.Docker => GetRandom.Int(1, 5),
+            DependencyKind.NuGet => GetRandom.Int(1, 10),
+            DependencyKind.Maven => GetRandom.Int(1, 10),
+            DependencyKind.Gradle => GetRandom.Int(1, 10),
+            DependencyKind.Npm => GetRandom.Int(1, 2),
+            DependencyKind.PyPi => GetRandom.Int(1, 5),
+            DependencyKind.RubyGem => GetRandom.Int(1, 5),
+            _ => throw new Exception("Unhandled kind for number of assets")
+        };
 
+        private static int GetDependenciesForAsset(DependencyKind kind) => kind switch
+        {
+            DependencyKind.Docker => GetRandom.Int(1, 3),
+            DependencyKind.NuGet => GetRandom.Int(2, 15),
+            DependencyKind.Maven => GetRandom.Int(2, 15),
+            DependencyKind.Gradle => GetRandom.Int(2, 15),
+            DependencyKind.Npm => GetRandom.Int(2, 15),
+            DependencyKind.RubyGem => GetRandom.Int(2, 15),
+            DependencyKind.PyPi => GetRandom.Int(2, 10),
+            _ => throw new Exception("Unhandled kind for number of dependencies")
+        };
 
         private IEnumerable<Asset> GetAssets(Repository repository)
         {
@@ -204,7 +196,7 @@
 
         private IEnumerable<DependencyVersion> GetDependencyVersions(Dependency dependency)
         {
-            var versionCount = GetRandom.Int(1, 10);
+            var versionCount = GetRandom.Int(1, 30);
 
             var versions = Builder<DependencyVersion>.CreateListOfSize(versionCount)
                 .All()
@@ -214,7 +206,7 @@
                 .With(dv => dv.DependencyId = dependency.Id)
                 .With((dv, index) => 
                 {
-                    dv.Version = new Version(GetRandom.Int(index, 10), GetRandom.Int(index, 10), GetRandom.Int(index, 10)).ToString();
+                    dv.Version = new Version(GetRandom.Int(index, versionCount), GetRandom.Int(index, versionCount), GetRandom.Int(index, versionCount)).ToString();
                 })
                 .Build().ToList();
 
@@ -225,11 +217,9 @@
             return versions;
         }
 
-        private IEnumerable<VersionControl> GetVersionControls()
-        {
-            var sources = new VersionControl[]
+        private IEnumerable<VersionControl> GetVersionControls() => new VersionControl[]
             {
-		         CreateNewVersionControl().With(vc => vc.Endpoint = $"https://bitbucket.xperthr.rbxd.ds:8080/").With(x => x.Kind = VersionControlKind.Bitbucket).Build(),
+                 CreateNewVersionControl().With(vc => vc.Endpoint = $"https://bitbucket.xperthr.rbxd.ds:8080/").With(x => x.Kind = VersionControlKind.Bitbucket).Build(),
                  CreateNewVersionControl().With(vc => vc.Endpoint = $"https://bitbucket.accuity.rbxd.ds:8080/").With(x => x.Kind = VersionControlKind.Bitbucket).Build(),
                  CreateNewVersionControl().With(vc => vc.Endpoint = $"https://bitbucket.flightglobal.rbxd.ds:8080/").With(x => x.Kind = VersionControlKind.Gitlab).Build(),
                  CreateNewVersionControl().With(vc => vc.Endpoint = $"https://bitbucket.estatesgazette.rbxd.ds:8080/").With(x => x.Kind = VersionControlKind.Bitbucket).Build(),
@@ -239,12 +229,7 @@
                  CreateNewVersionControl().With(vc => vc.Endpoint = $"https://gitlab.b2b.regn.net:8080/").With(x => x.Kind = VersionControlKind.Gitlab).Build(),
              };
 
-            return sources;
-        }
-
-        private IEnumerable<CiCd> GetCiCds()
-        {
-            var sources = new CiCd[]
+        private IEnumerable<CiCd> GetCiCds() => new CiCd[]
             {
                  CreateNewCiCd().With(ci => ci.Endpoint = $"https://jenkins.xperthr.rbxd.ds:8080/").With(x => x.Kind = CiCdKind.Jenkins).Build(),
                  CreateNewCiCd().With(ci => ci.Endpoint = $"https://jenkins.accuity.rbxd.ds:8080/").With(x => x.Kind = CiCdKind.Jenkins).Build(),
@@ -256,37 +241,27 @@
                  CreateNewCiCd().With(ci => ci.Endpoint = $"https://gitlab.b2b.regn.net:8080/").With(x => x.Kind = CiCdKind.Gitlab).Build()
              };
 
-            return sources;
-        }
+        private ISingleObjectBuilder<VersionControl> CreateNewVersionControl() => Builder<VersionControl>
+            .CreateNew()
+            .With(x => x.Id = Guid.NewGuid())
+            .With(x => x.ApiKey = Guid.NewGuid().ToString());
 
-        private ISingleObjectBuilder<VersionControl> CreateNewVersionControl()
-        {
-            return Builder<VersionControl>.CreateNew()
-                .With(x => x.Id = Guid.NewGuid())
-                .With(x => x.ApiKey = Guid.NewGuid().ToString());
-        }
+        private ISingleObjectBuilder<CiCd> CreateNewCiCd() => Builder<CiCd>
+            .CreateNew()
+            .With(x => x.Id = Guid.NewGuid())
+            .With(x => x.ApiKey = encryptionService.Encrypt(Guid.NewGuid().ToString()))
+            .With(x => x.Username = encryptionService.Encrypt("Username"))
+            .With(x => x.Password = encryptionService.Encrypt("Password"));
 
-        private ISingleObjectBuilder<CiCd> CreateNewCiCd()
-        {
-            return Builder<CiCd>.CreateNew()
-                .With(x => x.Id = Guid.NewGuid())
-                .With(x => x.ApiKey = protector.Protect(Guid.NewGuid().ToString()))
-                .With(x => x.Username = protector.Protect("Username"))
-                .With(x => x.Password = protector.Protect("Password"));
-        }
+        private ISingleObjectBuilder<Registry> CreateNewRegistry() => Builder<Registry>
+            .CreateNew()
+            .With(x => x.Id = Guid.NewGuid())
+            .With(x => x.ApiKey = encryptionService.Encrypt(Guid.NewGuid().ToString()))
+            .With(x => x.Username = encryptionService.Encrypt("Username"))
+            .With(x => x.Password = encryptionService.Encrypt("Password"));
 
-        private ISingleObjectBuilder<Registry> CreateNewRegistry()
-        {
-            return Builder<Registry>.CreateNew()
-                .With(x => x.Id = Guid.NewGuid())
-                .With(x => x.ApiKey = protector.Protect(Guid.NewGuid().ToString()))
-                .With(x => x.Username = protector.Protect("Username"))
-                .With(x => x.Password = protector.Protect("Password"));
-        }
-
-        private IEnumerable<Registry> GetRegistries()
-        {
-            return DependencyKinds.SelectMany(kind => new Registry[]
+        private IEnumerable<Registry> GetRegistries() => 
+            DependencyKinds.SelectMany(kind => new Registry[]        
             {
                 CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.xperthr.rbxd.ds/{kind}/".ToLower())       .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
                 CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.flight.rbxd.ds/{kind}/".ToLower())        .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
@@ -300,9 +275,9 @@
                 CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.proagrica.rbxd.ds/{kind}/".ToLower())     .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
                 CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.icis.rbxd.ds/{kind}/".ToLower())          .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
                 CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.iog.rbxd.ds/{kind}/".ToLower())           .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
-                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.lexisnexis.rbxd.ds/{kind}/".ToLower())    .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),                
+                CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.lexisnexis.rbxd.ds/{kind}/".ToLower())    .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
             })
-            .Concat(new[] 
+            .Concat(new[]
             {
                 CreateNewRegistry().With(x => x.Endpoint = $"https://hub.docker.com/")        .With(x => x.IsPublic = true).With(x => x.Kind = DependencyKind.Docker).Build(),
                 CreateNewRegistry().With(x => x.Endpoint = $"https://registry.npm.com/")      .With(x => x.IsPublic = true).With(x => x.Kind = DependencyKind.Npm).Build(),
@@ -312,23 +287,34 @@
                 CreateNewRegistry().With(x => x.Endpoint = $"https://registry.python.com/")   .With(x => x.IsPublic = true).With(x => x.Kind = DependencyKind.PyPi).Build(),
                 CreateNewRegistry().With(x => x.Endpoint = $"https://registry.rubygems.com/") .With(x => x.IsPublic = true).With(x => x.Kind = DependencyKind.RubyGem).Build()
             });
-        }
-        
+
         private IEnumerable<Framework> GetFrameworks()
         {
             var netStandards = new[] { "netstandard1.0","netstandard1.1", "netstandard1.2", "netstandard1.3", "netstandard1.4", "netstandard1.5", "netstandard1.6", "netstandard2.0" };
             var netCores = new[]  { "netcoreapp1.0", "netcoreapp1.1", "netcoreapp2.0", "netcoreapp2.1", "netcoreapp2.2" };
             var netFrameworks = new[] {  "net11", "net20", "net35", "net40", "net403", "net45", "net451", "net452", "net46", "net461", "net462", "net47", "net471", "net472" };
+            var nodes = Enumerable.Range(4, 11).Select(x => new Version(x, GetRandom.Int(1, 12), GetRandom.Int(1, 12)).ToString());
+            var npms = Enumerable.Range(4, 6).Select(x => new Version(x, GetRandom.Int(1, 12), GetRandom.Int(1, 12)).ToString());
 
             return netStandards.Concat(netCores).Concat(netFrameworks)
                 .Select(framework => Builder<Framework>.CreateNew()
-                    .With(f => f.Id = Guid.NewGuid())
-                    .With(f => f.Version = framework).Build());
+                        .With(f => f.Id = Guid.NewGuid())
+                        .With(f => f.Name = ".NET")
+                        .With(f => f.Version = framework).Build())
+                .Concat(nodes.Select(nodeEngine => Builder<Framework>.CreateNew()
+                        .With(x => x.Id = Guid.NewGuid())
+                        .With(x => x.Name = "Node")
+                        .With(x => x.Version = nodeEngine).Build())
+                ).Concat(npms.Select(npm => Builder<Framework>.CreateNew()
+                        .With(x => x.Id = Guid.NewGuid())
+                        .With(x => x.Name = "NPM")
+                        .With(x => x.Version = npm).Build())
+                );
         }
 
         private IEnumerable<Repository> GetRepositories(VersionControl source)
         {
-            var repoNames = Enumerable.Range(0, GetRandom.Int(30, 800)).Select(x => GetGeneratedNameByKind(DependencyKind.Npm).Trim('@')).Distinct().ToList();
+            var repoNames = Enumerable.Range(0, GetRandom.Int(100, 800)).Select(x => GetGeneratedNameByKind(DependencyKind.Npm).Trim('@')).Distinct().ToList();
             var repoPicker = new RandomItemPicker<string>(repoNames, new UniqueRandomGenerator());
 
             return Builder<Repository>.CreateListOfSize(GetRandom.Int(1, repoNames.Count))
@@ -349,31 +335,24 @@
                 .Build();
         }
 
-        private static RandomItemPicker<Registry> GetRegistryByKind(IEnumerable<Registry> sources, DependencyKind kind)
-        {
-            return new RandomItemPicker<Registry>(sources.Where(x => x.Kind == kind).ToList(), new RandomGenerator());
-        }
+        private static RandomItemPicker<Registry> GetRegistryByKind(IEnumerable<Registry> sources, DependencyKind kind) => 
+            new RandomItemPicker<Registry>(sources.Where(x => x.Kind == kind).ToList(), new RandomGenerator());
 
-        private static int GetRandomDependencies(DependencyKind kind)
+        private static int GetRandomDependencies(DependencyKind kind) => kind switch
         {
-            switch (kind)
-            {
-                case DependencyKind.Docker: return GetRandom.Int(10, 30);
-                case DependencyKind.Maven:
-                case DependencyKind.Gradle:
-                case DependencyKind.NuGet: return GetRandom.Int(50, 300);
-                case DependencyKind.Npm: return GetRandom.Int(50, 300);
-                case DependencyKind.PyPi:
-                case DependencyKind.RubyGem: return GetRandom.Int(50, 300);
-            }
-
-            throw new Exception("Cannot pick random item picker for dependency sources for chosen dependency kind");
-        }
+            DependencyKind.Docker => GetRandom.Int(10, 30),
+            DependencyKind.Maven => GetRandom.Int(50, 300),
+            DependencyKind.Gradle => GetRandom.Int(50, 300),
+            DependencyKind.NuGet => GetRandom.Int(50, 300),
+            DependencyKind.Npm => GetRandom.Int(50, 300),
+            DependencyKind.PyPi => GetRandom.Int(50, 300),
+            DependencyKind.RubyGem => GetRandom.Int(50, 300),
+            _ => throw new Exception("Cannot pick random item picker for dependency sources for chosen dependency kind")
+        };
 
         private static string GetPathForAsset(string fileOrFolderName, int fileIndex, DependencyKind kind)
         {
             string ext = kind.GetFileExtension();
-
             bool isFirstFile = fileIndex == 0;
 
             switch (kind)

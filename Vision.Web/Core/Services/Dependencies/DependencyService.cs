@@ -93,5 +93,38 @@
 
             return await PaginatedList<DependencyDto>.CreateAsync(paging, pageIndex, pageSize);
         }
+
+        public async Task<IPaginatedList<DependencyDto>> GetByAssetIdAsync(Guid id, IEnumerable<DependencyKind> kinds, string search, int pageIndex = 1, int pageSize = 10)
+        {
+            var filter = kinds.ToIntArray();
+            var asset = await context.Assets.FindAsync(id);
+            var publishName = extractor.ExtractPublishName(asset);
+            var query = context.Dependencies.AsQueryable();
+
+            if (filter.Any())
+            {
+                query = query.Where(dependency => filter.Contains((int)dependency.Kind));
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(dependency => dependency.Name.Contains(search));
+            }
+
+            query = query.Where(dependency => string.Equals(publishName, dependency.Name) || context.DependencyVersions.Any(dependencyVersion => dependencyVersion.DependencyId == dependency.Id && string.Equals(dependencyVersion.ProjectUrl, asset.Repository.Url) || string.Equals(dependencyVersion.ProjectUrl, asset.Repository.WebUrl)));
+
+            var paging = query.Select(dependency => new DependencyDto
+            {
+                Assets = context.AssetDependencies.Count(ad => ad.DependencyId == dependency.Id),
+                DependencyId = dependency.Id,
+                Kind = dependency.Kind,
+                Name = dependency.Name,
+                Versions = context.DependencyVersions.Count(dv => dv.DependencyId == dependency.Id)
+            })
+            .OrderByDescending(d => d.Assets)
+            .ThenByDescending(d => d.Versions);
+
+            return await PaginatedList<DependencyDto>.CreateAsync(paging, pageIndex, pageSize);
+        }
     }
 }

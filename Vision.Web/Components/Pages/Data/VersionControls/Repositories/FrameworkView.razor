@@ -1,13 +1,13 @@
 ﻿@page "/data/vcs/{VersionControlId:guid}/repositories/{RepositoryId:guid}/frameworks/{FrameworkId:guid}"
 
-<BreadcrumbsComponent VersionControlId="@VersionControlId" RepositoryId="@RepositoryId" FrameworkId="@FrameworkId"></BreadcrumbsComponent>
+<BreadcrumbsComponent VersionControlId="@VersionControlId" RepositoryId="@RepositoryId" FrameworkId="@FrameworkId" />
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
     </div>
     <div class="card-body">
-        <AssetsComponent FrameworkId="@FrameworkId"></AssetsComponent>
+        <AssetsComponent FrameworkId="@FrameworkId" />
     </div>
 </div>
 
@@ -16,7 +16,7 @@
         <h6 class="m-0 font-weight-bold text-primary">Repositories</h6>
     </div>
     <div class="card-body">
-        <RepositoriesComponent FrameworkId="@FrameworkId"></RepositoriesComponent>
+        <RepositoriesComponent FrameworkId="@FrameworkId" />
     </div>
 </div>
 

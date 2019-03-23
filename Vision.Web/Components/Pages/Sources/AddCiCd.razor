@@ -9,50 +9,63 @@
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">Add new</h6>
     </div>
-    <div class="card-body">        
-        <BlazorForm IsInline="false">
-            <EditForm Model="@CiCd" OnValidSubmit="@Submit">
-                <ValidationSummary />                
-                <DataAnnotationsValidator />
+    <div class="card-body">
 
-                <div class="form-group">
-                    <input id="endpoint" type="text" class="form-control" bind="@CiCd.Endpoint" placeholder="Endpoint" />
-                    <ValidationMessage For="@(() => CiCd.Endpoint)" />
+        <EditForm Model="@Model" OnValidSubmit="@Submit">
+            <DataAnnotationsValidator />
+
+            <FormGroup>
+                <BlazorLabel>Endpoint</BlazorLabel>
+                <InputText Class="form-control" bind-Value="@Model.Endpoint" />
+                <ValidationMessage For="@(() => Model.Endpoint)" />
+            </FormGroup>
+
+            <FormGroup>
+                <BlazorLabel>Api Key</BlazorLabel>
+                <InputText Class="form-control" bind-Value="@Model.ApiKey" />
+                <ValidationMessage For="@(() => Model.ApiKey)" />
+            </FormGroup>
+
+            <FormGroup>
+                <BlazorLabel>Username</BlazorLabel>
+                <InputText Class="form-control" bind-Value="@Model.Username" />
+                <ValidationMessage For="@(() => Model.Username)" />
+            </FormGroup>
+
+            <FormGroup>
+                <BlazorLabel>Password</BlazorLabel>
+                <InputText Class="form-control" bind-Value="@Model.Password" />
+                <ValidationMessage For="@(() => Model.Password)" />
+            </FormGroup>
+
+            <FormGroup>
+                <BlazorLabel>Kind</BlazorLabel>
+                <InputSelect class="form-control" bind-Value="@Model.Kind">
+                    <option selected>Select</option>
+                    @foreach (CiCdKind kind in Enum.GetValues(typeof(CiCdKind)).Cast<CiCdKind>())
+                    {
+                        <option value="@kind">@kind.ToString()</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => Model.Kind)" />
+            </FormGroup>
+
+            <FormGroup>
+                <div class="form-check">
+                    <InputCheckbox Class="form-check-input" bind-Value="@Model.IsGuestEnabled" />
+                    <FormLabel Class="form-check-label">Guest enabled</FormLabel>
                 </div>
-                <div class="form-group">
-                    <input Class="form-control" bind="@CiCd.ApiKey" placeholder="API Key" />
+            </FormGroup>
+
+            <FormGroup>
+                <div class="form-check">
+                    <InputCheckbox Class="form-check-input" bind-Value="@Model.IsEnabled" />
+                    <FormLabel Class="form-check-label">Enabled</FormLabel>
                 </div>
-                <div class="form-group">
-                    <input Class="form-control" bind="@CiCd.Username" placeholder="Username" />
-                </div>
-                <div class="form-group">
-                    <input type="password" class="form-control" bind="@CiCd.Password" placeholder="Password" />
-                </div>
-                <div class="form-group">
-                    <InputSelect class="form-control" bind-Value="@CiCd.Kind">
-                        <option>Select</option>
-                        @foreach (CiCdKind kind in Enum.GetValues(typeof(CiCdKind)).Cast<CiCdKind>())
-                        {
-                            <option value="@kind">@kind.ToString()</option>
-                        }
-                    </InputSelect>
-                    <ValidationMessage For="@(() => CiCd.Kind)" />
-                </div>
-                <div class="form-group">
-                    <div class="form-check">
-                        <InputCheckbox bind-Value="@CiCd.IsGuestEnabled" class="form-check-input" id="isGuestEnabled" />                        
-                        <FormLabel Class="form-check-label">Guest enabled</FormLabel>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="form-check">
-                        <InputCheckbox class="form-check-input" bind-Value="@CiCd.IsEnabled" id="isEnabled" />
-                        <FormLabel Class="form-check-label">Enabled</FormLabel>
-                    </div>
-                </div>
-                <button  type="button" class="btn btn-primary">Save</button>                
-            </EditForm>
-        </BlazorForm>
+            </FormGroup>
+
+            <button type="submit" class="btn btn-primary">Save</button>
+        </EditForm>
     </div>
 </div>
 
@@ -60,10 +73,10 @@
 {
     [Inject] ICiCdService CiCdService { get; set; }
 
-    CiCdDto CiCd { get; set; } = new CiCdDto();
+    CiCdDto Model { get; set; } = new CiCdDto();
 
     protected async Task Submit()
     {
-        await CiCdService.CreateAsync(CiCd);
+        await CiCdService.CreateAsync(Model);
     }
 }

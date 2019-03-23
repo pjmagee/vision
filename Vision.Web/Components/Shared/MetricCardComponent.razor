@@ -1,6 +1,6 @@
 ﻿@if (Item != null)
 {
-    <div class="card border-left-@Item.Kind.GetMetricColour() shadow py-2">
+    <div class="card border-left-@Item.Kind.GetMetricColour() shadow h-100 py-2">
         <div class="card-body">
             <div class="row no-gutters align-items-center">
                 <div class="col mr-2">
@@ -8,6 +8,7 @@
                     <div class="h5 mb-0 font-weight-bold text-gray-800">@Item.Value</div>
                 </div>
                 <div class="col-auto">
+                    
                     <i class="@Item.GetFontAwesomeClass() fa-2x"></i>
                 </div>
             </div>
@@ -18,4 +19,5 @@
 @functions
 {
     [Parameter] MetricItem Item { get; set; }
+    [Inject] SvgService SvgService { get; set; }
 }

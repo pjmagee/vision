@@ -19,7 +19,7 @@
         public DbSet<VersionControl> VersionControls { get; set; }
         public DbSet<CiCd> CiCds { get; set; }
         public DbSet<Registry> Registries { get; set; }
-        public DbSet<SystemTask> Tasks { get; set; }
+        public DbSet<RefreshTask> Tasks { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -29,7 +29,7 @@
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<SystemTask>((entity) =>
+            modelBuilder.Entity<RefreshTask>((entity) =>
             {
                 entity.HasKey(x => x.Id);
                 entity.Property(x => x.Created).IsRequired();

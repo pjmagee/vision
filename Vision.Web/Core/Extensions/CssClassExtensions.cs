@@ -19,49 +19,47 @@
 
         public static string GetFontAwesomeClass(this CiCdKind kind) => kind switch
         {
-            CiCdKind.Gitlab => "fab fa-gitlab",
-            CiCdKind.Jenkins => "fab fa-jenkins",
-            CiCdKind.TeamCity => "fab fa-teamcity",
+            CiCdKind.Gitlab => Brand("fa-gitlab"),
+            CiCdKind.Jenkins => Brand("fa-jenkins"),
+            CiCdKind.TeamCity => Brand("fa-teamcity"),
             _ => string.Empty
         };
-
+                
         public static string GetFontAwesomeClass(this Metric metric) => 
             metric.DependencyKind.HasValue ? 
             metric.DependencyKind.Value.GetFontAwesomeClass() : 
             metric.CategoryKind.GetFontAwesomeClass();
 
-        private static string GetFontAwesomeClass(this MetricCategoryKind kind)
+        private static string GetFontAwesomeClass(this MetricCategoryKind kind) => kind switch
         {
-            switch (kind)
-            {
-                case MetricCategoryKind.Assets: return "far fa-file-code";
-                case MetricCategoryKind.CiCds: return "fas fa-cogs";
-                case MetricCategoryKind.Data: return "far fa-data";
-                case MetricCategoryKind.Sources: return "fas fa-code-branch";
-                case MetricCategoryKind.VersionControls: return "fas fa-code-branch";
-                case MetricCategoryKind.Repositories: return "far fa-code-branch";
-                case MetricCategoryKind.Dependencies: return "far fa-file-archive";
-                case MetricCategoryKind.Frameworks: return "fas fa-cubes";
-                case MetricCategoryKind.Registries: return "fas fa-archive";
-                case MetricCategoryKind.Versions: return "far fa-copy";
-                default: return string.Empty;
-            }
-        }
+            MetricCategoryKind.Asset => Regular("fa-file-code"),
+            MetricCategoryKind.CiCd => Solid("fa-cogs"),
+            MetricCategoryKind.Data => Regular("fa-data"),
+            MetricCategoryKind.Source => Solid("fa-code-branch"),
+            MetricCategoryKind.VersionControl => Solid("fa-code-branch"),
+            MetricCategoryKind.Repository => Regular("fa-code-branch"),
+            MetricCategoryKind.Dependency => Regular("fa-file-archive"),
+            MetricCategoryKind.Framework => Solid("fa-cubes"),
+            MetricCategoryKind.Registry => Solid("fa-archive"),
+            MetricCategoryKind.Version => Regular("fa-copy"),
+            _ => string.Empty
+        };
 
-        private static string GetFontAwesomeClass(this DependencyKind kind)
+        private static string GetFontAwesomeClass(this DependencyKind kind) => kind switch
         {
-            switch (kind)
-            {
-                case DependencyKind.Docker: return "fab fa-docker";
-                case DependencyKind.Gradle: return "fab fa-java";
-                case DependencyKind.Maven: return "fab fa-java";
-                case DependencyKind.Npm: return "fab fa-npm";
-                case DependencyKind.NuGet: return "fab fa-microsoft";
-                case DependencyKind.PyPi: return "fab fa-python";
-                case DependencyKind.RubyGem: return "fas fa-gem";
-                default: return string.Empty;
-            }
-        }
+            DependencyKind.Docker => Brand("fa-docker"),
+            DependencyKind.Gradle => Brand("fa-java"),
+            DependencyKind.Maven => Brand("fa-java"),
+            DependencyKind.Npm => Brand("fa-npm"),
+            DependencyKind.NuGet => Brand("fa-microsoft"),
+            DependencyKind.PyPi => Brand("fa-python"),
+            DependencyKind.RubyGem => Solid("fa-gem"),
+            _ => string.Empty
+        };
+
+        private static string Regular(string fa) => $"far {fa}";
+        private static string Solid(string fa) => $"fas {fa}";
+        private static string Brand(string fa) => $"fab {fa}";
     }
 }
 

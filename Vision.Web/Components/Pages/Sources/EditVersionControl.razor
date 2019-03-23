@@ -11,36 +11,48 @@
         <h6 class="m-0 font-weight-bold text-primary">Update</h6>
     </div>
     <div class="card-body">
-        @if (VersionControl != null)
+        @if (Model != null)
         {
-            <EditForm EditContext="@context">
-                <ValidationSummary></ValidationSummary>
-                <div class="form-group">
-                    <input type="text" class="form-control" bind="VersionControl.Endpoint" placeholder="Endpoint" />
+        <EditForm Model="@Model" OnValidSubmit="@Submit">
+            <DataAnnotationsValidator />
+
+            <FormGroup>
+                <BlazorLabel>Endpoint</BlazorLabel>
+                <InputText class="form-control" bind-Value="@Model.Endpoint" />
+                <ValidationMessage For="@(() => Model.Endpoint)" />
+            </FormGroup>
+
+            <FormGroup>
+                <BlazorLabel>Api Key</BlazorLabel>
+                <InputText class="form-control" bind-Value="@Model.ApiKey" />
+                <ValidationMessage For="@(() => Model.ApiKey)" />
+            </FormGroup>
+
+            <FormGroup>
+                <BlazorLabel>Kind</BlazorLabel>
+                <InputSelect class="form-control" bind-Value="@Model.Kind">
+                    <option>Select</option>
+                    @foreach (var kind in Enum.GetValues(typeof(VersionControlKind)).Cast<VersionControlKind>())
+                    {
+                        <option value="@kind">@kind.ToString()</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => Model.Kind)" />
+            </FormGroup>
+
+            <FormGroup>
+                <div class="form-check">
+                    <InputCheckbox class="form-check-input" bind-Value="@Model.IsEnabled" id="isEnabled" />
+                    <label class="form-check-label" for="isEnabled">Enabled</label>
                 </div>
-                <div class="form-group">
-                    <input type="text" class="form-control" bind="VersionControl.ApiKey" placeholder="API Key" />
-                </div>
-                <div class="form-group">
-                    <select type="text" class="form-control" bind="VersionControl.Kind" placeholder="Type">
-                        @foreach (var kind in Enum.GetValues(typeof(VersionControlKind)).Cast<VersionControlKind>())
-                        {
-                            <option value="@kind">@kind.ToString()</option>
-                        }
-                    </select>
-                </div>
-                <div class="form-group">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" bind="VersionControl.IsEnabled" id="isEnabled" />
-                        <label class="form-check-label" for="isEnabled">Enabled</label>
-                    </div>
-                </div>
-                <button onclick="@Update" type="button" class="btn btn-primary">Update</button>
-            </EditForm>
+            </FormGroup>
+
+            <button type="submit" class="btn btn-primary">Update</button>
+        </EditForm>
         }
         else
         {
-            <LoaderComponent></LoaderComponent>
+            <LoaderComponent />
         }
     </div>
 </div>
@@ -52,22 +64,16 @@
     [Inject] IVersionControlService VersionControlService { get; set; }
     [Inject] IUriHelper UriHelper { get; set; }
 
-    VersionControlDto VersionControl { get; set; }
-    EditContext context { get; set; }
+    VersionControlDto Model { get; set; }
 
-    protected async Task Update()
+    protected async Task Submit()
     {
-        if (context.Validate())
-        {
-            await VersionControlService.UpdateAsync(VersionControl);
-            UriHelper.NavigateTo("/data/vcs");
-        }
+        await VersionControlService.UpdateAsync(Model);
+        UriHelper.NavigateTo("/data/vcs");
     }
 
     protected override async Task OnParametersSetAsync()
     {
-        VersionControl = await VersionControlService.GetByIdAsync(VersionControlId);
-        context = new EditContext(VersionControl);
-        context.AddDataAnnotationsValidation();
+        Model = await VersionControlService.GetByIdAsync(VersionControlId);        
     }
 }

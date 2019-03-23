@@ -9,7 +9,7 @@
         public Guid CiCdId { get; set; }
 
         [Required(AllowEmptyStrings = false)]
-        [DataType(DataType.Text)]        
+        [DataType(DataType.Url)]        
         public string Endpoint { get; set; }
 
         public string ApiKey { get; set; }

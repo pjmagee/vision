@@ -2,15 +2,15 @@
 {
     public enum MetricCategoryKind
     {        
-        Sources,
+        Source,
         Data,
-        VersionControls,
-        Repositories,
-        Assets,
-        Dependencies,
-        Frameworks,
-        Registries,
-        Versions,
-        CiCds
+        VersionControl,
+        Repository,
+        Asset,
+        Dependency,
+        Framework,
+        Registry,
+        Version,
+        CiCd
     }
 }

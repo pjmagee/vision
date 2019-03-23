@@ -6,11 +6,11 @@ namespace Vision.Web.Core
 {
     public interface ISystemTaskService
     {
-        Task<IEnumerable<SystemTask>> GetAllAsync();
-        Task<IEnumerable<SystemTask>> GetPendingTasksAsync();
-        Task<SystemTask> UpdateAssetAsync(Guid id);
-        Task<SystemTask> UpdateDependencyAsync(Guid id);
-        Task<SystemTask> UpdateRepositoryAsync(Guid id);
-        Task<SystemTask> UpdateVersionControlAsync(Guid id);
+        Task<IEnumerable<RefreshTask>> GetAllAsync();
+        Task<IEnumerable<RefreshTask>> GetPendingTasksAsync();
+        Task<RefreshTask> UpdateAssetAsync(Guid id);
+        Task<RefreshTask> UpdateDependencyAsync(Guid id);
+        Task<RefreshTask> UpdateRepositoryAsync(Guid id);
+        Task<RefreshTask> UpdateVersionControlAsync(Guid id);
     }
 }

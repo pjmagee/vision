@@ -34,21 +34,18 @@
 
         public async Task<CiCdDto> UpdateAsync(CiCdDto dto)
         {
+            encryptionService.Encrypt(dto);
+
             var cicd = context.CiCds.Find(dto.CiCdId);
             cicd.Endpoint = dto.Endpoint;
             cicd.Kind = dto.Kind;
             cicd.IsEnabled = dto.IsEnabled;
             cicd.IsGuestEnabled = dto.IsGuestEnabled;
+            cicd.Password = dto.Password;
+            cicd.Username = dto.Username;
+            cicd.ApiKey = dto.ApiKey;
 
-            if(cicd.ApiKey != dto.ApiKey)
-                cicd.ApiKey = encryptionService.Encrypt(dto.ApiKey);
-
-            if (cicd.Username != dto.Username)
-                cicd.Username = encryptionService.Encrypt(dto.Username);
-
-            if (cicd.Password != dto.Password)
-                cicd.Password = encryptionService.Encrypt(dto.Password);
-
+            
             context.CiCds.Update(cicd);
             await context.SaveChangesAsync();
 
@@ -65,6 +62,8 @@
 
         public async Task<CiCdDto> CreateAsync(CiCdDto dto)
         {
+            encryptionService.Encrypt(dto);
+
             CiCd cicd = new CiCd
             {
                 Id = Guid.NewGuid(),
@@ -72,9 +71,9 @@
                 Kind = dto.Kind,
                 IsEnabled = dto.IsEnabled,
                 IsGuestEnabled = dto.IsGuestEnabled,
-                ApiKey = encryptionService.Encrypt(dto.ApiKey),
-                Username = encryptionService.Encrypt(dto.Username),
-                Password = encryptionService.Encrypt(dto.Password)
+                ApiKey = dto.ApiKey,
+                Password = dto.Password,
+                Username = dto.Username
             };
 
             context.CiCds.Add(cicd);
