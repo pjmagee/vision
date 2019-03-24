@@ -21,6 +21,7 @@ else
 
     [Parameter] Guid? AssetId { get; set; }
     [Parameter] Guid? DependencyId { get; set; }
+    [Parameter] Guid? VersionId { get; set; }
 
     [Inject] IMetricService MetricService { get; set; }
 
@@ -43,6 +44,10 @@ else
         else if(DependencyId.HasValue)
         {
             Items = await MetricService.GetMetricsAsync(DependencyId.Value, CategoryKind.Dependency);
+        }
+        else if(VersionId.HasValue)
+        {
+            Items = await MetricService.GetMetricsAsync(VersionId.Value, CategoryKind.DependencyVersion);
         }
     }
 }

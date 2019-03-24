@@ -8,6 +8,7 @@
         Repository,
         Asset,
         Dependency,
+        DependencyVersion,
         Framework,
         Registry,
         Version,

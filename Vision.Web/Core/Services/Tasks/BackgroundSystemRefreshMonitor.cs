@@ -31,19 +31,20 @@
         private async Task DoWorkAsync(CancellationToken cancellationToken)
         {
             logger.LogInformation("Hosted Service started.");
+                          
+            using (IServiceScope scope = services.CreateScope())
+            {
+                IRefreshService taskService = scope.ServiceProvider.GetRequiredService<IRefreshService>();
+                VisionDbContext context = scope.ServiceProvider.GetRequiredService<VisionDbContext>();
 
-            while(!cancellationToken.IsCancellationRequested)
-            {  
-                using (IServiceScope scope = services.CreateScope())
+                while (!cancellationToken.IsCancellationRequested)
                 {
-                    IRefreshService taskService = scope.ServiceProvider.GetRequiredService<IRefreshService>();
-                    VisionDbContext context = scope.ServiceProvider.GetRequiredService<VisionDbContext>();
-
                     await HandleRefreshTasks(taskService, context);
                     await HandleRepositoryCleaning(context);
+                    await Task.Delay(TimeSpan.FromSeconds(10));
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(10));
+                scope.Dispose();
             }
         }
 
@@ -63,68 +64,34 @@
 
         private async Task HandleRefreshTasks(IRefreshService taskService, VisionDbContext context)
         {
-            IEnumerable<RefreshTask> tasks = await context.Tasks.OrderByDescending(t => t.Created).Where(t => t.Completed == null).ToListAsync();
-
-            foreach (var task in tasks)
+            foreach (RefreshTask task in await context.Tasks.OrderByDescending(t => t.Created).Where(t => t.Completed == null).ToListAsync())
             {
+                task.Started = DateTime.Now;
+                context.Tasks.Update(task);
+                await context.SaveChangesAsync();
+
                 try
                 {
-                    task.Started = DateTime.Now;
+                    logger.LogInformation($"Starting refresh task {task.Scope.ToString()}:{task.Id}");
+
+                    Task refreshTask = task.Scope switch
+                    {
+                        TaskScopeKind.Asset => taskService.RefreshAssetByIdAsync(task.TargetId),
+                        TaskScopeKind.Dependency => taskService.RefreshDependencyByIdAsync(task.TargetId),
+                        TaskScopeKind.Repository => taskService.RefreshRepositoryByIdAsync(task.TargetId),
+                        TaskScopeKind.VersionControl => taskService.RefreshVersionControlByIdAsync(task.TargetId),
+                        _ => Task.Delay(0)
+                    };
+
+                    await refreshTask;
+
+                    task.Completed = DateTime.Now;
                     context.Tasks.Update(task);
                     await context.SaveChangesAsync();
-
-                    using (IDbContextTransaction transaction = await context.Database.BeginTransactionAsync())
-                    {
-                        try
-                        {
-                            logger.LogInformation($"Starting refresh task {task.Scope.ToString()}:{task.Id}");
-
-                            switch (task.Scope)
-                            {
-                                case TaskScopeKind.Asset:
-                                    {
-                                        await taskService.RefreshAssetByIdAsync(task.TargetId);
-                                        break;
-                                    }
-                                case TaskScopeKind.Dependency:
-                                    {
-                                        await taskService.RefreshDependencyByIdAsync(task.TargetId);
-                                        break;
-                                    }
-                                case TaskScopeKind.Repository:
-                                    {
-                                        await taskService.RefreshRepositoryByIdAsync(task.TargetId);
-                                        break;
-                                    }
-                                case TaskScopeKind.VersionControl:
-                                    {
-                                        await taskService.RefreshVersionControlByIdAsync(task.TargetId);
-                                        break;
-                                    }
-                                default:
-                                    break;
-                            }
-
-                            task.Completed = DateTime.Now;
-                            context.Tasks.Update(task);
-                            await context.SaveChangesAsync();
-
-                            transaction.Commit();
-                        }
-                        catch (Exception e)
-                        {
-                            logger.LogError(e, $"Error performing refresh task {task.Scope.ToString()}:{task.Id}. Transaction not commited.");
-                            transaction.Rollback();
-                        }
-                    }
                 }
                 catch (Exception e)
                 {
-                    logger.LogError(e, $"Error performing refresh task for {task.Scope.ToString()}:{task.TargetId}");
-                }
-                finally
-                {
-
+                    logger.LogError(e, $"Error performing refresh task {task.Scope.ToString()}:{task.Id}.");
                 }
             }
         }

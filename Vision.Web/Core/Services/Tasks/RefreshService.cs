@@ -49,92 +49,140 @@
 
         public async Task RefreshRepositoryByIdAsync(Guid repositoryId)
         {
-            Repository repository = await context.Repositories.FindAsync(repositoryId);
-            VersionControl versionControl = await context.VersionControls.FindAsync(repository.VersionControlId);
+            using (IDbContextTransaction transaction = await context.Database.BeginTransactionAsync())
+            {
+                Repository repository = await context.Repositories.FindAsync(repositoryId);
+                VersionControl versionControl = await context.VersionControls.FindAsync(repository.VersionControlId);
 
-            logger.LogInformation($"Refreshing repository: {repository.Url}");
-            await context.Entry(repository).Collection(r => r.Assets).LoadAsync();
-            context.Assets.RemoveRange(repository.Assets);
-            await context.SaveChangesAsync();
-
-            var versionControlDto = new VersionControlDto { ApiKey = versionControl.ApiKey, Endpoint = versionControl.Endpoint, VersionControlId = versionControl.Id, Kind = versionControl.Kind, IsEnabled = versionControl.IsEnabled };
-            var repositoryDto = new RepositoryDto { VersionControlId = repository.VersionControlId, Url = repository.Url, WebUrl = repository.WebUrl };
-
-            encryptionService.Decrypt(versionControlDto);
-            IEnumerable<Asset> items = await versionControlProvider.GetAssetsAsync(versionControlDto, repositoryDto);
-
-            foreach(Asset asset in items)
-            {                
-                context.Assets.Add(asset);
+                logger.LogInformation($"Refreshing repository: {repository.Url}");
+                await context.Entry(repository).Collection(r => r.Assets).LoadAsync();
+                context.Assets.RemoveRange(repository.Assets);
                 await context.SaveChangesAsync();
-                await RefreshAssetByIdAsync(asset.Id);
-            }
+
+                var versionControlDto = new VersionControlDto { ApiKey = versionControl.ApiKey, Endpoint = versionControl.Endpoint, VersionControlId = versionControl.Id, Kind = versionControl.Kind, IsEnabled = versionControl.IsEnabled };
+                var repositoryDto = new RepositoryDto { VersionControlId = repository.VersionControlId, Url = repository.Url, WebUrl = repository.WebUrl };
+
+                encryptionService.Decrypt(versionControlDto);
+                IEnumerable<Asset> items = await versionControlProvider.GetAssetsAsync(versionControlDto, repositoryDto);
+
+                foreach (Asset asset in items)
+                {
+                    context.Assets.Add(asset);
+                    await context.SaveChangesAsync();
+                    await RefreshAssetByIdAsync(asset.Id);
+                }
+
+                transaction.Commit();
+            }                           
         }
 
         public async Task RefreshAssetByIdAsync(Guid assetId)
-        {           
-            await RefreshAssetDependenciesAsync(assetId);
-            await RefreshAssetFrameworksAsync(assetId);
-            await context.SaveChangesAsync();
+        {
+            using (IDbContextTransaction transaction = await context.Database.BeginTransactionAsync())
+            {
+                await RefreshAssetDependenciesAsync(assetId);
+                await RefreshAssetFrameworksAsync(assetId);
+                await context.SaveChangesAsync();
+
+                transaction.Commit();
+            }   
         }
 
         public async Task RefreshAssetDependenciesAsync(Guid assetId)
         {
-            Asset asset = await context.Assets.FindAsync(assetId);
-
-            logger.LogInformation($"Refreshing asset dependencies for: {asset.Path}");
-            await context.Entry(asset).Collection(a => a.Dependencies).LoadAsync();
-            context.AssetDependencies.RemoveRange(asset.Dependencies);
-            await context.SaveChangesAsync();
-
-            IEnumerable<Extract> items = assetExtractor.ExtractDependencies(asset);
-
-            foreach(Extract extract in items)
+            using (IDbContextTransaction transaction = await context.Database.BeginTransactionAsync())
             {
-                await AssignAssetDependencies(extract, asset);
+                Asset asset = await context.Assets.FindAsync(assetId);
+
+                logger.LogInformation($"Refreshing asset dependencies for: {asset.Path}");
+                await context.Entry(asset).Collection(a => a.Dependencies).LoadAsync();
+                context.AssetDependencies.RemoveRange(asset.Dependencies);
+                await context.SaveChangesAsync();
+
+                IEnumerable<Extract> items = assetExtractor.ExtractDependencies(asset);
+
+                foreach (Extract extract in items)
+                {
+                    await AssignAssetDependencies(extract, asset);
+                }
+
+                transaction.Commit();
             }
         }
 
         public async Task RefreshAssetFrameworksAsync(Guid assetId)
         {
-            Asset asset = await context.Assets.FindAsync(assetId);
-
-            logger.LogInformation($"Refreshing asset frameworks for: {asset.Path}");
-
-            await context.Entry(asset).Collection(a => a.Frameworks).LoadAsync();
-            context.AssetFrameworks.RemoveRange(asset.Frameworks);
-            await context.SaveChangesAsync();
-            
-            IEnumerable<Extract> extracts = assetExtractor.ExtractFrameworks(asset);
-
-            foreach(var extract in extracts)
+            using (IDbContextTransaction transaction = await context.Database.BeginTransactionAsync())
             {
-                await AssignAssetFrameworksAsync(extract, asset);
-            }            
+                Asset asset = await context.Assets.FindAsync(assetId);
+
+                logger.LogInformation($"Refreshing asset frameworks for: {asset.Path}");
+
+                await context.Entry(asset).Collection(a => a.Frameworks).LoadAsync();
+                context.AssetFrameworks.RemoveRange(asset.Frameworks);
+                await context.SaveChangesAsync();
+
+                IEnumerable<Extract> extracts = assetExtractor.ExtractFrameworks(asset);
+
+                foreach (var extract in extracts)
+                {
+                    await AssignAssetFrameworksAsync(extract, asset);
+                }
+
+                transaction.Commit();
+            }           
         }
 
         public async Task RefreshVersionControlByIdAsync(Guid versionControlId)
         {
-            VersionControl versionControl = await context.VersionControls.FindAsync(versionControlId);
-
-            await context.Entry(versionControl).Collection(vcs => vcs.Repositories).LoadAsync();            
-            context.Repositories.RemoveRange(versionControl.Repositories.Where(r => r.IsIgnored == false));
-            await context.SaveChangesAsync();
-
-            var versionControlDto = new VersionControlDto { ApiKey = versionControl.ApiKey, Endpoint = versionControl.Endpoint, Kind = versionControl.Kind, VersionControlId = versionControl.Id };
-            encryptionService.Decrypt(versionControlDto);
-
-            IEnumerable<Repository> items = await this.versionControlProvider.GetRepositoriesAsync(versionControlDto);
-
-            foreach(Repository repository in items)
+            using (IDbContextTransaction transaction = await context.Database.BeginTransactionAsync())
             {
-                context.Repositories.Add(repository);
-                await context.SaveChangesAsync();                
-            }
+                VersionControl versionControl = await context.VersionControls.FindAsync(versionControlId);
 
-            foreach(var repository in context.Repositories.Where(r => r.VersionControlId == versionControlId))
+                await context.Entry(versionControl).Collection(vcs => vcs.Repositories).LoadAsync();
+                context.Repositories.RemoveRange(versionControl.Repositories.Where(r => r.IsIgnored == false));
+                await context.SaveChangesAsync();
+
+                var versionControlDto = new VersionControlDto { ApiKey = versionControl.ApiKey, Endpoint = versionControl.Endpoint, Kind = versionControl.Kind, VersionControlId = versionControl.Id };
+                encryptionService.Decrypt(versionControlDto);
+
+                IEnumerable<Repository> items = await this.versionControlProvider.GetRepositoriesAsync(versionControlDto);
+
+                foreach (Repository repository in items)
+                {
+                    context.Repositories.Add(repository);
+                    await context.SaveChangesAsync();
+                }
+
+                foreach (var repository in context.Repositories.Where(r => r.VersionControlId == versionControlId))
+                {
+                    await RefreshRepositoryByIdAsync(repository.Id);
+                }
+
+                transaction.Commit();
+            }            
+        }
+
+        public async Task RefreshDependencyByIdAsync(Guid dependencyId)
+        {
+            using (IDbContextTransaction transaction = await context.Database.BeginTransactionAsync())
             {
-                await RefreshRepositoryByIdAsync(repository.Id);
+                Dependency dependency = await context.Dependencies.FindAsync(dependencyId);
+                DependencyVersion latestVersion = await versionProvider.GetLatestMetaDataAsync(dependency);
+                List<DependencyVersion> currentVersions = await context.DependencyVersions.Where(x => x.DependencyId == dependencyId).ToListAsync();
+
+                if (currentVersions.All(current => current.Version != latestVersion.Version))
+                {
+                    currentVersions.ForEach(v => v.IsLatest = false);
+                    context.DependencyVersions.UpdateRange(currentVersions);
+                    context.DependencyVersions.Add(latestVersion);
+                }
+
+                await context.SaveChangesAsync();
+
+                // TODO: Remove versions not used by any assets..
+
+                transaction.Commit();
             }
         }
 
@@ -209,22 +257,6 @@
             return (dependencyVersion ?? new DependencyVersion { Dependency = dependency, DependencyId = dependency.Id, Version = version });
         }
 
-        public async Task RefreshDependencyByIdAsync(Guid dependencyId)
-        {
-            Dependency dependency = await context.Dependencies.FindAsync(dependencyId);            
-            DependencyVersion latestVersion = await versionProvider.GetLatestMetaDataAsync(dependency);
-            List<DependencyVersion> currentVersions = await context.DependencyVersions.Where(x => x.DependencyId == dependencyId).ToListAsync();
-
-            if (currentVersions.All(current => current.Version != latestVersion.Version))
-            {
-                currentVersions.ForEach(v => v.IsLatest = false);
-                context.DependencyVersions.UpdateRange(currentVersions);
-                context.DependencyVersions.Add(latestVersion);
-            }
-
-            await context.SaveChangesAsync();
-
-            // TODO: Remove versions not used by any assets..
-        }
+        
     }   
 }

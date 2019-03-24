@@ -50,54 +50,82 @@
 
         public async Task<IEnumerable<MetricItem>> GetMetricsAsync(Guid id, CategoryKind targetKind)
         {
+            return targetKind switch
+            {
+                CategoryKind.Asset => await GetAssetMetricsAsync(id),
+                CategoryKind.Dependency => await GetDependencyMetricsAsync(id),
+                CategoryKind.Repository => await GetRepositoryMetricsAsync(id),
+                CategoryKind.DependencyVersion => await GetDependencyVersionMetricsAsync(id),
+                _ => Enumerable.Empty<MetricItem>()
+            };
+        }
+
+        private async Task<IEnumerable<MetricItem>> GetDependencyVersionMetricsAsync(Guid dependencyVersionId)
+        {
+            List<MetricItem> items = new List<MetricItem>();
+            DependencyVersion dependencyVersion = await context.DependencyVersions.FindAsync(dependencyVersionId);
+
+            items.Add(new MetricItem(MetricAlertKind.Standard, CategoryKind.Framework, $"Assets", await context.AssetDependencies.CountAsync(ad => ad.DependencyVersionId == dependencyVersionId)));
+            items.Add(new MetricItem(MetricAlertKind.Standard, CategoryKind.Framework, $"Latest", dependencyVersion.IsLatest.ToYesNo()));
+
+            return items;
+        }
+
+        private async Task<IEnumerable<MetricItem>> GetRepositoryMetricsAsync(Guid repositoryId)
+        {
             List<MetricItem> items = new List<MetricItem>();
 
-            if (targetKind == CategoryKind.Asset)
+            items.Add(new MetricItem(MetricAlertKind.Standard, CategoryKind.Framework, $"Assets", await context.Assets.CountAsync(ad => ad.RepositoryId == repositoryId)));
+
+            foreach (var kind in AppHelper.DependencyKinds)
             {
-                items.Add(new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, $"Dependencies", await context.AssetDependencies.CountAsync(ad => ad.AssetId == id)));
-                items.Add(new MetricItem(MetricAlertKind.Standard, CategoryKind.Framework, $"Frameworks", await context.AssetFrameworks.CountAsync(ad => ad.AssetId == id)));
+                items.Add(new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, kind, $"{kind}", await context.AssetDependencies.CountAsync(ad => ad.Asset.RepositoryId == repositoryId && ad.Asset.Kind == kind)));
             }
 
-            if (targetKind == CategoryKind.Dependency)
+            return items;
+        }
+
+        private async Task<IEnumerable<MetricItem>> GetDependencyMetricsAsync(Guid dependencyId)
+        {
+            List<MetricItem> items = new List<MetricItem>();
+
+            items.Add(new MetricItem(MetricAlertKind.Standard, CategoryKind.Framework, $"Assets", await context.AssetDependencies.CountAsync(ad => ad.DependencyId == dependencyId)));
+            items.Add(new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, $"Versions", await context.DependencyVersions.CountAsync(ad => ad.DependencyId == dependencyId)));
+
+            var dependencies = context.AssetDependencies.Where(ad => ad.DependencyId == dependencyId).GroupBy(dv => dv.DependencyVersionId);
+
+            Guid mostId = await dependencies.OrderByDescending(g => g.Count()).Select(g => g.Key).FirstOrDefaultAsync();
+            Guid leastId = await dependencies.OrderBy(g => g.Count()).Select(g => g.Key).FirstOrDefaultAsync();
+
+            var most = await context.DependencyVersions.FindAsync(mostId);
+            var least = await context.DependencyVersions.FindAsync(leastId);
+
+            var latest = await context.DependencyVersions.FirstOrDefaultAsync(dv => dv.DependencyId == dependencyId && dv.IsLatest);
+
+            if (latest != null)
             {
-                items.Add(new MetricItem(MetricAlertKind.Standard, CategoryKind.Framework, $"Assets", await context.AssetDependencies.CountAsync(ad => ad.DependencyId == id)));
-                items.Add(new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, $"Versions", await context.DependencyVersions.CountAsync(ad => ad.DependencyId == id)));
-
-                var dependencies = context.AssetDependencies.Where(ad => ad.DependencyId == id).GroupBy(dv => dv.DependencyVersionId);
-
-                Guid mostId = await dependencies.OrderByDescending(g => g.Count()).Select(g => g.Key).FirstOrDefaultAsync();
-                Guid leastId = await dependencies.OrderBy(g => g.Count()).Select(g => g.Key).FirstOrDefaultAsync();
-
-                var most = await context.DependencyVersions.FindAsync(mostId);
-                var least = await context.DependencyVersions.FindAsync(leastId);
-
-                var latest = await context.DependencyVersions.FirstOrDefaultAsync(dv => dv.DependencyId == id && dv.IsLatest);
-
-                if (latest != null)
-                {
-                    items.Add(new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, $"Latest", latest.Version));
-                }
-
-                if (most != null)
-                {
-                    items.Add(new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, $"Most used", most.Version));
-                }
-                
-                if (least != null)
-                {
-                    items.Add(new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, $"Least used", least.Version));
-                }
+                items.Add(new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, $"Latest", latest.Version));
             }
 
-            if (targetKind == CategoryKind.Repository)
+            if (most != null)
             {
-                items.Add(new MetricItem(MetricAlertKind.Standard, CategoryKind.Framework, $"Assets", await context.Assets.CountAsync(ad => ad.RepositoryId == id)));
-                
-                foreach(var kind in AppHelper.DependencyKinds)
-                {
-                    items.Add(new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, kind, $"{kind}", await context.AssetDependencies.CountAsync(ad => ad.Asset.RepositoryId == id && ad.Asset.Kind == kind)));
-                }
+                items.Add(new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, $"Most used", most.Version));
             }
+
+            if (least != null)
+            {
+                items.Add(new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, $"Least used", least.Version));
+            }
+
+            return items;
+        }
+
+        private async Task<IEnumerable<MetricItem>> GetAssetMetricsAsync(Guid assetId)
+        {
+            List<MetricItem> items = new List<MetricItem>();
+
+            items.Add(new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, $"Dependencies", await context.AssetDependencies.CountAsync(ad => ad.AssetId == assetId)));
+            items.Add(new MetricItem(MetricAlertKind.Standard, CategoryKind.Framework, $"Frameworks", await context.AssetFrameworks.CountAsync(ad => ad.AssetId == assetId)));
 
             return items;
         }
