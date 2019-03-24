@@ -29,7 +29,7 @@
                 </div>
             </div>
             <div class="row mb-4">
-                @foreach (var item in Items.Where(metric => metric.CategoryKind == MetricCategoryKind.Asset))
+                @foreach (var item in Items.Where(metric => metric.CategoryKind == CategoryKind.Asset && metric.DependencyKind.HasValue))
                 {
                     <div class="col-xl-6 col-md-12 mb-4">
                         <MetricCardComponent Item="item" />
@@ -44,7 +44,7 @@
                 </div>
             </div>
             <div class="row mb-4">
-                @foreach (var item in Items.Where(metric => metric.CategoryKind == MetricCategoryKind.Dependency))
+                @foreach (var item in Items.Where(metric => metric.CategoryKind == CategoryKind.Dependency && metric.DependencyKind.HasValue))
                 {
                     <div class="col-xl-6 col-md-12 mb-4">
                         <MetricCardComponent Item="item" />

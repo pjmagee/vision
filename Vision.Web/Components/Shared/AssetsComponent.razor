@@ -29,7 +29,7 @@
             @foreach (var item in Items)
             {
                 <tr>
-                    <td class="@item.Kind.GetIconClass()">
+                    <td class="@item.Kind.GetIconClass() text-center">
                         @SvgService.GetSvg(item.Kind)
                     </td>
                     <td>

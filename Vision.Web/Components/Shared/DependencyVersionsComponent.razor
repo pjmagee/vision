@@ -2,7 +2,7 @@
     <thead>
         <tr>
             <th>Version</th>
-            <th>Latest</th>
+            <th>Is latest</th>
             <th>Assets</th>
         </tr>
     </thead>
@@ -13,7 +13,7 @@
             {
                 <tr>
                     <td><a href="@($"/data/dependencies/{item.DependencyId}/versions/{item.DependencyVersionId}")">@item.Version</a></td>
-                    <td>@item.IsLatest</td>
+                    <td>@item.IsLatest.ToYesNo()</td>
                     <td>@item.Assets</td>
                 </tr>
             }

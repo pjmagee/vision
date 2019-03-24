@@ -37,12 +37,14 @@ https://github.com/aspnet/AspNetCore/issues/5562
 * implement /insights/frameworks/  
 * implement /insights/versions/{vId}  
 
-* implement disabling/ignoring a repository
 * implement when refreshing an entire version control source that any ignored repositories are still persisted and not lost
 * implement ignored repositories have all their assets removed from the system
 
+* Add bar metric for 'On latest (%)'
+
 * reintroduce API controllers for most of the sources
 
+* Add gulp tasks for compiling the SASS (currently using vs code sass compiler plugin)
 * Integration with SonarQube API?
 * Integration tests should use Docker for API integration with: TeamCity, Jenkins & Bitbucket
 * Rename CICD's to Pipelines (Teamcity pipelines, Azure Pipelines, Jenkins Pipelines, etc etc)

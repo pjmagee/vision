@@ -26,7 +26,7 @@
             @foreach (var item in Items)
             {
                 <tr>
-                    <td class="@item.Kind.GetIconClass()">@SvgService.GetSvg(item.Kind)</td>
+                    <td class="@item.Kind.GetIconClass() text-center">@SvgService.GetSvg(item.Kind)</td>
                     <td><a href="@($"/data/dependencies/{item.DependencyId}")">@item.Name</a></td>
                     <td>@item.Assets</td>
                     <td>@item.Versions</td>

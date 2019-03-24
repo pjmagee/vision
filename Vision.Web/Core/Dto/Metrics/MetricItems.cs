@@ -6,7 +6,7 @@
     {
         public IEnumerable<T> Items { get; set; }
 
-        public MetricItems(MetricAlertKind alert, MetricCategoryKind target, string title, IEnumerable<T> items) : base(alert, target, title)
+        public MetricItems(MetricAlertKind alert, CategoryKind target, string title, IEnumerable<T> items) : base(alert, target, title)
         {
             Items = items;
         }

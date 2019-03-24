@@ -8,8 +8,16 @@
                     <div class="h5 mb-0 font-weight-bold text-gray-800">@Item.Value</div>
                 </div>
                 <div class="col-auto">
-                    
-                    <i class="@Item.GetFontAwesomeClass() fa-2x"></i>
+                    @if (Item.DependencyKind.HasValue)
+                    {
+                        <div style="width: 2.5rem; height: 2.5rem; text-align: right;" class="@Item.DependencyKind.Value.GetIconClass()">
+                            @SvgService.GetSvg(Item.DependencyKind.Value)
+                        </div>
+                    }
+                    else
+                    {
+                        <i class="@Item.GetFontAwesomeClass() fa-2x"></i>
+                    }
                 </div>
             </div>
         </div>

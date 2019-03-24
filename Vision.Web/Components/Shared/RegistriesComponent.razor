@@ -17,13 +17,13 @@
             @foreach (var item in Items)
             {
                 <tr>
-                    <td class="@item.Kind.GetIconClass()">@SvgService.GetSvg(item.Kind)</td>
+                    <td class="@item.Kind.GetIconClass() text-center">@SvgService.GetSvg(item.Kind)</td>
                     <td><a href="@($"/data/registries/{item.RegistryId}")">@item.Endpoint</a></td>
-                    <td>@item.IsPublic</td>
-                    <td>@item.IsEnabled</td>
-                    <td title="@item.ApiKey">@(string.IsNullOrWhiteSpace(item.ApiKey) ? "Empty" : "Set")</td>
-                    <td title="@item.Username">@(string.IsNullOrWhiteSpace(item.Username) ? "Empty" : "Set")</td>
-                    <td title="@item.Password">@(string.IsNullOrWhiteSpace(item.Password) ? "Empty" : "Set")</td>
+                    <td>@item.IsPublic.ToYesNo()</td>
+                    <td>@item.IsEnabled.ToYesNo()</td>
+                    <td title="@item.ApiKey">@item.ApiKey.ToYesNo()</td>
+                    <td title="@item.Username">@item.ApiKey.ToYesNo()</td>
+                    <td title="@item.Password">@item.ApiKey.ToYesNo()</td>
                     <td>
                         <a href="@($"/sources/edit/registries/{item.RegistryId}")">Edit</a>
                     </td>

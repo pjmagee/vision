@@ -30,19 +30,19 @@ else
     {
         if (VersionControlId.HasValue)
         {
-            Items = await MetricService.GetMetricsAsync(VersionControlId.Value, MetricCategoryKind.VersionControl);
+            Items = await MetricService.GetMetricsAsync(VersionControlId.Value, CategoryKind.VersionControl);
         }
         else if(RepositoryId.HasValue)
         {
-            Items = await MetricService.GetMetricsAsync(RepositoryId.Value, MetricCategoryKind.Repository);
+            Items = await MetricService.GetMetricsAsync(RepositoryId.Value, CategoryKind.Repository);
         }
         else if(AssetId.HasValue)
         {
-            Items = await MetricService.GetMetricsAsync(AssetId.Value, MetricCategoryKind.Asset);
+            Items = await MetricService.GetMetricsAsync(AssetId.Value, CategoryKind.Asset);
         }
         else if(DependencyId.HasValue)
         {
-            Items = await MetricService.GetMetricsAsync(DependencyId.Value, MetricCategoryKind.Dependency);
+            Items = await MetricService.GetMetricsAsync(DependencyId.Value, CategoryKind.Dependency);
         }
     }
 }

@@ -1,12 +1,10 @@
-﻿namespace Vision.Web.Core
+﻿using System;
+
+namespace Vision.Web.Core
 {
     public static class CssClassExtensions
     {
-        public static string GetIconClass(this CiCdKind kind) => $"icon {kind.ToString()}";
-        public static string GetIconClass(this MetricCategoryKind kind) => $"icon {kind.ToString()}";
-        public static string GetIconClass(this DependencyKind kind) => $"icon {kind.ToString()}";
-        public static string GetIconClass(this MetricAlertKind kind) => $"icon {kind.ToString()}";
-        public static string GetIconClass(this VersionControlKind kind) => $"icon {kind.ToString()}";
+        public static string GetIconClass(this Enum kind) => $"icon {kind.ToString().ToLower()}";
 
         public static string GetMetricColour(this MetricAlertKind kind) => kind switch
         {
@@ -30,18 +28,18 @@
             metric.DependencyKind.Value.GetFontAwesomeClass() : 
             metric.CategoryKind.GetFontAwesomeClass();
 
-        private static string GetFontAwesomeClass(this MetricCategoryKind kind) => kind switch
+        private static string GetFontAwesomeClass(this CategoryKind kind) => kind switch
         {
-            MetricCategoryKind.Asset => Regular("fa-file-code"),
-            MetricCategoryKind.CiCd => Solid("fa-cogs"),
-            MetricCategoryKind.Data => Regular("fa-data"),
-            MetricCategoryKind.Source => Solid("fa-code-branch"),
-            MetricCategoryKind.VersionControl => Solid("fa-code-branch"),
-            MetricCategoryKind.Repository => Regular("fa-code-branch"),
-            MetricCategoryKind.Dependency => Regular("fa-file-archive"),
-            MetricCategoryKind.Framework => Solid("fa-cubes"),
-            MetricCategoryKind.Registry => Solid("fa-archive"),
-            MetricCategoryKind.Version => Regular("fa-copy"),
+            CategoryKind.Asset => Regular("fa-file-code"),
+            CategoryKind.CiCd => Solid("fa-cogs"),
+            CategoryKind.Data => Regular("fa-data"),
+            CategoryKind.Source => Solid("fa-code-branch"),
+            CategoryKind.VersionControl => Solid("fa-server"),
+            CategoryKind.Repository => Solid("fa-code-branch"),
+            CategoryKind.Dependency => Regular("fa-file-archive"),
+            CategoryKind.Framework => Solid("fa-cubes"),
+            CategoryKind.Registry => Solid("fa-server"),
+            CategoryKind.Version => Regular("fa-copy"),
             _ => string.Empty
         };
 

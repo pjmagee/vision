@@ -1,6 +1,6 @@
 ﻿namespace Vision.Web.Core
 {
-    public enum MetricCategoryKind
+    public enum CategoryKind
     {        
         Source,
         Data,

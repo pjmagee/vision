@@ -3,8 +3,18 @@
     using System;
     using System.Linq;
 
+    public static class BooleanExtensions
+    {
+        public static string ToYesNo(this bool value) => value ? "Yes" : "No";
+
+        public static string ToYesNo(this bool? value) => value.GetValueOrDefault().ToYesNo();
+    }
+    
+
     public static class StringExtensions
     {
+        public static string ToYesNo(this string value) => string.IsNullOrWhiteSpace(value) ? "No" : "Yes";
+
         public static DependencyKind GetDependencyKind(this string path)
         {
             return AppHelper.DependencyKinds.Single(kind => path.EndsWith(kind.GetFileExtension(), StringComparison.CurrentCultureIgnoreCase));            

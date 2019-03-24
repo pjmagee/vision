@@ -15,10 +15,10 @@
             @foreach (var item in Items)
             {
                 <tr>
-                    <td class="@item.Kind.GetIconClass()">@SvgService.GetSvg(item.Kind)</td>
+                    <td class="@item.Kind.GetIconClass() text-center">@SvgService.GetSvg(item.Kind)</td>
                     <td><a href="@($"/data/vcs/{item.VersionControlId}")">@item.Endpoint</a></td>
                     <td>@item.ApiKey</td>
-                    <th>@(item.IsEnabled ? "Yes" : "No")</th>
+                    <th>@(item.IsEnabled.ToYesNo())</th>
                     <td>@item.Repositories</td>
                     <td>
                         <a href="@($"/sources/edit/vcs/{item.VersionControlId}")">Edit</a>

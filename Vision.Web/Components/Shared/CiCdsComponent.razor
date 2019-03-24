@@ -3,11 +3,11 @@
         <tr>
             <th>Kind</th>
             <th>Endpoint</th>
-            <th>ApiKey (Encrypted)</th>
-            <th>Username (Encrypted)</th>
-            <th>Password (Encrypted)</th>
+            <th>Api key</th>
+            <th>Username</th>
+            <th>Password</th>
             <th>Enabled</th>
-            <th>Guest Enabled</th>
+            <th>Guest enabled</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -17,13 +17,13 @@
             @foreach (var item in Items)
             {
                 <tr>
-                    <td class="@item.Kind.GetIconClass()">@SvgService.GetSvg(item.Kind)</td>
+                    <td class="@item.Kind.GetIconClass() text-center">@SvgService.GetSvg(item.Kind)</td>
                     <td>@item.Endpoint</td>
-                    <td title="@item.ApiKey">@(string.IsNullOrWhiteSpace(item.ApiKey) ? "Empty" : "Set")</td>
-                    <td title="@item.Username">@(string.IsNullOrWhiteSpace(item.Username) ? "Empty" : "Set")</td>
-                    <td title="@item.Password">@(string.IsNullOrWhiteSpace(item.Password) ? "Empty" : "Set")</td>
-                    <th>@(item.IsEnabled ? "Enabled" : "Disabled")</th>
-                    <th>@(item.IsGuestEnabled ? "Enabled" : "Disabled")</th>
+                    <td>@item.ApiKey.ToYesNo()</td>
+                    <td>@item.ApiKey.ToYesNo()</td>
+                    <td>@item.ApiKey.ToYesNo()</td>
+                    <th>@item.IsEnabled.ToYesNo()</th>
+                    <th>@item.IsGuestEnabled.ToYesNo()</th>
                     <td>
                         <a href="@($"/sources/edit/cicds/{item.CiCdId}")">Edit</a>
                     </td>

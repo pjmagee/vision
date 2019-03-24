@@ -1,100 +1,45 @@
-﻿td {
-    &.icon {
-        text-align: center;
-
-        svg {
-            height: 2.5rem;
-            width: 2.5rem;
-        }
-
-        &.Teamcity {
-            svg {
-                // None
-            }
-        }
-
-        &.VueJs svg {
-            svg {
-                fill: #4FC08D;
-            }
-        }
-
-        &.DotNet {
-            svg {
-                fill: #5C2D91;
-            }
-        }
-
-        &.Angular {
-            svg {
-                fill: #DD0031;
-            }
-        }
-
-        &.Docker {
-            svg {
-                fill: #1488C6;
-            }
-        }
-
-        &.Jenkins {
-            svg {
-                // fill: #D24939;                
-            }
-        }
-
-        &.Gitlab {
-            svg {
-                fill: #E24329;
-            }
-        }
-
-        &.Github {
-            svg {
-                fill: #181717;
-            }
-        }
-
-        &.Bitbucket {
-            svg {
-                fill: #2684ff;
-            }
-        }
-
-        &.Maven {
-            svg {
-                fill: #FF9811;
-            }
-        }
-
-        &.Gradle {
-            svg {
-                fill: #007396;
-            }
-        }
-
-        &.RubyGem {
-            svg {
-                fill: #CC342D;
-            }
-        }
-
-        &.PyPi {
-            svg {
-                fill: #3776AB;
-            }
-        }
-
-        &.NuGet {
-            svg {
-                fill: #004880;
-            }
-        }
-
-        &.Npm {
-            svg {
-                fill: #CB3837;
-            }
-        }
+﻿.icon {
+    svg {
+        height: 2.5rem;
+        width: 2.5rem;
+    }
+    &.vuejs svg {
+        fill: #4fc08d;
+    }
+    &.dotnet svg {
+        fill: #5c2d91;
+    }
+    &.angular svg {
+        fill: #dd0031;
+    }
+    &.docker svg {
+        fill: #1488c6;
+    }
+    &.gitlab svg {
+        fill: #e24329;
+    }
+    &.github svg {
+        fill: #181717;
+    }
+    &.bitbucket svg {
+        fill: #2684ff;
+    }
+    &.maven svg {
+        fill: #ff9811;
+    }
+    &.gradle svg {
+        fill: #007396;
+    }
+    &.rubygem svg {
+        fill: #cc342d;
+    }
+    &.pypi svg {
+        fill: #3776ab;
+    }
+    &.nuget svg {
+        fill: #004880;
+    }
+    &.npm svg {
+        fill: #cb3837;
     }
 }
