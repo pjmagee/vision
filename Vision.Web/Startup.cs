@@ -12,6 +12,7 @@ using NSwag;
 
 namespace Vision.Web
 {
+
     public class Startup
     {
         private readonly IConfiguration configuration;
@@ -22,31 +23,11 @@ namespace Vision.Web
         {
             services.AddDataProtection();
             services.AddMemoryCache();
-
-            services
-                .AddDbContext<VisionDbContext>(options => options
-                    .UseLazyLoadingProxies(useLazyLoadingProxies: true)                    
-                    .UseSqlServer(configuration["ConnectionStrings:Home"])
-                    .ConfigureWarnings(warnings =>
-                            warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)),
-                            ServiceLifetime.Transient,
-                            ServiceLifetime.Transient);
-
             services.AddSignalR();
             services.AddRazorComponents();
-            services.AddMvc().AddNewtonsoftJson();                    
+            services.AddMvc().AddNewtonsoftJson();
 
-            RegisterVersionControlServices(services);
-            RegisterAssetServices(services);
-            RegisterDependencyServices(services);
-            RegisterCiCdServices(services);
-            RegisterRazorComponentServices(services);
-
-            services.AddSingleton<IEncryptionService, EncryptionService>();
-            services.AddScoped<FakeDataGenerator>();
-            services.AddScoped<IMetricService, MetricService>();
-
-            RegisterRefreshServices(services);
+            services.AddVisionServices(configuration);
 
             services.AddCors(options => options.AddPolicy("CorsPolicy", builder => builder.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin()));
 
@@ -72,68 +53,7 @@ namespace Vision.Web
                 };
             });
         }
-
-        private static void RegisterRefreshServices(IServiceCollection services)
-        {
-            services.AddScoped<ISystemTaskService, SystemTaskService>();            
-            services.AddScoped<IRefreshService, RefreshService>();
-            services.AddHostedService<BackgroundSystemRefreshMonitor>();
-        }
-
-        private static void RegisterRazorComponentServices(IServiceCollection services)
-        {
-            services.AddScoped<SvgService>();
-            services.AddScoped<NavigationService>();
-        }
-
-        private static void RegisterCiCdServices(IServiceCollection services)
-        {
-            services.AddScoped<ICiCdService, CiCdService>();
-
-            services.AddScoped<ICiCdProvider, TeamCityProvider>();
-            services.AddScoped<ICiCdProvider, JenkinsProvider>();
-
-            services.AddScoped<IAggregateCICDBuildsProvider, AggregateCICDBuildsProvider>();
-        }
-
-        private static void RegisterDependencyServices(IServiceCollection services)
-        {
-            services.AddScoped<IRegistryService, RegistryService>();
-            services.AddScoped<IDependencyVersionService, DependencyVersionService>();
-            services.AddScoped<IDependencyService, DependencyService>();
-
-            services.AddScoped<IDependencyVersionProvider, NuGetVersionProvider>();
-            services.AddScoped<IDependencyVersionProvider, DockerVersionProvider>();
-            services.AddScoped<IDependencyVersionProvider, NpmVersionProvider>();
-            // services.AddScoped<IDependencyVersionProvider, PyPiVersionProvider>();
-
-            services.AddScoped<IAggregateDependencyVersionProvider, AggregateDependencyVersionProvider>();
-        }
-        
-        private static void RegisterAssetServices(IServiceCollection services)
-        {
-            services.AddScoped<IFrameworkService, FrameworkService>();
-            services.AddScoped<IAssetService, AssetService>();
-            services.AddScoped<IAssetDependencyService, AssetDependencyService>();
-
-            services.AddScoped<IAssetExtractor, NpmAssetExtractor>();
-            services.AddScoped<IAssetExtractor, NuGetAssetExtractor>();
-            services.AddScoped<IAssetExtractor, DockerAssetExtractor>();
-            // services.AddScoped<IAssetExtractor, PyPiAssetExtractor>();
-
-            services.AddScoped<IAggregateAssetExtractor, AggregateAssetExtractor>();
-        }
-
-        private static void RegisterVersionControlServices(IServiceCollection services)
-        {
-            services.AddScoped<IVersionControlService, VersionControlService>();
-            services.AddScoped<IRepositoryService, RepositoryService>();
-            services.AddScoped<IRepositoryMatcher, RepositoryMatcher>();
-
-            services.AddScoped<IVersionControlProvider, BitBucketProvider>();
-            services.AddScoped<IVersionControlProvider, GitlabProvider>();
-            services.AddScoped<IAggregateVersionControlProvider, AggregateVersionControlProvider>();
-        }
+               
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {           
