@@ -1,7 +1,5 @@
 ﻿namespace Vision.Tests
 {
-    using Microsoft.AspNetCore.DataProtection;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using NSubstitute;
     using System;
@@ -9,15 +7,12 @@
     using Vision.Web.Core;
     using Xunit;
 
-    public class DockerVersionProviderTests : IDisposable
+    public class DockerVersionProviderTests
     {
         private readonly DockerVersionProvider sut;
-        private readonly VisionDbContext context;
 
         public DockerVersionProviderTests()
         {
-            var options = new DbContextOptionsBuilder<VisionDbContext>().UseInMemoryDatabase("Registries").Options;
-            context = new VisionDbContext(options);
             sut = new DockerVersionProvider(Substitute.For<ILogger<DockerVersionProvider>>());
         }        
 
@@ -36,7 +31,5 @@
             // assert
             Assert.Equal(expected, latest.Version);
         }
-
-        public void Dispose() => context?.Dispose();
     }
 }

@@ -15,27 +15,12 @@
 
         public DependencyServiceTests()
         {
-            context = new VisionDbContext(new DbContextOptionsBuilder<VisionDbContext>().UseInMemoryDatabase("DependencyServiceTests").Options);
+            context = new VisionDbContext(new DbContextOptionsBuilder<VisionDbContext>().UseInMemoryDatabase(nameof(DependencyServiceTests)).Options);
             sut = new DependencyService(context, Substitute.For<IAggregateAssetExtractor>());
         }
 
         [Fact]
-        public async Task GetByKindsAsyncTest()
-        {
-            // Arrange
-            context.Dependencies.AddRange(new Dependency { Name = "1", Kind = DependencyKind.Docker }, new Dependency { Name = "2", Kind = DependencyKind.Docker });
-            await context.SaveChangesAsync();
-
-            // Act
-            IPaginatedList<DependencyDto> result = await sut.GetAsync(new[] { DependencyKind.Docker }, search: null);
-
-            // Assert
-            result[0].Name = "1";
-            result[1].Name = "2";
-        }
-
-        [Fact]
-        public async Task GetAsyncTest()
+        public async Task GetAsync()
         {
             // Arrange
             context.Dependencies.AddRange(new Dependency { Name = "1", Kind = DependencyKind.Docker }, new Dependency { Name = "2", Kind = DependencyKind.Docker });
@@ -54,6 +39,27 @@
 
             Assert.Equal("2", result[1].Name);
             Assert.Equal(DependencyKind.Docker, result[1].Kind);
+        }
+
+        [Fact]
+        public async Task GetByRepositoryIdAsync()
+        {
+            // TODO
+            IPaginatedList<DependencyDto> result = await sut.GetByRepositoryIdAsync(Guid.Empty, Enumerable.Empty<DependencyKind>(), search: "", pageIndex: 1, pageSize: 1);
+        }
+
+        [Fact]
+        public async Task GetByAssetIdAsync()
+        {
+            // TODO
+            IPaginatedList<DependencyDto> result = await sut.GetByAssetIdAsync(Guid.Empty, Enumerable.Empty<DependencyKind>(), search: "", pageIndex: 1, pageSize: 1);
+        }
+
+        [Fact]
+        public async Task GetByIdAsync()
+        {
+            // TODO
+            DependencyDto result = await sut.GetByIdAsync(Guid.Empty);
         }
 
         public void Dispose()

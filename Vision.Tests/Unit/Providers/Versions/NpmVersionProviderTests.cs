@@ -1,24 +1,17 @@
 ﻿namespace Vision.Tests
 {
-    using Microsoft.AspNetCore.DataProtection;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using NSubstitute;
-    using System;
     using System.Threading.Tasks;
     using Vision.Web.Core;
     using Xunit;
 
-    public class NpmVersionProviderTests : IDisposable
+    public class NpmVersionProviderTests
     {
         private readonly NpmVersionProvider sut;
-        private readonly DbContextOptions<VisionDbContext> options;
-        private readonly VisionDbContext context;
 
         public NpmVersionProviderTests()
         {
-            options = new DbContextOptionsBuilder<VisionDbContext>().UseInMemoryDatabase("Registries").Options;
-            context = new VisionDbContext(options);
             sut = new NpmVersionProvider(Substitute.For<ILogger<NpmVersionProvider>>());
         }
 
@@ -36,7 +29,5 @@
             // assert
             Assert.Equal(expected, latest.Version);
         }
-
-        public void Dispose() => context?.Dispose();
     }
 }

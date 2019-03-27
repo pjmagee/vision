@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Vision.Web.Core;
 using Xunit;
@@ -9,13 +8,10 @@ namespace Vision.Tests.Unit.Pipelines
     public class TeamCityProviderTests
     {
         private readonly TeamCityProvider sut;
-        private readonly VisionDbContext context;
         private readonly RepositoryMatcher repositoryMatcher;
 
         public TeamCityProviderTests()
         {
-            var options = new DbContextOptionsBuilder<VisionDbContext>().UseInMemoryDatabase("TeamCity").UseLazyLoadingProxies().Options;
-            context = new VisionDbContext(options);
             repositoryMatcher = new RepositoryMatcher(Substitute.For<ILogger<RepositoryMatcher>>());
             sut = new TeamCityProvider(repositoryMatcher, Substitute.For<ILogger<TeamCityProvider>>());
         }

@@ -1,7 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
+﻿using Microsoft.Extensions.Logging;
+using NSubstitute;
 using Vision.Web.Core;
 using Xunit;
 
@@ -10,15 +8,12 @@ namespace Vision.Tests.Unit.Pipelines
     public class JenkinsProviderTests
     {
         private readonly JenkinsProvider sut;
-        private readonly VisionDbContext context;
         private readonly RepositoryMatcher repositoryMatcher;
 
         public JenkinsProviderTests()
         {
-            var options = new DbContextOptionsBuilder<VisionDbContext>().UseInMemoryDatabase("Jenkins").UseLazyLoadingProxies().Options;
-            context = new VisionDbContext(options);
-            repositoryMatcher = new RepositoryMatcher(new LoggerFactory().CreateLogger<RepositoryMatcher>());
-            sut = new JenkinsProvider(repositoryMatcher, new LoggerFactory().CreateLogger<JenkinsProvider>());
+            repositoryMatcher = new RepositoryMatcher(Substitute.For<ILogger<RepositoryMatcher>>());
+            sut = new JenkinsProvider(repositoryMatcher, Substitute.For<ILogger<JenkinsProvider>>());
         }
 
         [Theory]        
@@ -31,7 +26,7 @@ namespace Vision.Tests.Unit.Pipelines
         }
 
         [Fact]
-        public async void Test()
+        public void Test()
         {
             
         }
