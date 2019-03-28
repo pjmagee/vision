@@ -31,7 +31,7 @@ namespace Vision.Web
 
             services.AddCors(options => options.AddPolicy("CorsPolicy", builder => builder.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin()));
 
-            services.AddSwaggerDocument(config =>
+            services.AddOpenApiDocument(config =>
             {
                 config.PostProcess = document =>
                 {
@@ -52,6 +52,8 @@ namespace Vision.Web
                     };
                 };
             });
+
+            
         }
                
 

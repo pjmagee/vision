@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using Vision.Web.Core;
 
 namespace Vision.Web
@@ -10,14 +11,13 @@ namespace Vision.Web
     {
         public static IServiceCollection AddVisionServices(this IServiceCollection services, IConfiguration configuration)
         {
+            var connectionString = Environment.OSVersion.Platform == PlatformID.Unix ? configuration["ConnectionStrings:Docker"] : configuration["ConnectionStrings:Home"];
+
             services
                 .AddDbContext<VisionDbContext>(options => options
                     .UseLazyLoadingProxies(useLazyLoadingProxies: true)
-                    .UseSqlServer(configuration["ConnectionStrings:Home"])
-                    .ConfigureWarnings(warnings =>
-                            warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)),
-                            ServiceLifetime.Transient,
-                            ServiceLifetime.Transient);
+                    .UseSqlServer(connectionString)
+                    .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)), ServiceLifetime.Transient, ServiceLifetime.Transient);
             
             services
                 .RegisterVersionControlServices()

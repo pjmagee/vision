@@ -77,7 +77,7 @@
             })
             .OrderByDescending(r => r.Assets);
 
-            return await PaginatedList<RepositoryDto>.CreateAsync(paging, pageIndex, pageSize);
+            return await PaginatedList<RepositoryDto>.CreateAsync(paging.AsNoTracking(), pageIndex, pageSize);
         }
 
         public async Task<IPaginatedList<RepositoryDto>> GetByVersionControlIdAsync(Guid versionControlId, bool showIgnored, string search, int pageIndex = 1, int pageSize = 10)
@@ -100,7 +100,7 @@
             })
             .OrderByDescending(r => r.Assets);
 
-            return await PaginatedList<RepositoryDto>.CreateAsync(paging, pageIndex, pageSize);
+            return await PaginatedList<RepositoryDto>.CreateAsync(paging.AsNoTracking(), pageIndex, pageSize);
         }
 
         public async Task<IPaginatedList<RepositoryDto>> GetByFrameworkIdAsync(Guid frameworkId, bool showIgnored, string search, int pageIndex = 1, int pageSize = 10)
@@ -121,7 +121,7 @@
                 })
                 .OrderByDescending(r => r.Assets);
 
-            return await PaginatedList<RepositoryDto>.CreateAsync(query, pageIndex, pageSize);
+            return await PaginatedList<RepositoryDto>.CreateAsync(query.AsNoTracking(), pageIndex, pageSize);
         }
     }
 }

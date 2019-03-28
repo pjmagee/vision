@@ -57,7 +57,7 @@
             .OrderByDescending(d => d.Assets)
             .ThenByDescending(d => d.Versions);
 
-            return await PaginatedList<DependencyDto>.CreateAsync(paging, pageIndex, pageSize);
+            return await PaginatedList<DependencyDto>.CreateAsync(paging.AsNoTracking(), pageIndex, pageSize);
         }
 
         public async Task<IPaginatedList<DependencyDto>> GetByRepositoryIdAsync(Guid repositoryId, IEnumerable<DependencyKind> kinds, string search, int pageIndex = 1, int pageSize = 10)
@@ -91,7 +91,7 @@
             .OrderByDescending(d => d.Assets)
             .ThenByDescending(d => d.Versions);
 
-            return await PaginatedList<DependencyDto>.CreateAsync(paging, pageIndex, pageSize);
+            return await PaginatedList<DependencyDto>.CreateAsync(paging.AsNoTracking(), pageIndex, pageSize);
         }
 
         public async Task<IPaginatedList<DependencyDto>> GetByAssetIdAsync(Guid id, IEnumerable<DependencyKind> kinds, string search, int pageIndex = 1, int pageSize = 10)
@@ -124,7 +124,7 @@
             .OrderByDescending(d => d.Assets)
             .ThenByDescending(d => d.Versions);
 
-            return await PaginatedList<DependencyDto>.CreateAsync(paging, pageIndex, pageSize);
+            return await PaginatedList<DependencyDto>.CreateAsync(paging.AsNoTracking(), pageIndex, pageSize);
         }
     }
 }

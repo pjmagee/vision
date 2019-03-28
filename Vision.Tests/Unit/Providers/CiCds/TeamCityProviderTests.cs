@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
+using System.Net.Http;
 using Vision.Web.Core;
 using Xunit;
 
@@ -13,7 +15,7 @@ namespace Vision.Tests.Unit.Pipelines
         public TeamCityProviderTests()
         {
             repositoryMatcher = new RepositoryMatcher(Substitute.For<ILogger<RepositoryMatcher>>());
-            sut = new TeamCityProvider(repositoryMatcher, Substitute.For<ILogger<TeamCityProvider>>());
+            sut = new TeamCityProvider(repositoryMatcher, Substitute.For<ILogger<TeamCityProvider>>(), Substitute.For<IMemoryCache>());
         }
 
         [Theory]

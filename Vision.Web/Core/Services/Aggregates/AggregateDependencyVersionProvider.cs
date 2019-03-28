@@ -11,6 +11,7 @@ namespace Vision.Web.Core
     {
         private readonly IEnumerable<IDependencyVersionProvider> providers;
         private readonly IRegistryService registryService;
+        private readonly IEncryptionService encryptionService;
         private readonly IMemoryCache cache;
         private readonly ILogger<AggregateDependencyVersionProvider> logger;
 
@@ -22,6 +23,7 @@ namespace Vision.Web.Core
             ILogger<AggregateDependencyVersionProvider> logger)
         {
             this.registryService = registryService;
+            this.encryptionService = encryptionService;
             this.cache = cache;
             this.logger = logger;
             this.providers = providers;
@@ -43,6 +45,12 @@ namespace Vision.Web.Core
         private async Task<DependencyVersion> GetVersionByProviders(Dependency dependency)
         {
             List<RegistryDto> registries = await registryService.GetEnabledByKindAsync(dependency.Kind);
+
+            foreach(var registry in registries)
+            {
+                encryptionService.Decrypt(registry);
+            }
+
             DependencyVersion version = null;
 
             foreach (IDependencyVersionProvider service in providers.Where(service => service.Supports(dependency.Kind)))
@@ -52,6 +60,8 @@ namespace Vision.Web.Core
                     try
                     {
                         version = await GetVersionByProviderAndRegistry(dependency, service, registry);
+
+                        if (version != null) break;
                     }
                     catch (Exception e)
                     {

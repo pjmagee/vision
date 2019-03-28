@@ -1,18 +1,14 @@
 version: '3.4'
 
 services:
-  teamcity:
-    image: jetbrains/teamcity-server
+  vision.web:
+    build:
+      context: .
+      dockerfile: Vision.Web/Dockerfile
+  db:
+    image: mcr.microsoft.com/mssql/server:2017-latest
     ports:
-      - 8111:8111
-  jenkins:
-    image: jenkins/jenkins
-    ports:
-      - 8080:8080
-      - 50000:50000
-  gitlab:
-    image: gitlab/gitlab-ce:latest
-    ports:
-      - 443:443
-      - 80:80
-      - 22:22
+      - 1433:1433
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "P4ssw0rd1!"

@@ -1,5 +1,6 @@
 ﻿namespace Vision.Web.Core
 {
+    using Microsoft.EntityFrameworkCore;
     using System;
     using System.Linq;
     using System.Threading.Tasks;
@@ -31,7 +32,7 @@
                     VersionControlId = assetDependency.Asset.Repository.VersionControlId
                 });
 
-            return await PaginatedList<AssetDependencyDto>.CreateAsync(query, pageIndex, pageSize);
+            return await PaginatedList<AssetDependencyDto>.CreateAsync(query.AsNoTracking(), pageIndex, pageSize);
         }
 
         public async Task<IPaginatedList<AssetDependencyDto>> GetByDependencyIdAsync(Guid dependencyId, int pageIndex = 1, int pageSize = 10)
@@ -52,7 +53,7 @@
                     VersionControlId = assetDependency.Asset.Repository.VersionControlId
                 });
 
-            return await PaginatedList<AssetDependencyDto>.CreateAsync(query, pageIndex, pageSize);
+            return await PaginatedList<AssetDependencyDto>.CreateAsync(query.AsNoTracking(), pageIndex, pageSize);
         }
     }
 }

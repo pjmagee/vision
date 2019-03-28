@@ -1,8 +1,8 @@
-FROM microsoft/dotnet:3.0-aspnetcore-runtime-stretch-slim AS base
+FROM # FIND PREVIEW3 RUNTIME IMAGE
 WORKDIR /app
 EXPOSE 80
 
-FROM microsoft/dotnet:3.0-sdk-stretch AS build
+FROM # FIND PREVIEW3 SDK IMAGE
 WORKDIR /src
 COPY ["Vision.Web/Vision.Web.csproj", "Vision.Web/"]
 RUN dotnet restore "Vision.Web/Vision.Web.csproj"

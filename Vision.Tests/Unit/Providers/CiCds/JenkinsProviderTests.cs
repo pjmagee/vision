@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
+using System.Net.Http;
 using Vision.Web.Core;
 using Xunit;
 
@@ -13,7 +15,7 @@ namespace Vision.Tests.Unit.Pipelines
         public JenkinsProviderTests()
         {
             repositoryMatcher = new RepositoryMatcher(Substitute.For<ILogger<RepositoryMatcher>>());
-            sut = new JenkinsProvider(repositoryMatcher, Substitute.For<ILogger<JenkinsProvider>>());
+            sut = new JenkinsProvider(repositoryMatcher, Substitute.For<ILogger<JenkinsProvider>>(), Substitute.For<IMemoryCache>());
         }
 
         [Theory]        

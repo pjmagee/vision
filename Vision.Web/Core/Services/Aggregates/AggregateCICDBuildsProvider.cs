@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
@@ -44,14 +44,17 @@ namespace Vision.Web.Core
 
                     IPaginatedList<CiCdDto> cicds = await ciCdService.GetAsync(pageIndex: 1, pageSize: 1000);
 
+                    foreach(var cicd in cicds)
+                    {
+                        encryption.Decrypt(cicd);
+                    }
+
                     foreach (ICiCdProvider provider in providers)
                     {
-                        foreach (CiCdDto cicd in cicds)
+                        foreach (CiCdDto cicd in cicds.Where(cicd => provider.Supports(cicd.Kind)))
                         {
                             try
                             {
-                                encryption.Decrypt(cicd);
-
                                 List<CiCdBuildDto> results = await provider.GetBuildsAsync(repository, cicd);
                                 builds.AddRange(results);
                             }
@@ -62,16 +65,9 @@ namespace Vision.Web.Core
                         }
                     }
 
-                    if (builds.Count == 0)
-                    {
-                        logger.LogInformation($"{nameof(GetBuildsByRepositoryIdAsync)}::[{repository.WebUrl}]::CICD::SEARCH::FAIL");
-                    }
-                    else
-                    {
-                        logger.LogInformation($"{nameof(GetBuildsByRepositoryIdAsync)}::[{repository.WebUrl}]::CICD::SEARCH::SUCCESS::[{builds.Count}]");
-                    }
+                    logger.LogInformation($"{nameof(GetBuildsByRepositoryIdAsync)}::[{repository.WebUrl}]::CICD::SEARCH::RESULTS::[{builds.Count}]");
 
-                    cache.Set(repositoryId, builds, absoluteExpiration: DateTimeOffset.Now.AddHours(24));
+                    cache.Set(repositoryId, builds, absoluteExpiration: DateTimeOffset.Now.AddHours(2));
                 }
 
                 return await Task.FromResult(builds);

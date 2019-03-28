@@ -10,10 +10,10 @@
         private readonly VisionDbContext context;
         private readonly IEncryptionService encryptionService;
 
-        public VersionControlService(VisionDbContext context, IEncryptionService encryption)
+        public VersionControlService(VisionDbContext context, IEncryptionService encryptionService)
         {
             this.context = context;
-            this.encryptionService = encryption;
+            this.encryptionService = encryptionService;
         }
 
         public async Task<IPaginatedList<VersionControlDto>> GetAsync(int pageIndex = 1, int pageSize = 10)
@@ -29,7 +29,7 @@
             })
             .OrderByDescending(vcs => vcs.Repositories);
 
-            return await PaginatedList<VersionControlDto>.CreateAsync(query, pageIndex, pageSize);
+            return await PaginatedList<VersionControlDto>.CreateAsync(query.AsNoTracking(), pageIndex, pageSize);
         }
 
         public async Task<VersionControlDto> CreateVersionControl(VersionControlDto dto)

@@ -2,20 +2,6 @@
 
 namespace Vision.Web.Core
 {
-    public interface IEncryptionService
-    {
-        string Encrypt(string text);
-        string Decrypt(string text);
-
-        void Encrypt(VersionControlDto versionControl);
-        void Decrypt(VersionControlDto versionControl);
-
-        void Encrypt(CiCdDto cicd);
-        void Decrypt(CiCdDto cicd);
-
-        void Encrypt(RegistryDto registry);
-        void Decrypt(RegistryDto registry);
-    }
 
     public class EncryptionService : IEncryptionService
     {
@@ -23,7 +9,7 @@ namespace Vision.Web.Core
 
         public EncryptionService(IDataProtectionProvider provider)
         {
-            protector = provider.CreateProtector("Encryption");
+            protector = provider.CreateProtector(purpose: "Encryption");
         }
 
         public void Decrypt(VersionControlDto versionControl)

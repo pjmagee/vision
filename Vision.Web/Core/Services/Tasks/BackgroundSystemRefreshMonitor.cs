@@ -39,8 +39,20 @@
 
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    await HandleRefreshTasks(taskService, context);
-                    await HandleRepositoryCleaning(context);
+                    using (var transaction = await context.Database.BeginTransactionAsync())
+                    {
+                        try
+                        {
+                            await HandleRefreshTasks(taskService, context);
+                            await HandleRepositoryCleaning(context);
+                            transaction.Commit();
+                        }
+                        catch (Exception e)
+                        {
+                            transaction.Rollback();
+                        }
+                    }
+
                     await Task.Delay(TimeSpan.FromSeconds(10));
                 }
 
