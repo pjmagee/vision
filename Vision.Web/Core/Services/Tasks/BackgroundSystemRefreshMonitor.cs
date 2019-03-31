@@ -1,12 +1,10 @@
 ﻿namespace Vision.Web.Core
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Storage;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
@@ -66,7 +64,7 @@
             {
                 if (await context.Assets.AnyAsync(a => a.RepositoryId == repository.Id))
                 {
-                    logger.LogInformation($"Removing repository assocated  from repository {repository.Id}");
+                    logger.LogInformation($"Removing repository assocated from repository {repository.Id}");
                     context.AssetFrameworks.RemoveRange(context.AssetFrameworks.Where(af => af.Asset.Repository == repository));
                     context.Assets.RemoveRange(context.Assets.Where(asset => asset.RepositoryId == repository.Id));                    
                     await context.SaveChangesAsync();

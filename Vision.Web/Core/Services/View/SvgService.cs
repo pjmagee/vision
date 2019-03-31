@@ -10,48 +10,39 @@
     public class SvgService
     {
         private readonly Dictionary<string, MarkupString> svgs = new Dictionary<string, MarkupString>();
-        private readonly MarkupString Empty = new MarkupString();           
+        private readonly MarkupString Empty = new MarkupString();
 
-        public MarkupString GetSvg(DependencyKind kind)
+        public MarkupString GetSvg(DependencyKind kind) => kind switch
         {
-            return kind switch
-            {
-                DependencyKind.Docker => svgs["docker"],
-                DependencyKind.Gradle => svgs["gradle"],
-                DependencyKind.Maven => svgs["java"],
-                DependencyKind.Npm => svgs["npm"],
-                DependencyKind.NuGet => svgs["nuget"],
-                DependencyKind.PyPi => svgs["python"],
-                DependencyKind.RubyGem => svgs["ruby"],
-                _ => Empty
-            };
-        }
+            DependencyKind.Docker => svgs["docker"],
+            DependencyKind.Gradle => svgs["gradle"],
+            DependencyKind.Maven => svgs["java"],
+            DependencyKind.Npm => svgs["npm"],
+            DependencyKind.NuGet => svgs["nuget"],
+            DependencyKind.PyPi => svgs["python"],
+            DependencyKind.RubyGem => svgs["ruby"],
+            _ => Empty
+        };
 
-        public MarkupString GetSvg(VersionControlKind kind)
+        public MarkupString GetSvg(VersionControlKind kind) => kind switch
         {
-            return kind switch
-            {
-                VersionControlKind.Bitbucket => svgs["bitbucket"],
-                VersionControlKind.GitHub => svgs["github"],
-                VersionControlKind.Gitlab => svgs["gitlab"],
-                _ => Empty
-            };
-        }
+            VersionControlKind.Bitbucket => svgs["bitbucket"],
+            VersionControlKind.GitHub => svgs["github"],
+            VersionControlKind.Gitlab => svgs["gitlab"],
+            _ => Empty
+        };
 
-        public MarkupString GetSvg(CiCdKind kind)
+        public MarkupString GetSvg(CiCdKind kind) => kind switch
         {
-            return kind switch
-            {
-                CiCdKind.Gitlab => svgs["gitlab"],
-                CiCdKind.Jenkins => svgs["jenkins"],
-                CiCdKind.TeamCity => svgs["teamcity"],
-                _ => Empty
-            };
-        }
-               
+            CiCdKind.Gitlab => svgs["gitlab"],
+            CiCdKind.Jenkins => svgs["jenkins"],
+            CiCdKind.TeamCity => svgs["teamcity"],
+            _ => Empty
+        };
+
         public SvgService(IWebHostEnvironment environment)
         {
-            foreach(IFileInfo svg in environment.WebRootFileProvider.GetDirectoryContents("img").Where(f => f.PhysicalPath.EndsWith("svg")))
+            foreach(IFileInfo svg in environment.WebRootFileProvider.GetDirectoryContents("img").Where(f => Path.GetExtension(f.PhysicalPath).Equals(".svg")))
             {
                 using (Stream stream = svg.CreateReadStream())
                 {

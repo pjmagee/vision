@@ -20,31 +20,48 @@ https://github.com/aspnet/AspNetCore/issues/5562
  
 ## TODO
 
-* implement /sources/vcs/edit/{vcsId}
-* implement /sources/cicds/edit/{vcsId}
-* implement /sources/registry/edit/{vcsId}
+* implement /sources/vcs/edit/{id}
+* implement /sources/cicds/edit/{id}
+* implement /sources/registry/edit/{id}
 
 * implement /tasks/
-* implement /tasks/update/assets/{aId}
-* implement /tasks/update/dependencies/{dId}
-* implement /tasks/update/frameworks/{fId}
+* implement /tasks/update/assets/{id}
+* implement /tasks/update/dependencies/{id}
+* implement /tasks/update/frameworks/{id}
 * implement /tasks/update/repositories/{id}
 
-* implement /insights/assets/{dependencyKind}  
-* implement /insights/dependencies/{dependencyKind}  
+* implement /insights/assets/
+* implement /insights/dependencies/
 * implement /insights/registries/  
 * implement /insights/repositories/  
 * implement /insights/frameworks/  
-* implement /insights/versions/{vId}  
+* implement /insights/versions/
 
 * implement when refreshing an entire version control source that any ignored repositories are still persisted and not lost
 * implement ignored repositories have all their assets removed from the system
+* Add metric for 'Version asset (%)'
 
-* Add bar metric for 'On latest (%)'
-
-* reintroduce API controllers for most of the sources
+* reintroduce API controllers for most of the sources (ODdata for .NET Core is out - NSwag/Swashbuckle integration)
 
 * Add gulp tasks for compiling the SASS (currently using vs code sass compiler plugin)
 * Integration with SonarQube API?
 * Integration tests should use Docker for API integration with: TeamCity, Jenkins & Bitbucket
 * Rename CICD's to Pipelines (Teamcity pipelines, Azure Pipelines, Jenkins Pipelines, etc etc)
+
+## Paid gateways
+
+* Limit the number of displayed metrics
+* Limit the number of repositories that will be scanned
+* Limit the number of added VCS servers allowed
+* Limit the number of refresh tasks allowed
+
+* Only display the number of different dependencies found, not the individual dependency versions used
+* Only provide support for a limited number of asset kinds. (i.e .NET, Maven, NPM)
+
+* Disable CICD reverse lookup integration
+* Disable information on repositories that publish dependencies
+* Disable information on external assets that depend on a repository (similar to Github Dependeny graph - Dependents tab)
+* Disable information on the latest version of a dependency
+* Disable export or reporting functionality
+* Disable integration with Security tools such as SonarQube or other scanners which provide APIs
+
