@@ -19,21 +19,18 @@ namespace Vision.Web.Core
 
         public IEnumerable<Extract> ExtractDependencies(Asset asset)
         {
+            List<Extract> extracts = new List<Extract>();
+
             try
             {
                 JObject package = JObject.Parse(asset.Raw);
+                IEnumerable<JToken> dependencies = package.ContainsKey("dependencies") ? package["dependencies"] : Enumerable.Empty<JToken>();
+                IEnumerable<JToken> devDependencies = package.ContainsKey("devDependencies") ? package["devDependencies"] : Enumerable.Empty<JToken>();
+                IEnumerable<JToken> all = dependencies.Concat(devDependencies);
 
-                List<Extract> extracts = new List<Extract>();
-
-                IEnumerable<JToken> dependencies = (
-                    package.ContainsKey("dependencies") ? package["dependencies"] : Enumerable.Empty<JToken>())
-                    .Concat(
-                        package.ContainsKey("devDependencies") ? package["devDependencies"] : Enumerable.Empty<JToken>());
-
-                foreach (string dependency in dependencies.Select((JToken token) => token.ToString()).Distinct())
+                foreach (string dependency in all.Select((JToken token) => token.ToString()).Distinct())
                 {
                     string[] pair = dependency.Split(':');
-
                     extracts.Add(new Extract(pair[0].Replace("\"", "").Trim(), pair[1].Replace("\"", "").Trim()));
                 }
 
@@ -51,15 +48,15 @@ namespace Vision.Web.Core
 
         public IEnumerable<Extract> ExtractFrameworks(Asset asset)
         {
+            List<Extract> extracts = new List<Extract>();
+
             try
             {
-                JObject package = JObject.Parse(asset.Raw);
-
-                List<Extract> extracts = new List<Extract>();
+                JObject package = JObject.Parse(asset.Raw);                
 
                 if (package.ContainsKey("engines"))
                 {
-                    var properties = package["engines"].Values<JProperty>();
+                    IEnumerable<JProperty> properties = package["engines"].Values<JProperty>();
 
                     foreach (var prop in properties)
                     {
@@ -67,16 +64,17 @@ namespace Vision.Web.Core
                     }
 
                     logger.LogTrace($"Extracted {extracts.Count} engines for {asset.Repository.WebUrl} : {asset.Path}");
-                }
-
-                return extracts;
+                }                
             }            
             catch (Exception e)
             {
                 logger.LogTrace(e, $"Could not extract engines for {asset.Repository.WebUrl} : {asset.Path} ");
             }
 
-            return Enumerable.Empty<Extract>();
+            foreach (Extract extract in extracts)
+            {
+                yield return extract;
+            }   
         }
 
         public string ExtractPublishName(Asset asset)

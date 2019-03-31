@@ -84,9 +84,11 @@ namespace Vision.Web.Core
                     {
                         var name = extractor.ExtractPublishName(asset);
 
-                        logger.LogInformation($"{nameof(ExtractPublishName)}::['{asset.Path}']::[{extractor.GetType().Name}]::FOUND::[{name}]");
-
-                        if (!string.IsNullOrEmpty(name)) return name;
+                        if (!string.IsNullOrWhiteSpace(name))
+                        {
+                            logger.LogInformation($"{nameof(ExtractPublishName)}::['{asset.Path}']::[{extractor.GetType().Name}]::FOUND::[{name}]");
+                            return name;
+                        }
                     }
                     catch (Exception e)
                     {

@@ -13,6 +13,10 @@
     <div class="card-body">
         @if (Model != null)
         {
+            <Alert IsDismissible="true" Color="Color.Info">
+                Username, Password and API Keys are Encrypted upon saving.
+            </Alert>
+
             <EditForm Model="@Model" OnValidSubmit="@Submit">
                 <DataAnnotationsValidator />
 
@@ -38,8 +42,8 @@
                     <BlazorLabel>Password</BlazorLabel>
                     <InputText Class="form-control" bind-Value="@Model.Password" />
                     <ValidationMessage For="@(() => Model.Password)" />
-                </FormGroup>  
-                
+                </FormGroup>
+
                 <FormGroup>
                     <InputSelect class="form-control" bind-Value="@Model.Kind">
                         <options>Select</options>

@@ -11,12 +11,10 @@ namespace Vision.Web
     {
         public static IServiceCollection AddVisionServices(this IServiceCollection services, IConfiguration configuration)
         {
-            var connectionString = Environment.OSVersion.Platform == PlatformID.Unix ? configuration["ConnectionStrings:Docker"] : configuration["ConnectionStrings:Home"];
-
             services
                 .AddDbContext<VisionDbContext>(options => options
                     .UseLazyLoadingProxies(useLazyLoadingProxies: true)
-                    .UseSqlServer(connectionString)
+                    .UseSqlServer(configuration["ConnectionStrings:Default"])
                     .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)), ServiceLifetime.Transient, ServiceLifetime.Transient);
             
             services

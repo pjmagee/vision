@@ -13,42 +13,46 @@
     <div class="card-body">
         @if (Model != null)
         {
-        <EditForm Model="@Model" OnValidSubmit="@Submit">
-            <DataAnnotationsValidator />
+            <Alert IsDismissible="true" Color="Color.Info">
+                Username, Password and API Keys are Encrypted upon saving.
+            </Alert>
 
-            <FormGroup>
-                <BlazorLabel>Endpoint</BlazorLabel>
-                <InputText class="form-control" bind-Value="@Model.Endpoint" />
-                <ValidationMessage For="@(() => Model.Endpoint)" />
-            </FormGroup>
+            <EditForm Model="@Model" OnValidSubmit="@Submit">
+                <DataAnnotationsValidator />
 
-            <FormGroup>
-                <BlazorLabel>Api Key</BlazorLabel>
-                <InputText class="form-control" bind-Value="@Model.ApiKey" />
-                <ValidationMessage For="@(() => Model.ApiKey)" />
-            </FormGroup>
+                <FormGroup>
+                    <BlazorLabel>Endpoint</BlazorLabel>
+                    <InputText class="form-control" bind-Value="@Model.Endpoint" />
+                    <ValidationMessage For="@(() => Model.Endpoint)" />
+                </FormGroup>
 
-            <FormGroup>
-                <BlazorLabel>Kind</BlazorLabel>
-                <InputSelect class="form-control" bind-Value="@Model.Kind">
-                    <option>Select</option>
-                    @foreach (var kind in Enum.GetValues(typeof(VersionControlKind)).Cast<VersionControlKind>())
-                    {
-                        <option value="@kind">@kind.ToString()</option>
-                    }
-                </InputSelect>
-                <ValidationMessage For="@(() => Model.Kind)" />
-            </FormGroup>
+                <FormGroup>
+                    <BlazorLabel>Api Key</BlazorLabel>
+                    <InputText class="form-control" bind-Value="@Model.ApiKey" />
+                    <ValidationMessage For="@(() => Model.ApiKey)" />
+                </FormGroup>
 
-            <FormGroup>
-                <div class="form-check">
-                    <InputCheckbox class="form-check-input" bind-Value="@Model.IsEnabled" id="isEnabled" />
-                    <label class="form-check-label" for="isEnabled">Enabled</label>
-                </div>
-            </FormGroup>
+                <FormGroup>
+                    <BlazorLabel>Kind</BlazorLabel>
+                    <InputSelect class="form-control" bind-Value="@Model.Kind">
+                        <option>Select</option>
+                        @foreach (var kind in Enum.GetValues(typeof(VersionControlKind)).Cast<VersionControlKind>())
+                        {
+                            <option value="@kind">@kind.ToString()</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => Model.Kind)" />
+                </FormGroup>
 
-            <button type="submit" class="btn btn-primary">Update</button>
-        </EditForm>
+                <FormGroup>
+                    <div class="form-check">
+                        <InputCheckbox class="form-check-input" bind-Value="@Model.IsEnabled" id="isEnabled" />
+                        <label class="form-check-label" for="isEnabled">Enabled</label>
+                    </div>
+                </FormGroup>
+
+                <button type="submit" class="btn btn-primary">Update</button>
+            </EditForm>
         }
         else
         {

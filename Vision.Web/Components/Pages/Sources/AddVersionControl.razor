@@ -11,6 +11,10 @@
     </div>
     <div class="card-body">
 
+        <Alert IsDismissible="true" Color="Color.Info">
+            Username, Password and API Keys are Encrypted upon saving.
+        </Alert>
+
         <EditForm Model="@Model" OnValidSubmit="@Submit">
             <DataAnnotationsValidator />
 

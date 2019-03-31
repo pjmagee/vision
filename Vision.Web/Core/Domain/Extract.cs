@@ -4,8 +4,8 @@ namespace Vision.Web.Core
 {
     public class Extract
     {
-        public string Name { get; set; }
-        public string Version { get; set; }
+        public string Name { get; }
+        public string Version { get; }
 
         public Extract(string name, string version)
         {

@@ -11,15 +11,19 @@
     </div>
     <div class="card-body">
 
+        <Alert IsDismissible="true" Color="Color.Info">
+            Username, Password and API Keys are Encrypted upon saving.
+        </Alert>
+
         <EditForm Model="@Model" OnValidSubmit="@Submit">
             <DataAnnotationsValidator />
-            
+
             <FormGroup>
                 <BlazorLabel>Endpoint</BlazorLabel>
                 <InputText Class="form-control" bind-Value="@Model.Endpoint" />
                 <ValidationMessage For="(() => Model.Endpoint)" />
-            </FormGroup> 
-            
+            </FormGroup>
+
             <FormGroup>
                 <BlazorLabel>Api Key</BlazorLabel>
                 <InputText Class="form-control" bind-Value="@Model.ApiKey" />
@@ -51,17 +55,17 @@
 
             <FormGroup>
                 <div class="form-check">
-                    <InputCheckbox Class="form-check-input" bind-Value="@Model.IsPublic"/>
+                    <InputCheckbox Class="form-check-input" bind-Value="@Model.IsPublic" />
                     <BlazorLabel Class="form-check-label">Public</BlazorLabel>
                 </div>
             </FormGroup>
 
             <FormGroup>
                 <div class="form-check">
-                    <InputCheckbox Class="form-check-input"  bind-Value="@Model.IsEnabled" />
-                    <BlazorLabel Class="form-check-label">Enabled</BlazorLabel>                    
+                    <InputCheckbox Class="form-check-input" bind-Value="@Model.IsEnabled" />
+                    <BlazorLabel Class="form-check-label">Enabled</BlazorLabel>
                 </div>
-            </FormGroup> 
+            </FormGroup>
 
             <button type="submit" class="btn btn-primary">Save</button>
         </EditForm>

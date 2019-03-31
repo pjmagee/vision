@@ -40,38 +40,45 @@ namespace Vision.Web.Core
             {
                 if (!cache.TryGetValue(repositoryId, out List<CiCdBuildDto> builds))
                 {
-                    builds = new List<CiCdBuildDto>();
-
-                    IPaginatedList<CiCdDto> cicds = await ciCdService.GetAsync(pageIndex: 1, pageSize: 1000);
-
-                    foreach(var cicd in cicds)
-                    {
-                        encryption.Decrypt(cicd);
-                    }
-
-                    foreach (ICiCdProvider provider in providers)
-                    {
-                        foreach (CiCdDto cicd in cicds.Where(cicd => provider.Supports(cicd.Kind)))
-                        {
-                            try
-                            {
-                                List<CiCdBuildDto> results = await provider.GetBuildsAsync(repository, cicd);
-                                builds.AddRange(results);
-                            }
-                            catch (Exception e)
-                            {
-                                logger.LogError(e, $"{nameof(GetBuildsByRepositoryIdAsync)}::[{repository.Url}]::[{cicd.Endpoint}]::ERROR");
-                            }
-                        }
-                    }
-
-                    logger.LogInformation($"{nameof(GetBuildsByRepositoryIdAsync)}::[{repository.WebUrl}]::CICD::SEARCH::RESULTS::[{builds.Count}]");
-
-                    cache.Set(repositoryId, builds, absoluteExpiration: DateTimeOffset.Now.AddHours(2));
+                    builds = await GetBuildsByRepository(repository);
                 }
 
                 return await Task.FromResult(builds);
             }
+        }
+
+        private async Task<List<CiCdBuildDto>> GetBuildsByRepository(RepositoryDto repository)
+        {
+            List<CiCdBuildDto> builds = new List<CiCdBuildDto>();
+
+            IPaginatedList<CiCdDto> cicds = await ciCdService.GetAsync(pageIndex: 1, pageSize: 1000);
+
+            foreach (var cicd in cicds)
+            {
+                encryption.Decrypt(cicd);
+            }
+
+            foreach (ICiCdProvider provider in providers)
+            {
+                foreach (CiCdDto cicd in cicds.Where(cicd => provider.Supports(cicd.Kind)))
+                {
+                    try
+                    {
+                        List<CiCdBuildDto> results = await provider.GetBuildsAsync(repository, cicd);
+                        builds.AddRange(results);
+                    }
+                    catch (Exception e)
+                    {
+                        logger.LogError(e, $"{nameof(GetBuildsByRepositoryIdAsync)}::[{repository.Url}]::[{cicd.Endpoint}]::ERROR");
+                    }
+                }
+            }
+
+            logger.LogInformation($"{nameof(GetBuildsByRepositoryIdAsync)}::[{repository.WebUrl}]::CICD::SEARCH::RESULTS::[{builds.Count}]");
+
+            cache.Set(repository.RepositoryId, builds, absoluteExpiration: DateTimeOffset.Now.AddHours(2));
+
+            return builds;
         }
     }
 }

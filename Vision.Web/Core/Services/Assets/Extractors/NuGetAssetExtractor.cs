@@ -153,26 +153,20 @@ namespace Vision.Web.Core
                     {
                         XDocument document = XDocument.Load(reader);
 
-                        string packageId = document.XPathSelectElement("//*[local-name() = '" + PackageId + "']")?.Value;                        
-
-                        if (packageId != null)
-                            return packageId;
+                        string packageId = document.XPathSelectElement("//*[local-name() = '" + PackageId + "']")?.Value;
+                        if (string.IsNullOrWhiteSpace(packageId)) return packageId;
 
                         string assemblyName = document.XPathSelectElement("//*[local-name() = '" + AssemblyName + "']")?.Value;
-
-                        if (assemblyName != null)
-                            return assemblyName;
-
-                        // Last resort :(
-                        return Path.GetFileNameWithoutExtension(asset.Path);
+                        if (string.IsNullOrWhiteSpace(assemblyName)) return assemblyName;
                     }
                 }
             }
             catch(Exception e)
             {
                 logger.LogTrace(e, $"Error extracting publish name from {asset.Path}.");
-                throw;
             }
+
+            return Path.GetFileNameWithoutExtension(asset.Path);
         }
     }
 }
