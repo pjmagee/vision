@@ -1,10 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace Vision.Web.Core
 {
     public class PyPiVersionProvider : IDependencyVersionProvider
     {
+        private static readonly HttpClient client = new HttpClient();
         private readonly ILogger<PyPiVersionProvider> logger;
 
         public PyPiVersionProvider(ILogger<PyPiVersionProvider> logger)
