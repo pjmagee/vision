@@ -1,0 +1,76 @@
+﻿@page "/admin/tasks"
+
+<BreadcrumbsComponent>
+    <BSBreadcrumbItem>Data</BSBreadcrumbItem>
+    <BSBreadcrumbItem>Admin</BSBreadcrumbItem>
+    <BSBreadcrumbItem IsActive="true">
+        <a href="/data/tasks">Tasks</a>
+    </BSBreadcrumbItem>
+</BreadcrumbsComponent>
+
+<BSAlert Color="Color.Info" IsDismissible="true">
+    Refresh tasks are processed by the server. This involves refreshing the known state of a git server, repository, asset or dependency.
+    This can sometimes involve removing everything known about the entity and creating that information fresh from the source.
+</BSAlert>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Refresh Tasks</h6>
+    </div>
+    <div class="card-body">
+        @if (Items != null)
+        {
+            <BSTable class="table table-striped table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Scope</th>
+                        <th>Target</th>
+                        <th>Created</th>
+                        <th>Completed</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Items)
+                    {
+                        <tr>
+                            <td>@item.Scope.ToString()</td>
+                            <td>@item.TargetId</td>
+                            <th>@item.Created</th>
+                            <th>@item.Completed?.ToString()</th>
+                            <td>
+                                <!-- TODO: DELETE TASK -->
+                            </td>
+                        </tr>
+                    }
+
+                    @if (!Items.Any())
+                    {
+                        <tr>
+                            <td colspan="5">
+                                No refresh tasks found.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </BSTable>
+        }
+        else
+        {
+            <LoaderComponent />
+        }
+    </div>
+</div>
+
+@code
+{
+    IEnumerable<RefreshTask> Items { get; set; }
+
+    [Inject] ISystemTaskService SystemTaskService { get; set; }
+    [Inject] IJSRuntime Runtime { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Items = await SystemTaskService.GetAllAsync();
+    }
+}

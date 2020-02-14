@@ -82,7 +82,7 @@
                 context.AssetDependencies.AddRange(assetDependencies);
             }
             await context.SaveChangesAsync();
-            
+
             // ASSET FRAMEWORKS
             foreach (Asset asset in context.Assets)
             {
@@ -156,7 +156,7 @@
 
         private IEnumerable<AssetFramework> GetAssetFrameworks(Asset asset, IList<Framework> frameworks)
         {
-                   
+
             var selectedFrameworks = Pick<Framework>.UniqueRandomList(With.Between(1).And(2).Elements).From(frameworks);
 
             return selectedFrameworks.Select(framework =>
@@ -173,7 +173,7 @@
             var max = Math.Min(dependencies.Count, GetDependenciesForAsset(asset.Kind));
             var selectedDependencies = Pick<Dependency>.UniqueRandomList(With.Between(1).And(max).Elements).From(dependencies);
 
-            return selectedDependencies.Select(dependency =>             
+            return selectedDependencies.Select(dependency =>
                 Builder<AssetDependency>
                     .CreateNew()
                     .With(ad => ad.Id = Guid.NewGuid())
@@ -204,7 +204,7 @@
                 .With(dv => dv.Id = Guid.NewGuid())
                 .With(dv => dv.Dependency = dependency)
                 .With(dv => dv.DependencyId = dependency.Id)
-                .With((dv, index) => 
+                .With((dv, index) =>
                 {
                     dv.Version = new Version(GetRandom.Int(index, versionCount), GetRandom.Int(index, versionCount), GetRandom.Int(index, versionCount)).ToString();
                 })
@@ -260,8 +260,8 @@
             .With(x => x.Username = encryptionService.Encrypt("Username"))
             .With(x => x.Password = encryptionService.Encrypt("Password"));
 
-        private IEnumerable<Registry> GetRegistries() => 
-            DependencyKinds.SelectMany(kind => new Registry[]        
+        private IEnumerable<Registry> GetRegistries() =>
+            DependencyKinds.SelectMany(kind => new Registry[]
             {
                 CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.xperthr.rbxd.ds/{kind}/".ToLower())       .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
                 CreateNewRegistry().With(x => x.Endpoint = $"https://nexus.flight.rbxd.ds/{kind}/".ToLower())        .With(x => x.IsPublic = false).With(x => x.Kind = kind).Build(),
@@ -290,9 +290,9 @@
 
         private IEnumerable<Framework> GetFrameworks()
         {
-            var netStandards = new[] { "netstandard1.0","netstandard1.1", "netstandard1.2", "netstandard1.3", "netstandard1.4", "netstandard1.5", "netstandard1.6", "netstandard2.0" };
-            var netCores = new[]  { "netcoreapp1.0", "netcoreapp1.1", "netcoreapp2.0", "netcoreapp2.1", "netcoreapp2.2" };
-            var netFrameworks = new[] {  "net11", "net20", "net35", "net40", "net403", "net45", "net451", "net452", "net46", "net461", "net462", "net47", "net471", "net472" };
+            var netStandards = new[] { "netstandard1.0", "netstandard1.1", "netstandard1.2", "netstandard1.3", "netstandard1.4", "netstandard1.5", "netstandard1.6", "netstandard2.0" };
+            var netCores = new[] { "netcoreapp1.0", "netcoreapp1.1", "netcoreapp2.0", "netcoreapp2.1", "netcoreapp2.2" };
+            var netFrameworks = new[] { "net11", "net20", "net35", "net40", "net403", "net45", "net451", "net452", "net46", "net461", "net462", "net47", "net471", "net472" };
             var nodes = Enumerable.Range(4, 11).Select(x => new Version(x, GetRandom.Int(1, 12), GetRandom.Int(1, 12)).ToString());
             var npms = Enumerable.Range(4, 6).Select(x => new Version(x, GetRandom.Int(1, 12), GetRandom.Int(1, 12)).ToString());
 
@@ -331,11 +331,11 @@
                     r.WebUrl = $"http://{uri.Host}:{uri.Port}/{group}/{name}/browse";
                 })
                 .With(r => r.VersionControl = source)
-                .With(r => r.VersionControlId= source.Id)
+                .With(r => r.VersionControlId = source.Id)
                 .Build();
         }
 
-        private static RandomItemPicker<Registry> GetRegistryByKind(IEnumerable<Registry> sources, DependencyKind kind) => 
+        private static RandomItemPicker<Registry> GetRegistryByKind(IEnumerable<Registry> sources, DependencyKind kind) =>
             new RandomItemPicker<Registry>(sources.Where(x => x.Kind == kind).ToList(), new RandomGenerator());
 
         private static int GetRandomDependencies(DependencyKind kind) => kind switch
@@ -357,7 +357,7 @@
 
             switch (kind)
             {
-                case DependencyKind.Docker:  return isFirstFile ? $"docker/src/{ext}" : $"docker/src/{fileIndex}.{ext}";
+                case DependencyKind.Docker: return isFirstFile ? $"docker/src/{ext}" : $"docker/src/{fileIndex}.{ext}";
                 case DependencyKind.RubyGem: return isFirstFile ? $"ruby/src/{fileOrFolderName}/{ext}" : $"ruby/src/{fileOrFolderName}/{fileIndex}/{ext}";
                 case DependencyKind.Maven: return isFirstFile ? $"java/src/{fileOrFolderName}/{fileOrFolderName}.{ext}" : $"java/src/{fileOrFolderName}/{fileOrFolderName}.{fileIndex}/{fileOrFolderName}.{fileIndex}.{ext}";
                 case DependencyKind.Gradle: return isFirstFile ? $"java/src/{fileOrFolderName}/{ext}" : $"java/src/{fileOrFolderName}/{fileOrFolderName}.{fileIndex}/{ext}";

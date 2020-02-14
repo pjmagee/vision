@@ -1,0 +1,55 @@
+﻿<BSTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
+    <thead>
+        <tr>
+            <th>Kind</th>
+            <th>Build</th>
+            <th>Web Url</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Items != null)
+        {
+            @foreach (var item in Items)
+            {
+                <tr>
+                    <td class="@item.Kind.GetIconClass()">@SvgService.GetSvg(item.Kind)</td>
+                    <td>@item.Name</td>
+                    <td><a href="@item.WebUrl" target="_blank">@item.WebUrl</a></td>
+                </tr>
+            }
+
+            @if (!Items.Any())
+            {
+                <tr>
+                    <td colspan="3">
+                        No CI/CD builds found.
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="3">
+                    <LoaderComponent />
+                </td>
+            </tr>
+        }
+    </tbody>
+</BSTable>
+
+@code
+{
+    [Parameter] public Guid RepositoryId { get; set; }
+
+    [Inject] SvgService SvgService { get; set; }
+    [Inject] IAggregateCICDBuildsProvider CICDProvider { get; set; }
+
+    IEnumerable<CiCdBuildDto> Items { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Items = await CICDProvider.GetBuildsByRepositoryIdAsync(RepositoryId);
+        // StateHasChanged();
+    }
+}

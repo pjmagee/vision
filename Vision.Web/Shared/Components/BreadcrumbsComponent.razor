@@ -1,0 +1,141 @@
+﻿<BSBreadcrumb>
+    @if (VersionControlId.HasValue && VersionControlId.HasValue && FrameworkId.HasValue && RepositoryId.HasValue)
+    {
+        <BSBreadcrumbItem>Data</BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/vcs/")">Version Control</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}")">@VersionControl?.Endpoint</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}")">@Repository.WebUrl</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}/frameworks")">Frameworks</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem IsActive="true">@Framework?.Name</BSBreadcrumbItem>
+    }
+    else if (VersionControlId.HasValue && RepositoryId.HasValue && DependencyId.HasValue)
+    {
+        <BSBreadcrumbItem>Data</BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/vcs/")">Version Control</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}")">@VersionControl?.Endpoint</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}")">@Repository.WebUrl</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}/dependencies")">Dependencies</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem IsActive="true">@Dependency?.Name</BSBreadcrumbItem>
+    }
+    else if (AssetId.HasValue && RepositoryId.HasValue && VersionControlId.HasValue)
+    {
+        <BSBreadcrumbItem>Data</BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/vcs/")">Version Control</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}")">@VersionControl?.Endpoint</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}")">@Repository?.WebUrl</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem IsActive="true">@Asset?.Asset</BSBreadcrumbItem>
+    }
+    else if (RepositoryId.HasValue && VersionControlId.HasValue)
+    {
+        <BSBreadcrumbItem>Data</BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/vcs/")">Version Control</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}")">@VersionControl?.Endpoint</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem IsActive="true"><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}")">@Repository?.WebUrl</a></BSBreadcrumbItem>
+    }
+    else if (DependencyId.HasValue && VersionId.HasValue)
+    {
+        <BSBreadcrumbItem>Data</BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="/data/dependencies">Dependencies</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/dependencies/{DependencyId}")">@Dependency?.Name</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/dependencies/{DependencyId}/versions/{VersionId}")">@Version?.Version</a></BSBreadcrumbItem>
+    }
+    else if (VersionControlId.HasValue)
+    {
+        <BSBreadcrumbItem>Data</BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/vcs/")">Version Control</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem IsActive="true"><a href="@($"/data/vcs/{VersionControlId}")">@VersionControl?.Endpoint</a></BSBreadcrumbItem>
+    }
+    else if (DependencyId.HasValue)
+    {
+        <BSBreadcrumbItem>Data</BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="/data/dependencies">Dependencies</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem IsActive="true">@Dependency?.Name</BSBreadcrumbItem>
+    }
+    else if (FrameworkId.HasValue)
+    {
+        <BSBreadcrumbItem>Data</BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="/data/frameworks">Frameworks</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem>@Framework?.Name</BSBreadcrumbItem>
+        <BSBreadcrumbItem IsActive="true">@Framework?.Version</BSBreadcrumbItem>
+    }
+    else if (RegistryId.HasValue)
+    {
+        <BSBreadcrumbItem>Data</BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="/data/registries">Registries</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem IsActive="true"><a href="@($"/data/registries/{RegistryId}")">@Registry?.Endpoint</a></BSBreadcrumbItem>
+    }
+    else
+    {
+        if (ChildContent != null)
+        {
+            @ChildContent
+        }
+    }
+</BSBreadcrumb>
+
+@code
+{
+    [Parameter] public Guid? RepositoryId { get; set; }
+    [Parameter] public Guid? FrameworkId { get; set; }
+    [Parameter] public Guid? VersionControlId { get; set; }
+    [Parameter] public Guid? AssetId { get; set; }
+    [Parameter] public Guid? DependencyId { get; set; }
+    [Parameter] public Guid? VersionId { get; set; }
+    [Parameter] public Guid? RegistryId { get; set; }
+
+    [Parameter] public RenderFragment ChildContent { get; set; }    
+
+    [Inject] IRepositoryService RepositoryService { get; set; }
+    [Inject] IFrameworkService FrameworkService { get; set; }
+    [Inject] IVersionControlService VersionControlService { get; set; }
+    [Inject] IAssetService AssetService { get; set; }
+    [Inject] IRegistryService RegistryService { get; set; }
+    [Inject] IDependencyService DependencyService { get; set; }
+    [Inject] IDependencyVersionService VersionService { get; set; }
+
+    RepositoryDto Repository { get; set; }
+    VersionControlDto VersionControl { get; set; }
+    AssetDto Asset { get; set; }
+    DependencyDto Dependency { get; set; }
+    FrameworkDto Framework { get; set; }
+    DependencyVersionDto Version { get; set; }
+    RegistryDto Registry { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (RepositoryId.HasValue)
+        {
+            Repository = await RepositoryService.GetByIdAsync(RepositoryId.Value);
+        }
+
+        if (FrameworkId.HasValue)
+        {
+            Framework = await FrameworkService.GetByIdAsync(FrameworkId.Value);
+        }
+
+        if (VersionControlId.HasValue)
+        {
+            VersionControl = await VersionControlService.GetByIdAsync(VersionControlId.Value);
+        }
+
+        if (AssetId.HasValue)
+        {
+            Asset = await AssetService.GetByIdAsync(AssetId.Value);
+        }
+
+        if (RegistryId.HasValue)
+        {
+            Registry = await RegistryService.GetByIdAsync(RegistryId.Value);
+        }
+
+        if (DependencyId.HasValue)
+        {
+            Dependency = await DependencyService.GetByIdAsync(DependencyId.Value);
+        }
+
+        if(VersionId.HasValue)
+        {
+            Version = await VersionService.GetByIdAsync(VersionId.Value);
+        }
+    }
+}

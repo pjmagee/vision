@@ -1,0 +1,23 @@
+﻿@page "/data/vcs/{VersionControlId:guid}"
+
+<BreadcrumbsComponent VersionControlId="@VersionControlId" />
+
+<RefreshComponent Target="TaskScopeKind.VersionControl" Id="@VersionControlId" />
+
+<BSAlert Color="Color.Info">
+    Ignore repositories such as archived or legacy which you want to remove from calculated results. You can always unignore them.
+</BSAlert>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Repositories</h6>
+    </div>
+    <div class="card-body">
+        <RepositoriesComponent VersionControlId="@VersionControlId" />
+    </div>
+</div>
+
+@code
+{
+    [Parameter] public Guid VersionControlId { get; set; }
+}

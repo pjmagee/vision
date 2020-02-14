@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 using Vision.Web.Core;
 
 namespace Vision.Web
@@ -14,16 +12,15 @@ namespace Vision.Web
             services
                 .AddDbContext<VisionDbContext>(options => options
                     .UseLazyLoadingProxies(useLazyLoadingProxies: true)
-                    .UseSqlServer(configuration["ConnectionStrings:Default"])
-                    .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning)), ServiceLifetime.Transient, ServiceLifetime.Transient);
-            
+                    .UseSqlServer(configuration["ConnectionStrings:Default"]), ServiceLifetime.Transient);
+
             services
                 .RegisterVersionControlServices()
                 .RegisterAssetServices()
                 .RegisterDependencyServices()
                 .RegisterCiCdServices()
                 .RegisterRazorComponentServices()
-                .RegisterRefreshServices()
+                // .RegisterRefreshServices()
                 .AddSingleton<IEncryptionService, EncryptionService>()
                 .AddScoped<FakeDataGenerator>()
                 .AddScoped<IMetricService, MetricService>();
@@ -31,7 +28,7 @@ namespace Vision.Web
             return services;
         }
 
-        private static IServiceCollection RegisterRefreshServices(this IServiceCollection services) => services
+        public static IServiceCollection RegisterRefreshServices(this IServiceCollection services) => services
             .AddScoped<ISystemTaskService, SystemTaskService>()
             .AddScoped<IRefreshService, RefreshService>()
             .AddHostedService<BackgroundSystemRefreshMonitor>();

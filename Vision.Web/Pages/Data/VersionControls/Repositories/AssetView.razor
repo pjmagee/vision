@@ -1,0 +1,41 @@
+﻿@page "/data/vcs/{VersionControlId:guid}/repositories/{RepositoryId:guid}/assets/{AssetId:guid}/"
+
+<BreadcrumbsComponent AssetId="@AssetId" RepositoryId="@RepositoryId" VersionControlId="@VersionControlId" />
+
+<RefreshComponent Target="TaskScopeKind.Asset" Id="@AssetId" />
+
+<MetricsComponent AssetId="@AssetId" />
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Dependencies</h6>
+    </div>
+    <div class="card-body">
+        <AssetDependenciesComponent AssetId="@AssetId" />
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Frameworks</h6>
+    </div>
+    <div class="card-body">
+        <FrameworksComponent AssetId="@AssetId" />
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Dependent Assets</h6>
+    </div>
+    <div class="card-body">
+        <AssetsComponent AssetId="@AssetId" Dependents="true" />
+    </div>
+</div>
+
+@code
+{
+    [Parameter] public Guid AssetId { get; set; }
+    [Parameter] public Guid RepositoryId { get; set; }
+    [Parameter] public Guid VersionControlId { get; set; }
+}

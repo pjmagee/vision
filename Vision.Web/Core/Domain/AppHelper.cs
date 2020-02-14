@@ -1,9 +1,9 @@
-﻿namespace Vision.Web.Core
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
+namespace Vision.Web.Core
+{
     public static class AppHelper
     {
         public static IEnumerable<CiCdKind> CiCdKinds { get; } = Enum.GetValues(typeof(CiCdKind)).Cast<CiCdKind>();

@@ -1,0 +1,62 @@
+﻿<BSTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
+    <thead>
+        <tr>
+            <th>@nameof(AssetDependencyDto.Asset)</th>
+            <th>@nameof(AssetDependencyDto.Version)</th>
+            <th>@nameof(AssetDependencyDto.Repository)</th>
+            <th>Is latest</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Items != null)
+        {
+            @foreach (var item in Items)
+            {
+                <tr>
+                    <td><a href="@($"/data/vcs/{item.VersionControlId}/repositories/{item.RepositoryId}/assets/{item.AssetId}")">@item.Asset</a></td>
+                    <td><a href="@($"/data/dependencies/{item.DependencyId}/versions/{item.DependencyVersionId}")">@item.Version</a></td>
+                    <td><a href="@($"/data/vcs/{item.VersionControlId}/repositories/{item.RepositoryId}")">@item.Repository</a></td>
+                    <td>@item.IsLatest.ToYesNo()</td>
+                </tr>
+            }
+
+            @if (Items.Count == 0)
+            {
+                <tr>
+                    <td colspan="4">
+                        No dependency assets found.
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <LoaderComponent />
+        }
+    </tbody>
+</BSTable>
+
+<PagerComponent Pager="Items" Page="@(async(p) => await PageAsync(p))"></PagerComponent>
+
+@code
+{
+    [Parameter] public Guid? DependencyId { get; set; }
+    [Inject] IAssetDependencyService Service { get; set; }
+
+    IPaginatedList<AssetDependencyDto> Items { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await PageAsync(1);
+    }
+
+    async Task PageAsync(int page)
+    {
+        if (DependencyId.HasValue)
+        {
+            Items = await Service.GetByDependencyIdAsync(DependencyId.Value, page);
+        }
+
+        // StateHasChanged();
+    }
+}

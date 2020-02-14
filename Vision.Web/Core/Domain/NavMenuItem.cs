@@ -1,8 +1,8 @@
-﻿namespace Vision.Web.Core
-{
-    using System.Collections.Generic;
-    using Microsoft.AspNetCore.Components.Routing;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Components.Routing;
 
+namespace Vision.Web.Core
+{
     public class NavMenuItem
     {
         public string Name { get; set; }

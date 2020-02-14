@@ -1,0 +1,69 @@
+﻿@page "/"
+@page "/dashboard"
+
+<BreadcrumbsComponent>
+    <BSBreadcrumbItem IsActive="true">Dashboard</BSBreadcrumbItem>
+</BreadcrumbsComponent>
+
+@if (Items != null)
+{
+    <div class="row mb-1">
+        <div class="col">
+            <h3>Summary</h3>
+        </div>
+    </div>
+    <div class="row mb-4">
+        @foreach (var item in Items.Where(metric => !metric.DependencyKind.HasValue))
+        {
+            <div class="col-xl-3 col-md-6 mb-4">
+                <MetricCardComponent Item="item" />
+            </div>
+        }
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-xl-6 col-md-6">
+            <div class="row mb-1">
+                <div class="col">
+                    <h3>Assets</h3>
+                </div>
+            </div>
+            <div class="row mb-4">
+                @foreach (var item in Items.Where(metric => metric.CategoryKind == CategoryKind.Asset && metric.DependencyKind.HasValue))
+                {
+                    <div class="col-xl-6 col-md-12 mb-4">
+                        <MetricCardComponent Item="item" />
+                    </div>
+                }
+            </div>
+        </div>    
+        <div class="col-xl-6 col-md-6">
+            <div class="row mb-1">
+                <div class="col">
+                    <h3>Dependencies</h3>
+                </div>
+            </div>
+            <div class="row mb-4">
+                @foreach (var item in Items.Where(metric => metric.CategoryKind == CategoryKind.Dependency && metric.DependencyKind.HasValue))
+                {
+                    <div class="col-xl-6 col-md-12 mb-4">
+                        <MetricCardComponent Item="item" />
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code
+{
+    IEnumerable<MetricItem> Items { get ; set; }
+
+    [Inject] IMetricService MetricService { get; set; }
+         
+
+    protected async override Task OnInitializedAsync()
+    {        
+        Items = await MetricService.GetCountsAsync();
+    }
+}

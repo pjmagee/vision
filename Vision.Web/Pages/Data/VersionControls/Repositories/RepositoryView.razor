@@ -1,0 +1,58 @@
+﻿@page "/data/vcs/{VersionControlId:guid}/repositories/{RepositoryId:guid}"
+
+<BreadcrumbsComponent VersionControlId="@VersionControlId" RepositoryId="@RepositoryId" />
+
+<RefreshComponent Target="TaskScopeKind.Repository" Id="@RepositoryId" />
+
+<MetricsComponent RepositoryId="@RepositoryId" />
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
+    </div>
+    <div class="card-body">
+        <AssetsComponent VersionControlId="@VersionControlId" RepositoryId="@RepositoryId" />
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">CICD builds</h6>
+    </div>
+    <div class="card-body">
+        <CiCdBuildsComponent RepositoryId="@RepositoryId" />
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Frameworks</h6>
+    </div>
+    <div class="card-body">
+        <FrameworksComponent RepositoryId="@RepositoryId" />
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Published Dependencies</h6>
+    </div>
+    <div class="card-body">
+        <DependenciesComponent RepositoryId="@RepositoryId" />
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Dependent Assets</h6>
+    </div>
+    <div class="card-body">
+        <AssetsComponent VersionControlId="@VersionControlId" RepositoryId="@RepositoryId" Dependents="true" />
+    </div>
+</div>
+
+@code
+{
+    [Parameter] public Guid VersionControlId { get; set; }
+    [Parameter] public Guid RepositoryId { get; set; }
+}

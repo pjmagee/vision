@@ -1,0 +1,52 @@
+﻿@if (Items != null)
+{
+    <div class="row mb-4">
+        @foreach (MetricItem item in Items)
+        {
+            <div class="col-xl-3 col-md-6 mb-4">
+                <MetricCardComponent Item="item"></MetricCardComponent>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <LoaderComponent />
+}
+
+@code
+{
+    [Parameter] public Guid? VersionControlId { get; set; }
+    [Parameter] public Guid? RepositoryId { get; set; }
+    [Parameter] public Guid? AssetId { get; set; }
+    [Parameter] public Guid? DependencyId { get; set; }
+    [Parameter] public Guid? VersionId { get; set; }
+
+    [Inject] IMetricService MetricService { get; set; }
+
+    IEnumerable<MetricItem> Items { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (VersionControlId.HasValue)
+        {
+            Items = await MetricService.GetMetricsAsync(VersionControlId.Value, CategoryKind.VersionControl);
+        }
+        else if(RepositoryId.HasValue)
+        {
+            Items = await MetricService.GetMetricsAsync(RepositoryId.Value, CategoryKind.Repository);
+        }
+        else if(AssetId.HasValue)
+        {
+            Items = await MetricService.GetMetricsAsync(AssetId.Value, CategoryKind.Asset);
+        }
+        else if(DependencyId.HasValue)
+        {
+            Items = await MetricService.GetMetricsAsync(DependencyId.Value, CategoryKind.Dependency);
+        }
+        else if(VersionId.HasValue)
+        {
+            Items = await MetricService.GetMetricsAsync(VersionId.Value, CategoryKind.DependencyVersion);
+        }
+    }
+}

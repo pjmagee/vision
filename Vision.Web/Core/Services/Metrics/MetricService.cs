@@ -24,8 +24,8 @@
 
             if (!cache.TryGetValue(Counts, out List<MetricItem> counts))
             {
-                IEnumerable<Task<MetricItem>> dependencies = AppHelper.DependencyKinds.Select(async kind => new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, kind, $"{kind} dependencies", await context.Dependencies.CountAsync(x => x.Kind == kind)));
-                IEnumerable<Task<MetricItem>> assets = AppHelper.DependencyKinds.Select(async kind => new MetricItem(MetricAlertKind.Standard, CategoryKind.Asset, kind, $"{kind} assets", await context.Assets.CountAsync(x => x.Kind == kind)));
+                IEnumerable<MetricItem> dependencies = AppHelper.DependencyKinds.Select(kind => new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, kind, $"{kind} dependencies", context.Dependencies.Count(x => x.Kind == kind)));
+                IEnumerable<MetricItem> assets = AppHelper.DependencyKinds.Select(kind => new MetricItem(MetricAlertKind.Standard, CategoryKind.Asset, kind, $"{kind} assets", context.Assets.Count(x => x.Kind == kind)));
 
                 var otherCounts = new MetricItem[]
                 {
@@ -40,7 +40,7 @@
                     new MetricItem(MetricAlertKind.Standard, CategoryKind.Framework, $"Asset frameworks", await context.AssetFrameworks.CountAsync()),
                 };
 
-                counts = otherCounts.Concat(await Task.WhenAll(dependencies.Concat(assets).ToArray())).ToList();
+                counts = otherCounts.Concat(dependencies.Concat(assets)).ToList();
 
                 cache.Set(Counts, counts, DateTimeOffset.Now.AddMinutes(5));
             }

@@ -1,0 +1,28 @@
+﻿<div class="row mb-2">
+    <div class="col">
+        <button class="btn btn-primary float-right" @onclick="@(async () => await RefreshAsync())">Refresh</button>
+    </div>
+</div>
+
+@code
+{
+    [Parameter] public Guid Id { get; set; }
+
+    [Parameter] public TaskScopeKind Target { get; set; }
+
+    [Inject] ISystemTaskService SystemTaskService { get; set; }
+
+    private async Task RefreshAsync()
+    {
+        var task = Target switch
+        {
+            TaskScopeKind.VersionControl => SystemTaskService.UpdateVersionControlAsync(Id),
+            TaskScopeKind.Repository => SystemTaskService.UpdateRepositoryAsync(Id),
+            TaskScopeKind.Dependency => SystemTaskService.UpdateDependencyAsync(Id),
+            TaskScopeKind.Asset => SystemTaskService.UpdateAssetAsync(Id),
+            _ => throw new Exception("Derp")
+        };
+
+        await task;
+    }
+}

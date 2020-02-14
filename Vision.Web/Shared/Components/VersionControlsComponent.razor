@@ -1,0 +1,67 @@
+﻿<BSTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
+    <thead>
+        <tr>
+            <th>Kind</th>
+            <th>Endpoint</th>
+            <th>ApiKey</th>
+            <th>Enabled</th>
+            <th>Repositories</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Items != null)
+        {
+            @foreach (var item in Items)
+            {
+                <tr>
+                    <td class="@item.Kind.GetIconClass() text-center">@SvgService.GetSvg(item.Kind)</td>
+                    <td><a href="@($"/data/vcs/{item.VersionControlId}")">@item.Endpoint</a></td>
+                    <td>@item.ApiKey</td>
+                    <th>@(item.IsEnabled.ToYesNo())</th>
+                    <td>@item.Repositories</td>
+                    <td>
+                        <a href="@($"/sources/edit/vcs/{item.VersionControlId}")">Edit</a>
+                    </td>
+                </tr>
+            }
+
+            @if (Items.Count == 0)
+            {
+                <tr>
+                    <td colspan="6">
+                        No version control systems found.
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="5">
+                    <LoaderComponent />
+                </td>
+            </tr>
+        }
+    </tbody>
+</BSTable>
+
+<PagerComponent Pager="Items" Page="@(async(p) => await PageAsync(p))"></PagerComponent>
+
+@code
+{
+    [Inject] IVersionControlService  Service { get; set; }
+    [Inject] SvgService SvgService { get; set; }
+
+    IPaginatedList<VersionControlDto> Items { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await PageAsync(1);
+    }
+
+    async Task PageAsync(int page)
+    {
+        Items = await Service.GetAsync(page);
+    }
+}

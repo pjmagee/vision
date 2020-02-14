@@ -1,0 +1,60 @@
+﻿@page "/sources/vcs"
+
+<BreadcrumbsComponent>
+    <BSBreadcrumbItem>Sources</BSBreadcrumbItem>
+    <BSBreadcrumbItem>Version Control Systems</BSBreadcrumbItem>
+</BreadcrumbsComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Add new</h6>
+    </div>
+    <div class="card-body">
+
+        <BSAlert IsDismissible="true" Color="Color.Info">
+            Username, Password and API Keys are Encrypted upon saving.
+        </BSAlert>
+
+        <EditForm Model="@Model" OnValidSubmit="@Submit">
+            <DataAnnotationsValidator />
+
+            <BSFormGroup>
+                <BSLabel>Endpoint</BSLabel>
+                <InputText Class="form-control" @bind-Value="@Model.Endpoint" />
+                <ValidationMessage For="@(() => Model.Endpoint)" />
+            </BSFormGroup>
+
+            <BSFormGroup>
+                <BSLabel>Api Key</BSLabel>
+                <InputText Class="form-control" @bind-Value="@Model.ApiKey" />
+                <ValidationMessage For="@(() => Model.ApiKey)" />
+            </BSFormGroup>
+
+            <BSFormGroup>
+                <BSLabel>Kind</BSLabel>
+                <InputSelect Class="form-control" @bind-Value="@Model.Kind">
+                    <option selected>Select</option>
+                    @foreach (VersionControlKind kind in Enum.GetValues(typeof(VersionControlKind)).Cast<VersionControlKind>())
+                    {
+                        <option value="@kind">@kind.ToString()</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => Model.Kind)" />
+            </BSFormGroup>
+
+            <button type="submit" class="btn btn-primary">Save</button>
+        </EditForm>
+    </div>
+</div>
+
+@code
+{
+    [Inject] IVersionControlService VersionControlService { get; set; }
+
+    VersionControlDto Model { get; set; } = new VersionControlDto();
+
+    protected async Task Submit()
+    {
+        await VersionControlService.CreateVersionControl(Model);
+    }
+}

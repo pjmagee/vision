@@ -1,0 +1,83 @@
+﻿@page "/sources/edit/vcs/{VersionControlId:guid}"
+
+<BreadcrumbsComponent>
+    <BSBreadcrumbItem>Sources</BSBreadcrumbItem>
+    <BSBreadcrumbItem>Version control systems</BSBreadcrumbItem>
+    <BSBreadcrumbItem IsActive="true">Edit</BSBreadcrumbItem>
+</BreadcrumbsComponent>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Update</h6>
+    </div>
+    <div class="card-body">
+        @if (Model != null)
+        {
+            <BSAlert IsDismissible="true" Color="Color.Info">
+                Username, Password and API Keys are Encrypted upon saving.
+            </BSAlert>
+
+            <EditForm Model="@Model" OnValidSubmit="@Submit">
+                <DataAnnotationsValidator />
+
+                <BSFormGroup>
+                    <BSLabel>Endpoint</BSLabel>
+                    <InputText class="form-control" @bind-Value="@Model.Endpoint" />
+                    <ValidationMessage For="@(() => Model.Endpoint)" />
+                </BSFormGroup>
+
+                <BSFormGroup>
+                    <BSLabel>Api Key</BSLabel>
+                    <InputText class="form-control" @bind-Value="@Model.ApiKey" />
+                    <ValidationMessage For="@(() => Model.ApiKey)" />
+                </BSFormGroup>
+
+                <BSFormGroup>
+                    <BSLabel>Kind</BSLabel>
+                    <InputSelect class="form-control" @bind-Value="@Model.Kind">
+                        <option>Select</option>
+                        @foreach (var kind in Enum.GetValues(typeof(VersionControlKind)).Cast<VersionControlKind>())
+                        {
+                            <option value="@kind">@kind.ToString()</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => Model.Kind)" />
+                </BSFormGroup>
+
+                <BSFormGroup>
+                    <div class="form-check">
+                        <InputCheckbox class="form-check-input" @bind-Value="@Model.IsEnabled" id="isEnabled" />
+                        <label class="form-check-label" for="isEnabled">Enabled</label>
+                    </div>
+                </BSFormGroup>
+
+                <BSButton type="submit" class="btn btn-primary">Update</BSButton>
+            </EditForm>
+        }
+        else
+        {
+            <LoaderComponent />
+        }
+    </div>
+</div>
+
+@code
+{
+    [Parameter] public Guid VersionControlId { get; set; }
+
+    [Inject] IVersionControlService VersionControlService { get; set; }
+    [Inject] NavigationManager NavigationManager { get; set; }
+
+    VersionControlDto Model { get; set; }
+
+    protected async Task Submit()
+    {
+        await VersionControlService.UpdateAsync(Model);
+        NavigationManager.NavigateTo("/data/vcs");
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Model = await VersionControlService.GetByIdAsync(VersionControlId);
+    }
+}

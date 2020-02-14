@@ -3,13 +3,6 @@
     using System;
     using System.Linq;
 
-    public static class BooleanExtensions
-    {
-        public static string ToYesNo(this bool value) => value ? "Yes" : "No";
-
-        public static string ToYesNo(this bool? value) => value.GetValueOrDefault().ToYesNo();
-    }
-    
 
     public static class StringExtensions
     {

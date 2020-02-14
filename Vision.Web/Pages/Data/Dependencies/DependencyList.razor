@@ -1,0 +1,19 @@
+﻿@page "/data/dependencies"
+
+<BreadcrumbsComponent>
+    <BSBreadcrumbItem>Data</BSBreadcrumbItem>
+    <BSBreadcrumbItem IsActive="true">Dependencies</BSBreadcrumbItem>
+</BreadcrumbsComponent>
+
+<BSAlert IsDismissible="true" Color="Color.Info">
+    Dependencies that have been collected and found across all assets.
+</BSAlert>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Dependencies</h6>
+    </div>
+    <div class="card-body">
+        <DependenciesComponent />
+    </div>
+</div>

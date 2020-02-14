@@ -1,0 +1,34 @@
+﻿@page "/data/dependencies/{DependencyId:guid}"
+
+<BreadcrumbsComponent DependencyId="@DependencyId" />
+
+<BSAlert Color="Color.Info">
+    This shows the version distribution across all assets. <b>Less is more maintainable.</b>
+</BSAlert>
+
+<RefreshComponent Target="TaskScopeKind.Dependency" Id="@DependencyId" />
+
+<MetricsComponent DependencyId="@DependencyId" />
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Versions</h6>
+    </div>
+    <div class="card-body">
+        <DependencyVersionsComponent DependencyId="@DependencyId" />
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
+    </div>
+    <div class="card-body">
+        <DependencyAssetsComponent DependencyId="@DependencyId" />
+    </div>
+</div>
+
+@code
+{
+    [Parameter] public Guid DependencyId { get; set; }
+}

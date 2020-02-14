@@ -1,14 +1,13 @@
-﻿namespace Vision.Tests
+﻿using Microsoft.Extensions.Logging;
+using NSubstitute;
+using System;
+using System.Linq;
+using System.Xml.Linq;
+using Vision.Web.Core;
+using Xunit;
+
+namespace Vision.Tests
 {
-    using Microsoft.Extensions.Logging;
-    using NSubstitute;
-    using System;
-    using System.Linq;
-    using System.Xml.Linq;
-    using Vision.Web.Core;
-    using Xunit;
-
-
     public class NuGetAssetExtractorTests
     {
         private readonly NuGetAssetExtractor sut;
