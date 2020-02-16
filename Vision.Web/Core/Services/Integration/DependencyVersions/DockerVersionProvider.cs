@@ -17,7 +17,7 @@
             this.logger = logger;
         }
 
-        public bool Supports(DependencyKind kind) => kind == DependencyKind.Docker;
+        public bool Supports(EcosystemKind kind) => kind == EcosystemKind.Docker;
 
         public async Task<DependencyVersion> GetLatestMetaDataAsync(RegistryDto registry, Dependency dependency)
         {

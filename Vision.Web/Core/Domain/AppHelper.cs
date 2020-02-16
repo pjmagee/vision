@@ -8,8 +8,8 @@ namespace Vision.Web.Core
     {
         public static IEnumerable<CiCdKind> CiCdKinds { get; } = Enum.GetValues(typeof(CiCdKind)).Cast<CiCdKind>();
 
-        public static IEnumerable<DependencyKind> DependencyKinds = Enum.GetValues(typeof(DependencyKind)).Cast<DependencyKind>();
-        public static IEnumerable<VersionControlKind> VersionControlKinds { get; } = Enum.GetValues(typeof(VersionControlKind)).Cast<VersionControlKind>();
+        public static IEnumerable<EcosystemKind> EcosystemKinds = Enum.GetValues(typeof(EcosystemKind)).Cast<EcosystemKind>();
+        public static IEnumerable<VcsKind> VcsKinds { get; } = Enum.GetValues(typeof(VcsKind)).Cast<VcsKind>();
         public static string GetName(this Enum kind) => Enum.GetName(kind.GetType(), kind);
 
         public const string NuGetFile = "csproj";

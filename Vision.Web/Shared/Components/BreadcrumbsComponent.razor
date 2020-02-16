@@ -1,51 +1,57 @@
 ﻿@inherits OwningComponentBase
 
 <BSBreadcrumb>
-    @if (VersionControlId.HasValue && VersionControlId.HasValue && RuntimeId.HasValue && RepositoryId.HasValue)
+    @if (VcsId.HasValue && VcsId.HasValue && EcosystemId.HasValue && RepositoryId.HasValue)
     {
         <BSBreadcrumbItem>Data</BSBreadcrumbItem>
         <BSBreadcrumbItem><a href="@($"/data/vcs/")">Version Control</a></BSBreadcrumbItem>
-        <BSBreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}")">@VersionControl?.Endpoint</a></BSBreadcrumbItem>
-        <BSBreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}")">@Repository.PathAndQuery</a></BSBreadcrumbItem>
-        <BSBreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}/runtimes")">Runtimes</a></BSBreadcrumbItem>
-        <BSBreadcrumbItem IsActive="true">@Runtime?.Name</BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/vcs/{VcsId}")">@Vcs?.Endpoint</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/vcs/{VcsId}/repositories/{RepositoryId}")">@Repository.PathAndQuery</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/vcs/{VcsId}/repositories/{RepositoryId}/ecosystems")">Runtimes</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem IsActive="true">@Ecosystem?.Name</BSBreadcrumbItem>
     }
-    else if (VersionControlId.HasValue && RepositoryId.HasValue && DependencyId.HasValue)
+    else if (VcsId.HasValue && RepositoryId.HasValue && DependencyId.HasValue)
     {
         <BSBreadcrumbItem>Data</BSBreadcrumbItem>
         <BSBreadcrumbItem><a href="@($"/data/vcs/")">Version Control</a></BSBreadcrumbItem>
-        <BSBreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}")">@VersionControl?.Endpoint</a></BSBreadcrumbItem>
-        <BSBreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}")">@Repository.PathAndQuery</a></BSBreadcrumbItem>
-        <BSBreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}/dependencies")">Dependencies</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/vcs/{VcsId}")">@Vcs?.Endpoint</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/vcs/{VcsId}/repositories/{RepositoryId}")">@Repository.PathAndQuery</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/vcs/{VcsId}/repositories/{RepositoryId}/dependencies")">Dependencies</a></BSBreadcrumbItem>
         <BSBreadcrumbItem IsActive="true">@Dependency?.Name</BSBreadcrumbItem>
     }
-    else if (AssetId.HasValue && RepositoryId.HasValue && VersionControlId.HasValue)
+    else if (AssetId.HasValue && RepositoryId.HasValue && VcsId.HasValue)
     {
         <BSBreadcrumbItem>Data</BSBreadcrumbItem>
         <BSBreadcrumbItem><a href="@($"/data/vcs/")">Version Control</a></BSBreadcrumbItem>
-        <BSBreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}")">@VersionControl?.Endpoint</a></BSBreadcrumbItem>
-        <BSBreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}")">@Repository?.PathAndQuery</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/vcs/{VcsId}")">@Vcs?.Endpoint</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/vcs/{VcsId}/repositories/{RepositoryId}")">@Repository?.PathAndQuery</a></BSBreadcrumbItem>
         <BSBreadcrumbItem IsActive="true">@Asset?.Asset</BSBreadcrumbItem>
     }
-    else if (RepositoryId.HasValue && VersionControlId.HasValue)
+    else if (RepositoryId.HasValue && VcsId.HasValue)
     {
         <BSBreadcrumbItem>Data</BSBreadcrumbItem>
         <BSBreadcrumbItem><a href="@($"/data/vcs/")">Version Control</a></BSBreadcrumbItem>
-        <BSBreadcrumbItem><a href="@($"/data/vcs/{VersionControlId}")">@VersionControl?.Endpoint</a></BSBreadcrumbItem>
-        <BSBreadcrumbItem IsActive="true"><a href="@($"/data/vcs/{VersionControlId}/repositories/{RepositoryId}")">@Repository?.PathAndQuery</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="@($"/data/vcs/{VcsId}")">@Vcs?.Endpoint</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem IsActive="true">
+            <a href="@($"/data/vcs/{VcsId}/repositories/{RepositoryId}")">@Repository?.PathAndQuery</a>
+        </BSBreadcrumbItem>
     }
-    else if (DependencyId.HasValue && VersionId.HasValue)
+    else if (DependencyId.HasValue && DependencyVersionId.HasValue)
     {
         <BSBreadcrumbItem>Data</BSBreadcrumbItem>
         <BSBreadcrumbItem><a href="/data/dependencies">Dependencies</a></BSBreadcrumbItem>
         <BSBreadcrumbItem><a href="@($"/data/dependencies/{DependencyId}")">@Dependency?.Name</a></BSBreadcrumbItem>
-        <BSBreadcrumbItem><a href="@($"/data/dependencies/{DependencyId}/versions/{VersionId}")">@Version?.Version</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem>
+            <a href="@($"/data/dependencies/{DependencyId}/versions/{DependencyVersionId}")">
+                @Version?.Version
+            </a>
+        </BSBreadcrumbItem>
     }
-    else if (VersionControlId.HasValue)
+    else if (VcsId.HasValue)
     {
         <BSBreadcrumbItem>Data</BSBreadcrumbItem>
         <BSBreadcrumbItem><a href="@($"/data/vcs/")">Version Control</a></BSBreadcrumbItem>
-        <BSBreadcrumbItem IsActive="true"> <a href="@($"/data/vcs/{VersionControlId}")">@VersionControl?.Endpoint</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem IsActive="true"> <a href="@($"/data/vcs/{VcsId}")">@Vcs?.Endpoint</a></BSBreadcrumbItem>
     }
     else if (DependencyId.HasValue)
     {
@@ -53,24 +59,28 @@
         <BSBreadcrumbItem><a href="/data/dependencies">Dependencies</a></BSBreadcrumbItem>
         <BSBreadcrumbItem IsActive="true">@Dependency?.Name</BSBreadcrumbItem>
     }
-    else if (RuntimeVersionId.HasValue && RuntimeId.HasValue)
+    else if (EcosystemVersionId.HasValue && EcosystemId.HasValue)
     {
         <BSBreadcrumbItem>Data</BSBreadcrumbItem>
-        <BSBreadcrumbItem><a href="/data/runtimes">Runtimes</a></BSBreadcrumbItem>
-        <BSBreadcrumbItem>@Runtime?.Name</BSBreadcrumbItem>
-        <BSBreadcrumbItem IsActive="true"> <a href="@($"/data/runtimes/{RuntimeId}/versions/{RuntimeVersionId}")">@RuntimeVersion?.Version</a> </BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="/data/ecosystems">Ecosystems</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem>@Ecosystem?.Name</BSBreadcrumbItem>
+        <BSBreadcrumbItem IsActive="true">
+            <a href="@($"/data/ecosystems/{EcosystemId}/versions/{EcosystemVersionId}")">@EcosystemVersion?.Version</a>
+        </BSBreadcrumbItem>
     }
-    else if (RuntimeId.HasValue && !RuntimeVersionId.HasValue)
+    else if (EcosystemId.HasValue && !EcosystemVersionId.HasValue)
     {
         <BSBreadcrumbItem>Data</BSBreadcrumbItem>
-        <BSBreadcrumbItem><a href="/data/runtimes">Runtimes</a></BSBreadcrumbItem>
-        <BSBreadcrumbItem IsActive="true">@Runtime?.Name</BSBreadcrumbItem>
+        <BSBreadcrumbItem><a href="/data/ecosystems">Ecosystems</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem IsActive="true">@Ecosystem?.Name</BSBreadcrumbItem>
     }
     else if (RegistryId.HasValue)
     {
         <BSBreadcrumbItem>Data</BSBreadcrumbItem>
         <BSBreadcrumbItem><a href="/data/registries">Registries</a></BSBreadcrumbItem>
-        <BSBreadcrumbItem IsActive="true"><a href="@($"/data/registries/{RegistryId}")">@Registry?.Endpoint</a></BSBreadcrumbItem>
+        <BSBreadcrumbItem IsActive="true">
+            <a href="@($"/data/registries/{RegistryId}")">@Registry?.Endpoint</a>
+        </BSBreadcrumbItem>
     }
     else
     {
@@ -84,17 +94,17 @@
 @code
 {
     [Parameter] public Guid? RepositoryId { get; set; }
-    [Parameter] public Guid? RuntimeId { get; set; }
-    [Parameter] public Guid? RuntimeVersionId { get; set; }
-    [Parameter] public Guid? VersionControlId { get; set; }
+    [Parameter] public Guid? EcosystemId { get; set; }
+    [Parameter] public Guid? EcosystemVersionId { get; set; }
+    [Parameter] public Guid? VcsId { get; set; }
     [Parameter] public Guid? AssetId { get; set; }
     [Parameter] public Guid? DependencyId { get; set; }
-    [Parameter] public Guid? VersionId { get; set; }
+    [Parameter] public Guid? DependencyVersionId { get; set; }
     [Parameter] public Guid? RegistryId { get; set; }
     [Parameter] public RenderFragment ChildContent { get; set; }
 
     IRepositoryService RepositoryService { get; set; }
-    IRuntimeService RuntimeService { get; set; }
+    IEcosystemService EcosystemService { get; set; }
     IVersionControlService VersionControlService { get; set; }
     IAssetService AssetService { get; set; }
     IRegistryService RegistryService { get; set; }
@@ -102,18 +112,18 @@
     IDependencyVersionService VersionService { get; set; }
 
     RepositoryDto Repository { get; set; }
-    VersionControlDto VersionControl { get; set; }
+    VersionControlDto Vcs { get; set; }
     AssetDto Asset { get; set; }
     DependencyDto Dependency { get; set; }
-    RuntimeDto Runtime { get; set; }
+    EcosystemDto Ecosystem { get; set; }
     DependencyVersionDto Version { get; set; }
     RegistryDto Registry { get; set; }
-    RuntimeVersionDto RuntimeVersion { get; set; }
+    EcosystemVersionDto EcosystemVersion { get; set; }
 
     protected override void OnInitialized()
     {
         RepositoryService = (IRepositoryService)ScopedServices.GetService(typeof(IRepositoryService));
-        RuntimeService = (IRuntimeService)ScopedServices.GetService(typeof(IRuntimeService));
+        EcosystemService = (IEcosystemService)ScopedServices.GetService(typeof(IEcosystemService));
         VersionControlService = (IVersionControlService)ScopedServices.GetService(typeof(IVersionControlService));
         AssetService = (IAssetService)ScopedServices.GetService(typeof(IAssetService));
         RegistryService = (IRegistryService)ScopedServices.GetService(typeof(IRegistryService));
@@ -124,12 +134,12 @@
     protected override async Task OnParametersSetAsync()
     {
         if (RepositoryId.HasValue) Repository = await RepositoryService.GetByIdAsync(RepositoryId.Value);
-        if (RuntimeId.HasValue) Runtime = await RuntimeService.GetRuntimeByIdAsync(RuntimeId.Value);
-        if (RuntimeVersionId.HasValue) RuntimeVersion = await RuntimeService.GetVersionByIdAsync(RuntimeVersionId.Value);
-        if (VersionControlId.HasValue) VersionControl = await VersionControlService.GetByIdAsync(VersionControlId.Value);
+        if (EcosystemId.HasValue) Ecosystem = await EcosystemService.GetEcosystemByIdAsync(EcosystemId.Value);
+        if (EcosystemVersionId.HasValue) EcosystemVersion = await EcosystemService.GetEcoVersionByIdAsync(EcosystemVersionId.Value);
+        if (VcsId.HasValue) Vcs = await VersionControlService.GetByIdAsync(VcsId.Value);
         if (AssetId.HasValue) Asset = await AssetService.GetByIdAsync(AssetId.Value);
         if (RegistryId.HasValue) Registry = await RegistryService.GetByIdAsync(RegistryId.Value);
         if (DependencyId.HasValue) Dependency = await DependencyService.GetByIdAsync(DependencyId.Value);
-        if (VersionId.HasValue) Version = await VersionService.GetByIdAsync(VersionId.Value);
+        if (DependencyVersionId.HasValue) Version = await VersionService.GetByIdAsync(DependencyVersionId.Value);
     }
 }

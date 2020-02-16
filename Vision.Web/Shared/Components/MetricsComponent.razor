@@ -18,11 +18,11 @@ else
 
 @code
 {
-    [Parameter] public Guid? VersionControlId { get; set; }
+    [Parameter] public Guid? VcsId { get; set; }
     [Parameter] public Guid? RepositoryId { get; set; }
     [Parameter] public Guid? AssetId { get; set; }
     [Parameter] public Guid? DependencyId { get; set; }
-    [Parameter] public Guid? VersionId { get; set; }
+    [Parameter] public Guid? DependencyVersionId { get; set; }
 
     IMetricService MetricService { get; set; }
     IEnumerable<MetricItem> Items { get; set; }
@@ -34,9 +34,9 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
-        if (VersionControlId.HasValue)
+        if (VcsId.HasValue)
         {
-            Items = await MetricService.GetMetricsAsync(VersionControlId.Value, CategoryKind.VersionControl);
+            Items = await MetricService.GetMetricsAsync(VcsId.Value, CategoryKind.VersionControl);
         }
         else if (RepositoryId.HasValue)
         {
@@ -50,9 +50,9 @@ else
         {
             Items = await MetricService.GetMetricsAsync(DependencyId.Value, CategoryKind.Dependency);
         }
-        else if (VersionId.HasValue)
+        else if (DependencyVersionId.HasValue)
         {
-            Items = await MetricService.GetMetricsAsync(VersionId.Value, CategoryKind.DependencyVersion);
+            Items = await MetricService.GetMetricsAsync(DependencyVersionId.Value, CategoryKind.DependencyVersion);
         }
     }
 }

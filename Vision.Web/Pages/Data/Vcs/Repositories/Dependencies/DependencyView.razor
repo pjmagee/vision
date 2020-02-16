@@ -1,0 +1,33 @@
+﻿@page "/data/vcs/{VcsId:guid}/repositories/{RepositoryId:guid}/dependencies/{DependencyId:guid}"
+@inherits OwningComponentBase
+
+<BreadcrumbsComponent VcsId="@VcsId" RepositoryId="@RepositoryId" DependencyId="@DependencyId" />
+
+<RefreshComponent Target="TaskScopeKind.Dependency" Id="@DependencyId" />
+
+<MetricsComponent DependencyId="@DependencyId" />
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Versions</h6>
+    </div>
+    <div class="card-body">
+        <DependencyVersionsComponent DependencyId="@DependencyId" />
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
+    </div>
+    <div class="card-body">
+        <AssetDependenciesComponent DependencyId="@DependencyId" />
+    </div>
+</div>
+
+@code
+{
+    [Parameter] public Guid DependencyId { get; set; }
+    [Parameter] public Guid RepositoryId { get; set; }
+    [Parameter] public Guid VcsId { get; set; }
+}

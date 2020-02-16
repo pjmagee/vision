@@ -6,7 +6,7 @@
     {
         public string WebUrl { get; set; }
 
-        public Guid VersionControlId { get; set; }
+        public Guid VcsId { get; set; }
 
         public Guid RepositoryId { get; set; }
 

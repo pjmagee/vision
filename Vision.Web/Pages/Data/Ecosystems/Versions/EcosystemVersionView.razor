@@ -1,0 +1,27 @@
+﻿@page "/data/ecosystems/{EcosystemId:guid}/versions/{EcosystemVersionId:guid}"
+
+<BreadcrumbsComponent EcosystemId="@EcosystemId" EcosystemVersionId="@EcosystemVersionId" />
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
+    </div>
+    <div class="card-body">
+        <AssetsComponent EcosystemVersionId="@EcosystemId" />
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Repositories</h6>
+    </div>
+    <div class="card-body">
+        <RepositoriesComponent EcosystemVersionId="@EcosystemId" />
+    </div>
+</div>
+
+@code
+{
+    [Parameter] public Guid EcosystemId { get; set; }
+    [Parameter] public Guid EcosystemVersionId { get; set; }
+}

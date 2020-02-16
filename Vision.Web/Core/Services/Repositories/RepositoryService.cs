@@ -13,27 +13,27 @@
             this.context = context;
         }
 
-        public async Task<RepositoryDto> ToggleIgnoreAsync(Guid repositoryId)
+        public async Task<RepositoryDto> ToggleIgnoreAsync(Guid repoId)
         {
-            VcsRepository repository = await context.Repositories.FindAsync(repositoryId);
+            VcsRepository repository = await context.VcsRepositories.FindAsync(repoId);
             repository.IsIgnored = !repository.IsIgnored;
             await context.SaveChangesAsync();
 
             if (repository.IsIgnored)
             {
-                context.RemoveRange(context.Assets.Where(asset => asset.RepositoryId == repositoryId));
+                context.RemoveRange(context.Assets.Where(asset => asset.RepositoryId == repoId));
             }
             else
             {
-                context.Tasks.Add(new RefreshTask { Scope = TaskScopeKind.Repository, TargetId = repositoryId });
+                context.Tasks.Add(new RefreshTask { Scope = TaskScopeKind.Repository, TargetId = repoId });
             }
 
             await context.SaveChangesAsync();
 
             return new RepositoryDto
             {
-                VersionControlId = repository.VcsId,
-                Assets = context.Assets.Count(asset => asset.RepositoryId == repositoryId),
+                VcsId = repository.VcsId,
+                Assets = context.Assets.Count(asset => asset.RepositoryId == repoId),
                 Url = repository.Url,
                 WebUrl = repository.WebUrl,
                 RepositoryId = repository.Id,
@@ -41,14 +41,14 @@
             };
         }
 
-        public async Task<RepositoryDto> GetByIdAsync(Guid repositoryId)
+        public async Task<RepositoryDto> GetByIdAsync(Guid repoId)
         {
-            VcsRepository repository = await context.Repositories.FindAsync(repositoryId);
+            VcsRepository repository = await context.VcsRepositories.FindAsync(repoId);
 
             return new RepositoryDto
             {
-                VersionControlId = repository.VcsId,
-                Assets = context.Assets.Count(asset => asset.RepositoryId == repositoryId),
+                VcsId = repository.VcsId,
+                Assets = context.Assets.Count(asset => asset.RepositoryId == repoId),
                 Url = repository.Url,
                 WebUrl = repository.WebUrl,
                 RepositoryId = repository.Id,
@@ -58,7 +58,7 @@
 
         public async Task<IPaginatedList<RepositoryDto>> GetAsync(bool showIgnored, string search, int pageIndex = 1, int pageSize = 10)
         {
-            var query = context.Repositories.Where(repository => repository.IsIgnored == showIgnored);
+            var query = context.VcsRepositories.Where(repository => repository.IsIgnored == showIgnored);
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -67,7 +67,7 @@
 
             var paging = query.Select(repository => new RepositoryDto
             {
-                VersionControlId = repository.VcsId,
+                VcsId = repository.VcsId,
                 Assets = context.Assets.Count(a => a.RepositoryId == repository.Id),
                 Url = repository.Url,
                 WebUrl = repository.WebUrl,
@@ -79,9 +79,9 @@
             return await PaginatedList<RepositoryDto>.CreateAsync(paging, pageIndex, pageSize);
         }
 
-        public async Task<IPaginatedList<RepositoryDto>> GetByVersionControlIdAsync(Guid versionControlId, bool showIgnored, string search, int pageIndex = 1, int pageSize = 10)
+        public async Task<IPaginatedList<RepositoryDto>> GetByVcsIdAsync(Guid vcsId, bool showIgnored, string search, int pageIndex = 1, int pageSize = 10)
         {
-            var query = context.Repositories.Where(repository => repository.IsIgnored == showIgnored).Where(repository => repository.VcsId == versionControlId);
+            var query = context.VcsRepositories.Where(repository => repository.IsIgnored == showIgnored).Where(repository => repository.VcsId == vcsId);
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -90,7 +90,7 @@
 
             var paging = query.Select(repository => new RepositoryDto
             {
-                VersionControlId = repository.VcsId,
+                VcsId = repository.VcsId,
                 Assets = context.Assets.Count(a => a.RepositoryId == repository.Id),
                 Url = repository.Url,
                 WebUrl = repository.WebUrl,
@@ -102,20 +102,18 @@
             return await PaginatedList<RepositoryDto>.CreateAsync(paging, pageIndex, pageSize);
         }
 
-        public async Task<IPaginatedList<RepositoryDto>> GetByRuntimeIdAsync(Guid runtimeId, bool showIgnored, string search, int pageIndex = 1, int pageSize = 10)
+        public async Task<IPaginatedList<RepositoryDto>> GetByEcosystemIdAsync(Guid ecoId, bool showIgnored, string search, int pageIndex = 1, int pageSize = 10)
         {
-            Runtime runtime = await context.Runtimes.FindAsync(runtimeId);
-
-            IQueryable<VcsRepository> repositories = context.Repositories
+            IQueryable<VcsRepository> repositories = context.VcsRepositories
                 .Where(repository => repository.IsIgnored == showIgnored)
                 .Where(repository => context.Assets.Any(asset => asset.RepositoryId == repository.Id &&
-                                                                 context.AssetRuntimes.Any(ar => ar.RuntimeVersion.RuntimeId == runtimeId &&
+                                                                 context.AssetEcoSystems.Any(ar => ar.EcosystemVersion.EcosystemId == ecoId &&
                                                                                                  ar.AssetId == asset.Id)));
 
             var query = repositories.Select(repository => new RepositoryDto
             {
                 Assets = context.Assets.Count(asset => asset.RepositoryId == repository.Id),
-                VersionControlId = repository.VcsId,
+                VcsId = repository.VcsId,
                 WebUrl = repository.WebUrl,
                 Url = repository.Url,
                 RepositoryId = repository.Id,
@@ -126,20 +124,18 @@
             return await PaginatedList<RepositoryDto>.CreateAsync(query, pageIndex, pageSize);
         }
 
-        public async Task<IPaginatedList<RepositoryDto>> GetByRuntimeVersionIdAsync(Guid runtimeVersionId, bool showIgnored, string search, int pageIndex = 1, int pageSize = 10)
+        public async Task<IPaginatedList<RepositoryDto>> GetByEcosystemVersionIdAsync(Guid ecoVerId, bool showIgnored, string search, int pageIndex = 1, int pageSize = 10)
         {
-            RuntimeVersion version = await context.RuntimeVersions.FindAsync(runtimeVersionId);
-
-            IQueryable<VcsRepository> repositories = context.Repositories
+            IQueryable<VcsRepository> repositories = context.VcsRepositories
                 .Where(repository => repository.IsIgnored == showIgnored)
                 .Where(repository => context.Assets.Any(asset => asset.RepositoryId == repository.Id &&
-                                                                 context.AssetRuntimes.Any(ar => ar.RuntimeVersionId == runtimeVersionId &&
+                                                                 context.AssetEcoSystems.Any(ar => ar.EcosystemVersionId == ecoVerId &&
                                                                                                  ar.AssetId == asset.Id)));
 
             var query = repositories.Select(repository => new RepositoryDto
             {
                 Assets = context.Assets.Count(asset => asset.RepositoryId == repository.Id),
-                VersionControlId = repository.VcsId,
+                VcsId = repository.VcsId,
                 WebUrl = repository.WebUrl,
                 Url = repository.Url,
                 RepositoryId = repository.Id,

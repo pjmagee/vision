@@ -10,7 +10,7 @@ namespace Vision.Web.Core
     {
         private readonly ILogger<NpmAssetExtractor> logger;
 
-        public DependencyKind Kind { get; } = DependencyKind.Npm;
+        public EcosystemKind Kind { get; } = EcosystemKind.Npm;
 
         public NpmAssetExtractor(ILogger<NpmAssetExtractor> logger)
         {
@@ -46,7 +46,7 @@ namespace Vision.Web.Core
             return Enumerable.Empty<Extract>();
         }
 
-        public IEnumerable<Extract> ExtractRuntimes(Asset asset)
+        public IEnumerable<Extract> ExtractEcoSystem(Asset asset)
         {
             List<Extract> extracts = new List<Extract>();
 

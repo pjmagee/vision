@@ -1,10 +1,9 @@
-﻿namespace Vision.Web.Core
-{
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 
+namespace Vision.Web.Core
+{
     public class VersionControlService : IVersionControlService
     {
         private readonly VisionDbContext context;
@@ -18,14 +17,14 @@
 
         public async Task<IPaginatedList<VersionControlDto>> GetAsync(int pageIndex = 1, int pageSize = 10)
         {
-            var query = context.VersionControls.Select(versionControl => new VersionControlDto
+            var query = context.VcsSources.Select(versionControl => new VersionControlDto
             {
                 Endpoint = versionControl.Endpoint,
                 ApiKey = versionControl.ApiKey,
                 Kind =  versionControl.Kind,
-                VersionControlId = versionControl.Id,
+                VcsId = versionControl.Id,
                 IsEnabled = versionControl.IsEnabled,
-                Repositories = context.Repositories.Count(repository => repository.VcsId == versionControl.Id)
+                Repositories = context.VcsRepositories.Count(repository => repository.VcsId == versionControl.Id)
             })
             .OrderByDescending(vcs => vcs.Repositories);
 
@@ -36,7 +35,7 @@
         {
             encryptionService.Encrypt(dto);
 
-            Vcs versionControl = new Vcs
+            Vcs vcs = new Vcs
             {
                 Id = Guid.NewGuid(),
                 ApiKey = dto.ApiKey,
@@ -45,23 +44,23 @@
                 IsEnabled = dto.IsEnabled
             };
 
-            context.VersionControls.Add(versionControl);
+            context.VcsSources.Add(vcs);
             await context.SaveChangesAsync();
 
-            return new VersionControlDto { Endpoint = versionControl.Endpoint, ApiKey = versionControl.ApiKey, Kind = versionControl.Kind, VersionControlId = versionControl.Id };
+            return new VersionControlDto { Endpoint = vcs.Endpoint, ApiKey = vcs.ApiKey, Kind = vcs.Kind, VcsId = vcs.Id };
         }
 
-        public async Task<VersionControlDto> GetByIdAsync(Guid versionControlId)
+        public async Task<VersionControlDto> GetByIdAsync(Guid VcsId)
         {
-            Vcs versionControl = await context.VersionControls.FindAsync(versionControlId);
+            Vcs vcs = await context.VcsSources.FindAsync(VcsId);
 
             return new VersionControlDto
             {
-                Endpoint = versionControl.Endpoint,
-                ApiKey = versionControl.ApiKey,
-                Kind = versionControl.Kind,
-                VersionControlId = versionControl.Id,
-                Repositories = context.Repositories.Count(x => x.VcsId == versionControl.Id)
+                Endpoint = vcs.Endpoint,
+                ApiKey = vcs.ApiKey,
+                Kind = vcs.Kind,
+                VcsId = vcs.Id,
+                Repositories = context.VcsRepositories.Count(x => x.VcsId == vcs.Id)
             };
         }
 
@@ -69,13 +68,13 @@
         {
             encryptionService.Encrypt(dto);
 
-            Vcs versionControl = context.VersionControls.Find(dto.VersionControlId);
+            Vcs versionControl = context.VcsSources.Find(dto.VcsId);
             versionControl.Endpoint = dto.Endpoint;
             versionControl.Kind = dto.Kind;
             versionControl.IsEnabled = dto.IsEnabled;
             versionControl.ApiKey = dto.ApiKey;
 
-            context.VersionControls.Update(versionControl);
+            context.VcsSources.Update(versionControl);
             await context.SaveChangesAsync();
 
             return new VersionControlDto
@@ -83,8 +82,8 @@
                 Endpoint = versionControl.Endpoint,
                 ApiKey = versionControl.ApiKey,
                 Kind = versionControl.Kind,
-                VersionControlId = versionControl.Id,
-                Repositories = context.Repositories.Count(x => x.VcsId == versionControl.Id)
+                VcsId = versionControl.Id,
+                Repositories = context.VcsRepositories.Count(x => x.VcsId == versionControl.Id)
             };
         }
     }

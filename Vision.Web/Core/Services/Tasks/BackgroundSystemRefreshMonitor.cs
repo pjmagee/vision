@@ -61,12 +61,12 @@ namespace Vision.Web.Core
 
         private async Task HandleRepositoryCleaning(VisionDbContext context)
         {
-            foreach (var repository in await context.Repositories.Where(repository => repository.IsIgnored).ToListAsync())
+            foreach (var repository in await context.VcsRepositories.Where(repository => repository.IsIgnored).ToListAsync())
             {
                 if (await context.Assets.AnyAsync(a => a.RepositoryId == repository.Id))
                 {
                     logger.LogInformation($"Removing repository assocated from repository {repository.Id}");
-                    context.AssetRuntimes.RemoveRange(context.AssetRuntimes.Where(af => af.Asset.Repository == repository));
+                    context.AssetEcoSystems.RemoveRange(context.AssetEcoSystems.Where(af => af.Asset.Repository == repository));
                     context.Assets.RemoveRange(context.Assets.Where(asset => asset.RepositoryId == repository.Id));
                     await context.SaveChangesAsync();
                 }

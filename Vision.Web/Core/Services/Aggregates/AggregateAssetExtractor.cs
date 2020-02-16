@@ -53,7 +53,7 @@ namespace Vision.Web.Core
                 {
                     try
                     {
-                        var extracts = extractor.ExtractRuntimes(asset);
+                        var extracts = extractor.ExtractEcoSystem(asset);
 
                         logger.LogInformation($"{nameof(ExtractRuntimes)}::['{asset.Path}']::[{extractor.GetType().Name}]::FOUND::[{extracts.Count()}]");
 

@@ -43,6 +43,7 @@
 @code
 {
     [Parameter] public Guid? AssetId { get; set; }
+    [Parameter] public Guid? DependencyId { get; set; }
 
     IAssetDependencyService Service { get; set; }
     IPaginatedList<AssetDependencyDto> Items { get; set; }
@@ -62,6 +63,11 @@
         if (AssetId.HasValue)
         {
             Items = await Service.GetByAssetIdAsync(AssetId.Value, page);
+            StateHasChanged();
+        }
+        else if (DependencyId.HasValue)
+        {
+            Items = await Service.GetByDependencyIdAsync(DependencyId.Value, page);
             StateHasChanged();
         }
     }

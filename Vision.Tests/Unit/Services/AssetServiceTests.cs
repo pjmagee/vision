@@ -22,42 +22,42 @@
         public async void GetByAssetIdAsync()
         {
             // TODO
-            IPaginatedList<AssetDto> assets = await sut.GetByAssetIdAsync(Guid.Empty, "", new DependencyKind[] { }, pageIndex: 1, pageSize: 1);
+            IPaginatedList<AssetDto> assets = await sut.GetByAssetIdAsync(Guid.Empty, "", new EcosystemKind[] { }, pageIndex: 1, pageSize: 1);
         }
 
         [Fact]
         public async void GetByDependencyIdAsync()
         {
             // TODO
-            IPaginatedList<AssetDto> assets = await sut.GetByDependencyIdAsync(Guid.Empty, "", new DependencyKind[] { }, pageIndex: 1, pageSize: 1);
+            IPaginatedList<AssetDto> assets = await sut.GetByDependencyIdAsync(Guid.Empty, "", new EcosystemKind[] { }, pageIndex: 1, pageSize: 1);
         }
 
         [Fact]
         public async void GetByFrameworkIdAsync()
         {
             // TODO
-            IPaginatedList<AssetDto> assets = await sut.GetByRuntimeIdAsync(Guid.Empty, "", new DependencyKind[] { }, pageIndex: 1, pageSize: 1);
+            IPaginatedList<AssetDto> assets = await sut.GetByEcosystemIdAsync(Guid.Empty, "", new EcosystemKind[] { }, pageIndex: 1, pageSize: 1);
         }
 
         [Fact]
         public async void GetByRepositoryIdAsync()
         {
             // TODO
-            IPaginatedList<AssetDto> assets = await sut.GetByRepositoryIdAsync(Guid.Empty, "", new DependencyKind[] { }, dependents: true, pageIndex: 1, pageSize: 1);
+            IPaginatedList<AssetDto> assets = await sut.GetByRepositoryIdAsync(Guid.Empty, "", new EcosystemKind[] { }, dependents: true, pageIndex: 1, pageSize: 1);
         }
 
         [Fact]
-        public async void GetByVersionControlIdAsync()
+        public async void GetByVcsIdAsync()
         {
             // TODO
-            IPaginatedList<AssetDto> assets = await sut.GetByVersionControlIdAsync(Guid.Empty, "", new DependencyKind[] { }, pageIndex: 1, pageSize: 1);
+            IPaginatedList<AssetDto> assets = await sut.GetByVcsIdAsync(Guid.Empty, "", new EcosystemKind[] { }, pageIndex: 1, pageSize: 1);
         }
 
         [Fact]
         public async void GetByVersionIdAsync()
         {
             // TODO
-            IPaginatedList<AssetDto> assets = await sut.GetByVersionIdAsync(Guid.Empty, "", new DependencyKind[] { }, pageIndex: 1, pageSize: 1);
+            IPaginatedList<AssetDto> assets = await sut.GetByVersionIdAsync(Guid.Empty, "", new EcosystemKind[] { }, pageIndex: 1, pageSize: 1);
         }
 
         [Fact]

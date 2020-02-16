@@ -20,6 +20,7 @@ namespace Vision.Web
                 .RegisterAssetServices()
                 .RegisterDependencyServices()
                 .RegisterCiCdServices()
+                .RegisterVulnerabilityServices()
                 .RegisterRazorComponentServices()
                 .AddSingleton<IEncryptionService, EncryptionService>()
                 .AddTransient<FakeDataGenerator>()
@@ -32,6 +33,12 @@ namespace Vision.Web
             .AddScoped<ISystemTaskService, SystemTaskService>()
             .AddScoped<IRefreshService, RefreshService>()
             .AddHostedService<BackgroundSystemRefreshMonitor>();
+
+        public static IServiceCollection RegisterVulnerabilityServices(this IServiceCollection services) => services
+            .AddScoped<IVulnerabilityReportService, VulnerabilityReportService>()
+            .AddScoped<IVulnerabilityReportProvider, OSSIndexVulnerabilityReportProvider>()
+            .AddScoped<OSSIndexCoordinateBuilder>()
+            .AddScoped<IAggregrateVulnerabilityReportProvider, AggregrateVulnerabilityReportProvider>();
 
         private static IServiceCollection RegisterRazorComponentServices(this IServiceCollection services) => services
             .AddSingleton<SvgService>()
@@ -53,7 +60,7 @@ namespace Vision.Web
             .AddTransient<IAggregateDependencyVersionProvider, AggregateDependencyVersionProvider>();
 
         private static IServiceCollection RegisterAssetServices(this IServiceCollection services) => services
-            .AddTransient<IRuntimeService, RuntimeService>()
+            .AddTransient<IEcosystemService, EcosystemService>()
             .AddTransient<IAssetService, AssetService>()
             .AddTransient<IAssetDependencyService, AssetDependencyService>()
             .AddTransient<IAssetExtractor, NpmAssetExtractor>()

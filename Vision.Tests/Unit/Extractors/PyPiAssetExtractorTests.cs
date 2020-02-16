@@ -1,13 +1,13 @@
-﻿namespace Vision.Tests
-{
-    using Microsoft.Extensions.Logging;
-    using NSubstitute;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Vision.Web.Core;
-    using Xunit;
+﻿using Microsoft.Extensions.Logging;
+using NSubstitute;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Vision.Web.Core;
+using Xunit;
 
+namespace Vision.Tests
+{
     public class PyPiAssetExtractorTests
     {
         private readonly PyPiAssetExtractor sut;
@@ -25,8 +25,8 @@
 
             for (int i = 0; i < dependencies.Count; i++)
             {
-                Assert.Equal(packages[i], dependencies[i].RuntimeIdentifier);
-                Assert.Equal(versions[i], dependencies[i].RuntimeVersion);
+                Assert.Equal(packages[i], dependencies[i].EcosystemIdentifier);
+                Assert.Equal(versions[i], dependencies[i].EcosystemVersion);
             }
 
             Assert.Equal(packages.Length, dependencies.Count);

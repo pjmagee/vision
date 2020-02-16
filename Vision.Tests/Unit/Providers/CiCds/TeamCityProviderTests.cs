@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using System.Net.Http;
 using Vision.Web.Core;
 using Xunit;
 
@@ -30,7 +29,7 @@ namespace Vision.Tests.Unit.Pipelines
         [Fact]
         public void Test()
         {
-                      
+
         }
     }
 }

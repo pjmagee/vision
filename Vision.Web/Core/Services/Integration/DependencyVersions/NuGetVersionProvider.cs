@@ -20,7 +20,7 @@ namespace Vision.Web.Core
             this.logger = logger;
         } 
 
-        public bool Supports(DependencyKind kind) => kind == DependencyKind.NuGet;
+        public bool Supports(EcosystemKind kind) => kind == EcosystemKind.NuGet;
 
         public async Task<DependencyVersion> GetLatestMetaDataAsync(RegistryDto registry, Dependency dependency)
         {           

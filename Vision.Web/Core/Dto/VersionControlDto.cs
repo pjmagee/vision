@@ -6,11 +6,11 @@ namespace Vision.Web.Core
     public class VersionControlDto
     {
         [Required]
-        public Guid VersionControlId { get; set; }
+        public Guid VcsId { get; set; }
 
         [Required]
-        [EnumDataType(typeof(VersionControlKind))]
-        public VersionControlKind Kind { get; set; }
+        [EnumDataType(typeof(VcsKind))]
+        public VcsKind Kind { get; set; }
 
         [Required(AllowEmptyStrings = false)]
         [DataType(DataType.Url)]

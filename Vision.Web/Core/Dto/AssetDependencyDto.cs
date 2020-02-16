@@ -11,8 +11,8 @@
         {
             get => Kind switch
             {
-                DependencyKind.Maven => Path.GetFileName(asset),
-                DependencyKind.NuGet => Path.GetFileName(asset),
+                EcosystemKind.Maven => Path.GetFileName(asset),
+                EcosystemKind.NuGet => Path.GetFileName(asset),
                 _ => asset
             };
             set => asset = value;
@@ -26,7 +26,7 @@
         public Guid DependencyId { get; set; }
         public Guid DependencyVersionId { get; set; }
         public Guid RepositoryId { get; set; }
-        public DependencyKind Kind { get; set; }
-        public Guid VersionControlId { get; set; }
+        public EcosystemKind Kind { get; set; }
+        public Guid VcsId { get; set; }
     }
 }

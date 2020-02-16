@@ -14,7 +14,7 @@ namespace Vision.Web.Core
             this.logger = logger;
         }
 
-        public bool Supports(DependencyKind kind) => kind == DependencyKind.PyPi;
+        public bool Supports(EcosystemKind kind) => kind == EcosystemKind.PyPi;
 
         public async Task<DependencyVersion> GetLatestMetaDataAsync(RegistryDto registry, Dependency dependency)
         {

@@ -24,8 +24,8 @@ namespace Vision.Web.Core
         };
 
         public static string GetFontAwesomeClass(this Metric metric) =>
-            metric.DependencyKind.HasValue ?
-            metric.DependencyKind.Value.GetFontAwesomeClass() :
+            metric.EcosystemKind.HasValue ?
+            metric.EcosystemKind.Value.GetFontAwesomeClass() :
             metric.CategoryKind.GetFontAwesomeClass();
 
         private static string GetFontAwesomeClass(this CategoryKind kind) => kind switch
@@ -37,21 +37,21 @@ namespace Vision.Web.Core
             CategoryKind.VersionControl => Solid("fa-server"),
             CategoryKind.Repository => Solid("fa-code-branch"),
             CategoryKind.Dependency => Regular("fa-file-archive"),
-            CategoryKind.Runtime => Solid("fa-cubes"),
-            CategoryKind.RuntimeVersion => Regular("fa-copy"),
+            CategoryKind.Ecosystem => Solid("fa-cubes"),
+            CategoryKind.EcosystemVersion => Regular("fa-copy"),
             CategoryKind.Registry => Solid("fa-server"),
             _ => string.Empty
         };
 
-        private static string GetFontAwesomeClass(this DependencyKind kind) => kind switch
+        private static string GetFontAwesomeClass(this EcosystemKind kind) => kind switch
         {
-            DependencyKind.Docker => Brand("fa-docker"),
-            DependencyKind.Gradle => Brand("fa-java"),
-            DependencyKind.Maven => Brand("fa-java"),
-            DependencyKind.Npm => Brand("fa-npm"),
-            DependencyKind.NuGet => Brand("fa-microsoft"),
-            DependencyKind.PyPi => Brand("fa-python"),
-            DependencyKind.RubyGem => Solid("fa-gem"),
+            EcosystemKind.Docker => Brand("fa-docker"),
+            EcosystemKind.Gradle => Brand("fa-java"),
+            EcosystemKind.Maven => Brand("fa-java"),
+            EcosystemKind.Npm => Brand("fa-npm"),
+            EcosystemKind.NuGet => Brand("fa-microsoft"),
+            EcosystemKind.PyPi => Brand("fa-python"),
+            EcosystemKind.RubyGem => Solid("fa-gem"),
             _ => string.Empty
         };
 

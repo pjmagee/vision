@@ -8,6 +8,6 @@ namespace Vision.Web.Core
     {
         Task<IEnumerable<VcsRepository>> GetRepositoriesAsync(VersionControlDto versionControl);
         Task<IEnumerable<Asset>> GetAssetsAsync(VersionControlDto versionControl, RepositoryDto repository);
-        VersionControlKind Kind { get; }
+        VcsKind Kind { get; }
     }
 }

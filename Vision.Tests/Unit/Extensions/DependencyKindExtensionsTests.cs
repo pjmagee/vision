@@ -3,17 +3,17 @@
     using Vision.Web.Core;
     using Xunit;
 
-    public class DependencyKindExtensionsTests
+    public class EcosystemKindExtensionsTests
     {
         [Theory]
-        [InlineData(DependencyKind.Npm, AppHelper.NpmFile)]
-        [InlineData(DependencyKind.Docker, AppHelper.DockerFile)]
-        [InlineData(DependencyKind.Gradle, AppHelper.GradleFile)]
-        [InlineData(DependencyKind.PyPi, AppHelper.RequirementsFile)]
-        [InlineData(DependencyKind.RubyGem, AppHelper.RubyGemFile)]
-        [InlineData(DependencyKind.NuGet, AppHelper.NuGetFile)]
-        [InlineData(DependencyKind.Maven, AppHelper.MavenFile)]
-        public void GetFileExtensionTests(DependencyKind kind, string expected) => 
+        [InlineData(EcosystemKind.Npm, AppHelper.NpmFile)]
+        [InlineData(EcosystemKind.Docker, AppHelper.DockerFile)]
+        [InlineData(EcosystemKind.Gradle, AppHelper.GradleFile)]
+        [InlineData(EcosystemKind.PyPi, AppHelper.RequirementsFile)]
+        [InlineData(EcosystemKind.RubyGem, AppHelper.RubyGemFile)]
+        [InlineData(EcosystemKind.NuGet, AppHelper.NuGetFile)]
+        [InlineData(EcosystemKind.Maven, AppHelper.MavenFile)]
+        public void GetFileExtensionTests(EcosystemKind kind, string expected) => 
             Assert.Equal(expected, actual: kind.GetFileExtension());
     }
 }

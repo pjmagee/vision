@@ -9,7 +9,7 @@ namespace Vision.Web.Core
     {
         private readonly ILogger<DockerAssetExtractor> logger;
 
-        public DependencyKind Kind { get; } = DependencyKind.Docker;
+        public EcosystemKind Kind { get; } = EcosystemKind.Docker;
 
         public DockerAssetExtractor(ILogger<DockerAssetExtractor> logger)
         {
@@ -39,7 +39,7 @@ namespace Vision.Web.Core
             }
         }
 
-        public IEnumerable<Extract> ExtractRuntimes(Asset asset)
+        public IEnumerable<Extract> ExtractEcoSystem(Asset asset)
         {
             // ¯\_(ツ)_/¯ Erm...
             // Do we....list previous docker images? No no no.

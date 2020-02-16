@@ -12,23 +12,23 @@
         private readonly Dictionary<string, MarkupString> svgs = new Dictionary<string, MarkupString>();
         private readonly MarkupString Empty = new MarkupString();
 
-        public MarkupString GetSvg(DependencyKind kind) => kind switch
+        public MarkupString GetSvg(EcosystemKind kind) => kind switch
         {
-            DependencyKind.Docker => svgs["docker"],
-            DependencyKind.Gradle => svgs["gradle"],
-            DependencyKind.Maven => svgs["java"],
-            DependencyKind.Npm => svgs["npm"],
-            DependencyKind.NuGet => svgs["nuget"],
-            DependencyKind.PyPi => svgs["python"],
-            DependencyKind.RubyGem => svgs["ruby"],
+            EcosystemKind.Docker => svgs["docker"],
+            EcosystemKind.Gradle => svgs["gradle"],
+            EcosystemKind.Maven => svgs["java"],
+            EcosystemKind.Npm => svgs["npm"],
+            EcosystemKind.NuGet => svgs["nuget"],
+            EcosystemKind.PyPi => svgs["python"],
+            EcosystemKind.RubyGem => svgs["ruby"],
             _ => Empty
         };
 
-        public MarkupString GetSvg(VersionControlKind kind) => kind switch
+        public MarkupString GetSvg(VcsKind kind) => kind switch
         {
-            VersionControlKind.Bitbucket => svgs["bitbucket"],
-            VersionControlKind.GitHub => svgs["github"],
-            VersionControlKind.Gitlab => svgs["gitlab"],
+            VcsKind.Bitbucket => svgs["bitbucket"],
+            VcsKind.GitHub => svgs["github"],
+            VcsKind.Gitlab => svgs["gitlab"],
             _ => Empty
         };
 

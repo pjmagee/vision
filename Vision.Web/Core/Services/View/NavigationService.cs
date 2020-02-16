@@ -22,7 +22,7 @@ namespace Vision.Web.Core
                 new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "CI/CD",           Route = "data/cicds", Icon = "fas fa-fw fa-cogs" },
                 new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Registries",      Route = "data/registries",  Icon = "fas fa-fw fa-archive" },
                 new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Dependencies",    Route = "data/dependencies", Icon = "fas fa-fw fa-cloud-download-alt" },
-                new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Runtimes",        Route = "data/runtimes",  Icon = "fas fa-fw fa-table" },
+                new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Ecosystems",      Route = "data/ecosystems",  Icon = "fas fa-fw fa-table" },
                 new NavMenuItem { Type = NavMenuItemType.Seperator,                         Name = "Admin" },
                 new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Tasks",           Route = "admin/tasks",        Icon = "fas fa-fw fa-table" },
                 new NavMenuItem { Type = NavMenuItemType.Data, Match = NavLinkMatch.Prefix, Name = "Repositories",    Route = "admin/repositories", Icon = "fas fa-fw fa-code-branch" }

@@ -6,7 +6,7 @@ namespace Vision.Web.Core
 {
     public class GitlabProvider : IVersionControlProvider
     {
-        public VersionControlKind Kind { get; } = VersionControlKind.Gitlab;
+        public VcsKind Kind { get; } = VcsKind.Gitlab;
 
         public async Task<IEnumerable<Asset>> GetAssetsAsync(VersionControlDto versionControl, RepositoryDto repository)
         {

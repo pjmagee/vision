@@ -16,7 +16,7 @@ namespace Vision.Web.Core
             this.logger = logger;
         }
 
-        public bool Supports(DependencyKind kind) => kind == DependencyKind.Npm;
+        public bool Supports(EcosystemKind kind) => kind == EcosystemKind.Npm;
 
         public async Task<DependencyVersion> GetLatestMetaDataAsync(RegistryDto registry, Dependency dependency)
         {

@@ -47,7 +47,7 @@
                 <BSFormGroup>
                     <InputSelect Class="form-control" @bind-Value="@Model.Kind">
                         <option>Select</option>
-                        @foreach (var kind in Enum.GetValues(typeof(DependencyKind)).Cast<DependencyKind>())
+                        @foreach (var kind in Enum.GetValues(typeof(EcosystemKind)).Cast<EcosystemKind>())
                         {
                             <option value="@kind">@kind.ToString()</option>
                         }

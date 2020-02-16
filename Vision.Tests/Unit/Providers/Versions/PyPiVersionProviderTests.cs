@@ -1,12 +1,12 @@
-﻿namespace Vision.Tests
-{
-    using Microsoft.Extensions.Logging;
-    using NSubstitute;
-    using System;
-    using System.Threading.Tasks;
-    using Vision.Web.Core;
-    using Xunit;
+﻿using Microsoft.Extensions.Logging;
+using NSubstitute;
+using System;
+using System.Threading.Tasks;
+using Vision.Web.Core;
+using Xunit;
 
+namespace Vision.Tests
+{
     public class PyPiVersionProviderTests
     {
         private readonly PyPiVersionProvider sut;
@@ -21,8 +21,8 @@
         public async Task DockerV2Api(string package, string expected)
         {
             // arrange
-            RegistryDto registry = new RegistryDto { Endpoint = "https://nexus3.xpa.rbxd.ds/repository/pypi-group/", IsEnabled = true, IsPublic = false, Kind = DependencyKind.PyPi };
-            Dependency dependency = new Dependency { Name = package, Id = Guid.NewGuid(), Kind = DependencyKind.NuGet };
+            RegistryDto registry = new RegistryDto { Endpoint = "https://nexus3.xpa.rbxd.ds/repository/pypi-group/", IsEnabled = true, IsPublic = false, Kind = EcosystemKind.PyPi };
+            Dependency dependency = new Dependency { Name = package, Id = Guid.NewGuid(), Kind = EcosystemKind.NuGet };
 
             // act
             DependencyVersion latest = await sut.GetLatestMetaDataAsync(registry, dependency);

@@ -14,10 +14,11 @@ namespace Vision.Web.Core
 
         public static IEnumerable<CiCd> MockData()
         {
-            yield return new CiCd { IsEnabled = false, Kind = CiCdKind.TeamCity, Endpoint = "http://teamcity.xpa.rbxd.ds:8080" };
-            yield return new CiCd { IsEnabled = false, Kind = CiCdKind.TeamCity, Endpoint = "http://dataservices.teamcity.xpa.rbxd.ds:8080" };
-            yield return new CiCd { IsEnabled = false, Kind = CiCdKind.TeamCity, Endpoint = "http://xpaqhsctrd100v.xpa.rbxd.ds:8080" };
-            yield return new CiCd { IsEnabled = false, Kind = CiCdKind.Jenkins, Endpoint = "https://jenkins.xpa.rbxd.ds/", ApiKey = "11c7147cf44cf7072cad8305ba26af6139" };
+            yield return new CiCd { IsEnabled = false, Kind = CiCdKind.TeamCity, Endpoint = "http://teamcity1.company.com:8080" };
+            yield return new CiCd { IsEnabled = false, Kind = CiCdKind.TeamCity, Endpoint = "http://teamcity2.company.com:8080" };
+            yield return new CiCd { IsEnabled = false, Kind = CiCdKind.TeamCity, Endpoint = "http://teamcity3.company.com:8080" };
+            yield return new CiCd { IsEnabled = false, Kind = CiCdKind.Jenkins, Endpoint =  "http://jenkins1.company.com/", ApiKey = "" };
+            yield return new CiCd { IsEnabled = false, Kind = CiCdKind.Jenkins, Endpoint =  "http://jenkins2.company.com/", ApiKey = "" };
         }
     }
 }

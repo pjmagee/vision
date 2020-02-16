@@ -23,11 +23,11 @@
         public async Task GetAsync()
         {
             // Arrange
-            context.Dependencies.AddRange(new Dependency { Name = "1", Kind = DependencyKind.Docker }, new Dependency { Name = "2", Kind = DependencyKind.Docker });
+            context.Dependencies.AddRange(new Dependency { Name = "1", Kind = EcosystemKind.Docker }, new Dependency { Name = "2", Kind = EcosystemKind.Docker });
             await context.SaveChangesAsync();
 
             // Act
-            IPaginatedList<DependencyDto> result = await sut.GetAsync(Enumerable.Empty<DependencyKind>(), null);
+            IPaginatedList<DependencyDto> result = await sut.GetAsync(Enumerable.Empty<EcosystemKind>(), null);
 
             // Assert
             Assert.Equal(1, result.TotalPages);
@@ -35,24 +35,24 @@
             Assert.False(result.HasPreviousPage);
 
             Assert.Equal("1", result[0].Name);
-            Assert.Equal(DependencyKind.Docker, result[0].Kind);
+            Assert.Equal(EcosystemKind.Docker, result[0].Kind);
 
             Assert.Equal("2", result[1].Name);
-            Assert.Equal(DependencyKind.Docker, result[1].Kind);
+            Assert.Equal(EcosystemKind.Docker, result[1].Kind);
         }
 
         [Fact]
         public async Task GetByRepositoryIdAsync()
         {
             // TODO
-            IPaginatedList<DependencyDto> result = await sut.GetByRepositoryIdAsync(Guid.Empty, Enumerable.Empty<DependencyKind>(), search: "", pageIndex: 1, pageSize: 1);
+            IPaginatedList<DependencyDto> result = await sut.GetByRepositoryIdAsync(Guid.Empty, Enumerable.Empty<EcosystemKind>(), search: "", pageIndex: 1, pageSize: 1);
         }
 
         [Fact]
         public async Task GetByAssetIdAsync()
         {
             // TODO
-            IPaginatedList<DependencyDto> result = await sut.GetByAssetIdAsync(Guid.Empty, Enumerable.Empty<DependencyKind>(), search: "", pageIndex: 1, pageSize: 1);
+            IPaginatedList<DependencyDto> result = await sut.GetByAssetIdAsync(Guid.Empty, Enumerable.Empty<EcosystemKind>(), search: "", pageIndex: 1, pageSize: 1);
         }
 
         [Fact]

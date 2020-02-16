@@ -4,9 +4,9 @@ namespace Vision.Web.Core
 {
     public interface IAssetExtractor
     {
-        DependencyKind Kind { get; }
+        EcosystemKind Kind { get; }
         IEnumerable<Extract> ExtractDependencies(Asset asset);
-        IEnumerable<Extract> ExtractRuntimes(Asset asset);
+        IEnumerable<Extract> ExtractEcoSystem(Asset asset);
         string ExtractPublishName(Asset asset);
     }
 }

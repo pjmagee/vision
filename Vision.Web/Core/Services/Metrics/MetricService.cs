@@ -1,12 +1,12 @@
-﻿namespace Vision.Web.Core
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.Caching.Memory;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
+namespace Vision.Web.Core
+{
     public class MetricService : IMetricService
     {
         private readonly VisionDbContext context;
@@ -18,40 +18,42 @@
             this.cache = cache;
         }
 
+        const string Counts = "Dashboard.Counts";
+
         public async Task<IEnumerable<MetricItem>> GetCountsAsync()
         {
-            const string Counts = "Dashboard.Counts";
-
-            if (!cache.TryGetValue(Counts, out List<MetricItem> counts))
+            if (!cache.TryGetValue(Counts, out List<MetricItem> metrics))
             {
-                IEnumerable<MetricItem> dependencies = AppHelper.DependencyKinds.Select(kind => new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, kind, $"{kind} dependencies", context.Dependencies.Count(x => x.Kind == kind)));
-                IEnumerable<MetricItem> assets = AppHelper.DependencyKinds.Select(kind => new MetricItem(MetricAlertKind.Standard, CategoryKind.Asset, kind, $"{kind} assets", context.Assets.Count(x => x.Kind == kind)));
+                IEnumerable<MetricItem> dependencyMetricCounts = AppHelper.EcosystemKinds.Select(kind => new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, kind, $"{kind} dependencies", context.Dependencies.Count(x => x.Kind == kind)));
+                IEnumerable<MetricItem> assetMetricCounts = AppHelper.EcosystemKinds.Select(kind => new MetricItem(MetricAlertKind.Standard, CategoryKind.Asset, kind, $"{kind} assets", context.Assets.Count(x => x.Kind == kind)));
 
-                var otherCounts = new MetricItem[]
+                var otherMetricCounts = new MetricItem[]
                 {
-                    new MetricItem(MetricAlertKind.Standard, CategoryKind.VersionControl, $"Version controls", await context.VersionControls.CountAsync()),
-                    new MetricItem(MetricAlertKind.Standard, CategoryKind.Repository, $"Repositories", await context.Repositories.CountAsync()),
+                    new MetricItem(MetricAlertKind.Standard, CategoryKind.VersionControl, $"Version controls", await context.VcsSources.CountAsync()),
+                    new MetricItem(MetricAlertKind.Standard, CategoryKind.Repository, $"Repositories", await context.VcsRepositories.CountAsync()),
 
-                    new MetricItem(MetricAlertKind.Standard, CategoryKind.Registry, $"Registries", await context.Registries.CountAsync()),
+                    new MetricItem(MetricAlertKind.Standard, CategoryKind.Registry, $"Registries", await context.EcoRegistrySources.CountAsync()),
 
-                    new MetricItem(MetricAlertKind.Standard, CategoryKind.CiCd, $"CiCd", await context.CiCds.CountAsync()),
-                    
+                    new MetricItem(MetricAlertKind.Standard, CategoryKind.CiCd, $"CiCd", await context.CicdSources.CountAsync()),
+
                     new MetricItem(MetricAlertKind.Standard, CategoryKind.Asset, $"Assets", await context.Assets.CountAsync()),
+                    new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, $"Asset dependencies", await context.AssetDependencies.CountAsync()),
+                    new MetricItem(MetricAlertKind.Standard, CategoryKind.Asset, $"Asset ecosystems", await context.AssetEcoSystems.CountAsync()),
 
                     new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, $"Dependencies", await context.Dependencies.CountAsync()),
-                    new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, $"Asset dependencies", await context.AssetDependencies.CountAsync()),
+                    new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, $"Dependency versions", await context.DependencyVersions.CountAsync()),
+                    new MetricItem(MetricAlertKind.Warning, CategoryKind.Dependency, $"Vulnerabilities", await context.VulnerabilityReports.CountAsync()),
 
-                    new MetricItem(MetricAlertKind.Standard, CategoryKind.Runtime, $"Runtimes", await context.Runtimes.CountAsync()),
-                    new MetricItem(MetricAlertKind.Standard, CategoryKind.Runtime, $"Runtime Versions", await context.RuntimeVersions.CountAsync()),
-                    new MetricItem(MetricAlertKind.Standard, CategoryKind.Runtime, $"Asset runtimes", await context.AssetRuntimes.CountAsync()),
+                    new MetricItem(MetricAlertKind.Standard, CategoryKind.Ecosystem, $"Ecosystems", await context.Ecosystems.CountAsync()),
+                    new MetricItem(MetricAlertKind.Standard, CategoryKind.Ecosystem, $"Ecosystem versions", await context.EcosystemVersions.CountAsync()),
                 };
 
-                counts = otherCounts.Concat(dependencies.Concat(assets)).ToList();
+                metrics = otherMetricCounts.Concat(dependencyMetricCounts.Concat(assetMetricCounts)).ToList();
 
-                cache.Set(Counts, counts, DateTimeOffset.Now.AddMinutes(5));
+                cache.Set(Counts, metrics, DateTimeOffset.Now.AddMinutes(5));
             }
 
-            return counts;
+            return metrics;
         }
 
         public async Task<IEnumerable<MetricItem>> GetMetricsAsync(Guid id, CategoryKind targetKind)
@@ -83,7 +85,7 @@
 
         private async Task<IEnumerable<MetricItem>> GetRepositoryMetricsAsync(Guid repositoryId)
         {
-            VcsRepository repository = await context.Repositories.FindAsync(repositoryId);
+            VcsRepository repository = await context.VcsRepositories.FindAsync(repositoryId);
 
             List<MetricItem> items = new List<MetricItem>
             {
@@ -92,7 +94,7 @@
                 new MetricItem(MetricAlertKind.Standard, CategoryKind.Repository, $"Ignored", repository.Url.ToYesNo())
             };
 
-            foreach (var kind in AppHelper.DependencyKinds)
+            foreach (var kind in AppHelper.EcosystemKinds)
             {
                 items.Add(new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, kind, $"{kind}", context.AssetDependencies.Count(ad => ad.Asset.RepositoryId == repositoryId && ad.Asset.Kind == kind)));
             }
@@ -104,7 +106,7 @@
         {
             List<MetricItem> items = new List<MetricItem>
             {
-                new MetricItem(MetricAlertKind.Standard, CategoryKind.Runtime, $"Assets", await context.AssetDependencies.CountAsync(ad => ad.DependencyId == dependencyId)),
+                new MetricItem(MetricAlertKind.Standard, CategoryKind.Ecosystem, $"Assets", await context.AssetDependencies.CountAsync(ad => ad.DependencyId == dependencyId)),
                 new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, $"Versions", await context.DependencyVersions.CountAsync(ad => ad.DependencyId == dependencyId))
             };
 
@@ -142,7 +144,7 @@
             List<MetricItem> items = new List<MetricItem>
             {
                 new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, $"Dependencies", await context.AssetDependencies.CountAsync(ad => ad.AssetId == assetId)),
-                new MetricItem(MetricAlertKind.Standard, CategoryKind.Runtime, $"Runtimes", await context.AssetRuntimes.CountAsync(ad => ad.AssetId == assetId)),
+                new MetricItem(MetricAlertKind.Standard, CategoryKind.Ecosystem, $"Runtimes", await context.AssetEcoSystems.CountAsync(ad => ad.AssetId == assetId)),
                 new MetricItem(MetricAlertKind.Standard, CategoryKind.Asset, asset.Kind, $"Kind", asset.Kind)
             };
 

@@ -17,7 +17,7 @@
         public bool IsPublic { get; set; }
         public bool IsEnabled { get; set; }
         
-        [EnumDataType(typeof(DependencyKind))]
-        public DependencyKind Kind { get; set; }
+        [EnumDataType(typeof(EcosystemKind))]
+        public EcosystemKind Kind { get; set; }
     }
 }

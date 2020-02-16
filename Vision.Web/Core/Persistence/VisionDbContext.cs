@@ -6,22 +6,23 @@
     {
         public DbSet<Squad> Squads { get; set; }
 
-        public DbSet<Runtime> Runtimes { get; set; }
-        public DbSet<RuntimeVersion> RuntimeVersions { get; set; }
+        public DbSet<Ecosystem> Ecosystems { get; set; }
+        public DbSet<EcosystemVersion> EcosystemVersions { get; set; }
 
         public DbSet<Asset> Assets { get; set; }
         public DbSet<AssetDependency> AssetDependencies { get; set; }
-        public DbSet<AssetRuntime> AssetRuntimes { get; set; }
-
+        public DbSet<AssetEcosystem> AssetEcoSystems { get; set; }
 
         public DbSet<Dependency> Dependencies { get; set; }
         public DbSet<DependencyVersion> DependencyVersions { get; set; }
 
-        public DbSet<Vcs> VersionControls { get; set; }
-        public DbSet<VcsRepository> Repositories { get; set; }
+        public DbSet<VulnerabilityReport> VulnerabilityReports { get; set; }
 
-        public DbSet<CiCd> CiCds { get; set; }
-        public DbSet<ArtifactRegistry> Registries { get; set; }
+        public DbSet<Vcs> VcsSources { get; set; }
+        public DbSet<VcsRepository> VcsRepositories { get; set; }
+
+        public DbSet<CiCd> CicdSources { get; set; }
+        public DbSet<EcoRegistry> EcoRegistrySources { get; set; }
         public DbSet<RefreshTask> Tasks { get; set; }
 
         public VisionDbContext(DbContextOptions<VisionDbContext> options) : base(options)
@@ -58,7 +59,7 @@
                 entity.Property(x => x.WebUrl).IsRequired();
             });
 
-            modelBuilder.Entity<ArtifactRegistry>((entity) =>
+            modelBuilder.Entity<EcoRegistry>((entity) =>
             {
                 entity.HasKey(x => x.Id);
                 entity.Property(x => x.Endpoint).IsRequired();
@@ -73,7 +74,7 @@
                 entity.HasKey(x => x.Id);
                 entity.Property(x => x.Path).IsRequired();
                 entity.Property(x => x.Raw).IsRequired();
-                entity.HasOne(x => x.AssetRuntime).WithOne(x => x.Asset).HasForeignKey<AssetRuntime>(x => x.AssetId);
+                entity.HasOne(x => x.AssetEcosystem).WithOne(x => x.Asset).HasForeignKey<AssetEcosystem>(x => x.AssetId);
                 entity.HasMany(x => x.Dependencies).WithOne(x => x.Asset).HasForeignKey(x => x.AssetId);
             });
 
@@ -92,23 +93,38 @@
                 entity.HasMany(x => x.Assets).WithOne(x => x.Dependency).HasForeignKey(x => x.DependencyId);
             });
 
+            modelBuilder.Entity<VulnerabilityReport>((entity) =>
+            {
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.Link).IsRequired();
+                entity.Property(x => x.ResponseData).IsRequired();
+            });
+
             modelBuilder.Entity<DependencyVersion>((entity) =>
             {
                 entity.HasKey(x => x.Id);
                 entity.Property(x => x.Version).IsRequired();
+
+                entity.HasMany(x => x.Vulnerabilities)
+                        .WithOne(x => x.DependencyVersion)
+                        .HasForeignKey(x => x.DependencyVersionId)
+                        .OnDelete(DeleteBehavior.Cascade);
             });
 
-            modelBuilder.Entity<Runtime>((entity) =>
+            modelBuilder.Entity<Ecosystem>((entity) =>
             {
                 entity.HasKey(x => x.Id);
                 entity.Property(x => x.Name).IsRequired();
-                entity.HasMany(x => x.Versions).WithOne(x => x.Runtime).HasForeignKey(x => x.RuntimeId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasMany(x => x.EcosystemVersions)
+                        .WithOne(x => x.Ecosystem)
+                        .HasForeignKey(x => x.EcosystemId)
+                        .OnDelete(DeleteBehavior.Restrict);
             });
 
-            modelBuilder.Entity<RuntimeVersion>((entity) =>
+            modelBuilder.Entity<EcosystemVersion>((entity) =>
             {
                 entity.HasKey(x => x.Id);
-                entity.Property(x => x.RuntimeId).IsRequired();
+                entity.Property(x => x.EcosystemId).IsRequired();
                 entity.Property(x => x.Version);
             });
 
@@ -119,7 +135,7 @@
             });
 
             modelBuilder.Entity<Vcs>().HasData(Vcs.MockData());
-            modelBuilder.Entity<ArtifactRegistry>().HasData(ArtifactRegistry.MockData());
+            modelBuilder.Entity<EcoRegistry>().HasData(EcoRegistry.MockData());
             modelBuilder.Entity<CiCd>().HasData(CiCd.MockData());
         }
     }

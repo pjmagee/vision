@@ -1,4 +1,4 @@
-﻿@page "/sources/edit/vcs/{VersionControlId:guid}"
+﻿@page "/sources/edit/vcs/{VcsId:guid}"
 
 <BreadcrumbsComponent>
     <BSBreadcrumbItem>Sources</BSBreadcrumbItem>
@@ -36,7 +36,7 @@
                     <BSLabel>Kind</BSLabel>
                     <InputSelect class="form-control" @bind-Value="@Model.Kind">
                         <option>Select</option>
-                        @foreach (var kind in Enum.GetValues(typeof(VersionControlKind)).Cast<VersionControlKind>())
+                        @foreach (var kind in Enum.GetValues(typeof(VcsKind)).Cast<VcsKind>())
                         {
                             <option value="@kind">@kind.ToString()</option>
                         }
@@ -63,7 +63,7 @@
 
 @code
 {
-    [Parameter] public Guid VersionControlId { get; set; }
+    [Parameter] public Guid VcsId { get; set; }
 
     [Inject] IVersionControlService VersionControlService { get; set; }
     [Inject] NavigationManager NavigationManager { get; set; }
@@ -78,6 +78,6 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        Model = await VersionControlService.GetByIdAsync(VersionControlId);
+        Model = await VersionControlService.GetByIdAsync(VcsId);
     }
 }

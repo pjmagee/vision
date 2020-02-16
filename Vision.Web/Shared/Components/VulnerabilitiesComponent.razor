@@ -1,0 +1,70 @@
+﻿@inherits OwningComponentBase
+
+<BSTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
+    <thead>
+        <tr>
+            <th>@nameof(VulnerabilityReportDto.ReporterKind)</th>
+            <th>@nameof(VulnerabilityReportDto.Link)</th>
+            <th>@nameof(VulnerabilityReportDto.CheckTime)</th>
+            <th>@nameof(VulnerabilityReportDto.ResponseData)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Items != null)
+        {
+            @foreach (var item in Items)
+            {
+                <tr>
+                    <td>@item.ReporterKind</td>
+                    <td><a href="@item.Link" target="_blank">@item.Link</a></td>
+                    <td>@item.CheckTime</td>
+                    <td>
+                        <pre class="pre-scrollable">
+                            @item.ResponseData
+                        </pre>
+                    </td>
+                </tr>
+            }
+
+            @if (Items.Count == 0)
+            {
+                <tr>
+                    <td colspan="4">None found.</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <LoaderComponent />
+        }
+    </tbody>
+</BSTable>
+
+<PagerComponent Pager="Items" Page="@(async(p) => await PageAsync(p))"></PagerComponent>
+
+@code
+{
+    [Parameter] public Guid? DependencyVersionId { get; set; }
+
+    IVulnerabilityReportService VulnerabilityService { get; set; }
+    IPaginatedList<VulnerabilityReportDto> Items { get; set; }
+
+    protected override void OnInitialized()
+    {
+        VulnerabilityService = (IVulnerabilityReportService)ScopedServices.GetService(typeof(IVulnerabilityReportService));
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await PageAsync(1);
+    }
+
+    async Task PageAsync(int page)
+    {
+        if (DependencyVersionId.HasValue)
+        {
+            Items = await VulnerabilityService.GetByDependencyVersionIdAsync(DependencyVersionId.Value, page);
+            StateHasChanged();
+        }
+    }
+}

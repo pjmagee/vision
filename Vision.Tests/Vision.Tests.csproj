@@ -11,6 +11,14 @@
     <ProjectGuid>{A3B81618-02E1-4EC3-8891-D3D855A8A8D1}</ProjectGuid>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Integration\**" />
+    <Compile Remove="Unit\Providers\VersionControls\**" />
+    <EmbeddedResource Remove="Integration\**" />
+    <EmbeddedResource Remove="Unit\Providers\VersionControls\**" />
+    <None Remove="Integration\**" />
+    <None Remove="Unit\Providers\VersionControls\**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.0.0-preview3.19153.1" />
     <PackageReference Include="Docker.DotNet" Version="3.125.2" />
@@ -23,10 +31,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Integration\" />
-    <Folder Include="Unit\Providers\VersionControls\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Vision.Web\Vision.Web.csproj" />

@@ -20,7 +20,8 @@
                 DependencyId = version.DependencyId,
                 DependencyVersionId = version.Id,
                 IsLatest = version.IsLatest,
-                Version = version.Version
+                Version = version.Version,
+                Vulnerabilities = context.VulnerabilityReports.Count(r => r.DependencyVersionId == dependencyVersionId)
             };
         }
 
@@ -34,7 +35,8 @@
                     IsLatest = dependencyVersion.IsLatest,
                     DependencyId = dependencyVersion.DependencyId,
                     DependencyVersionId = dependencyVersion.Id,
-                    Version = dependencyVersion.Version
+                    Version = dependencyVersion.Version,
+                    Vulnerabilities = context.VulnerabilityReports.Count(report => report.DependencyVersionId == dependencyVersion.Id)
                 })
                 .OrderBy(v => v.Assets)
                 .ThenBy(v => v.IsLatest);

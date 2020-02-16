@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -36,7 +35,7 @@ namespace Vision.Web.Core
 
         public async Task RefreshAllAsync()
         {
-            foreach (Vcs source in context.VersionControls)
+            foreach (Vcs source in context.VcsSources)
             {
                 await RefreshVersionControlByIdAsync(source.Id);
             }
@@ -44,16 +43,16 @@ namespace Vision.Web.Core
 
         public async Task RefreshRepositoryByIdAsync(Guid repositoryId)
         {
-            VcsRepository repository = await context.Repositories.FindAsync(repositoryId);
-            Vcs versionControl = await context.VersionControls.FindAsync(repository.VcsId);
+            VcsRepository repository = await context.VcsRepositories.FindAsync(repositoryId);
+            Vcs versionControl = await context.VcsSources.FindAsync(repository.VcsId);
 
             logger.LogInformation($"Refreshing repository: {repository.Url}");
             await context.Entry(repository).Collection(r => r.Assets).LoadAsync();
             context.Assets.RemoveRange(repository.Assets);
             await context.SaveChangesAsync();
 
-            var versionControlDto = new VersionControlDto { ApiKey = versionControl.ApiKey, Endpoint = versionControl.Endpoint, VersionControlId = versionControl.Id, Kind = versionControl.Kind, IsEnabled = versionControl.IsEnabled };
-            var repositoryDto = new RepositoryDto { VersionControlId = repository.VcsId, Url = repository.Url, WebUrl = repository.WebUrl };
+            var versionControlDto = new VersionControlDto { ApiKey = versionControl.ApiKey, Endpoint = versionControl.Endpoint, VcsId = versionControl.Id, Kind = versionControl.Kind, IsEnabled = versionControl.IsEnabled };
+            var repositoryDto = new RepositoryDto { VcsId = repository.VcsId, Url = repository.Url, WebUrl = repository.WebUrl };
 
             encryptionService.Decrypt(versionControlDto);
             IEnumerable<Asset> items = await versionControlProvider.GetAssetsAsync(versionControlDto, repositoryDto);
@@ -97,7 +96,7 @@ namespace Vision.Web.Core
             logger.LogInformation($"Refreshing asset frameworks for: {asset.Path}");
 
             //await context.Entry(asset).Collection(a => a.).LoadAsync();
-            context.AssetRuntimes.RemoveRange(asset.AssetRuntime);
+            context.AssetEcoSystems.RemoveRange(asset.AssetEcosystem);
             await context.SaveChangesAsync();
 
             IEnumerable<Extract> extracts = assetExtractor.ExtractRuntimes(asset);
@@ -108,26 +107,26 @@ namespace Vision.Web.Core
             }
         }
 
-        public async Task RefreshVersionControlByIdAsync(Guid versionControlId)
+        public async Task RefreshVersionControlByIdAsync(Guid VcsId)
         {
-            Vcs versionControl = await context.VersionControls.FindAsync(versionControlId);
+            Vcs versionControl = await context.VcsSources.FindAsync(VcsId);
 
             await context.Entry(versionControl).Collection(vcs => vcs.Repositories).LoadAsync();
-            context.Repositories.RemoveRange(versionControl.Repositories.Where(r => r.IsIgnored == false));
+            context.VcsRepositories.RemoveRange(versionControl.Repositories.Where(r => r.IsIgnored == false));
             await context.SaveChangesAsync();
 
-            var versionControlDto = new VersionControlDto { ApiKey = versionControl.ApiKey, Endpoint = versionControl.Endpoint, Kind = versionControl.Kind, VersionControlId = versionControl.Id };
+            var versionControlDto = new VersionControlDto { ApiKey = versionControl.ApiKey, Endpoint = versionControl.Endpoint, Kind = versionControl.Kind, VcsId = versionControl.Id };
             encryptionService.Decrypt(versionControlDto);
 
             IEnumerable<VcsRepository> items = await this.versionControlProvider.GetRepositoriesAsync(versionControlDto);
 
             foreach (VcsRepository repository in items)
             {
-                context.Repositories.Add(repository);
+                context.VcsRepositories.Add(repository);
                 await context.SaveChangesAsync();
             }
 
-            foreach (var repository in context.Repositories.Where(r => r.VcsId == versionControlId))
+            foreach (var repository in context.VcsRepositories.Where(r => r.VcsId == VcsId))
             {
                 await RefreshRepositoryByIdAsync(repository.Id);
             }
@@ -151,21 +150,21 @@ namespace Vision.Web.Core
 
         private async Task AssignAssetToRuntime(Extract extracted, Asset asset)
         {
-            RuntimeVersion runtime = await GetOrCreateRuntime(extracted);
+            EcosystemVersion runtime = await GetOrCreateRuntime(extracted);
 
-            context.AssetRuntimes.Add(new AssetRuntime { Asset = asset, AssetId = asset.Id, RuntimeVersion = runtime, RuntimeVersionId = runtime.Id });
+            context.AssetEcoSystems.Add(new AssetEcosystem { Asset = asset, AssetId = asset.Id, EcosystemVersion = runtime, EcosystemVersionId = runtime.Id });
 
             await context.SaveChangesAsync();
         }
 
-        private async Task<RuntimeVersion> GetOrCreateRuntime(Extract extract)
+        private async Task<EcosystemVersion> GetOrCreateRuntime(Extract extract)
         {
-            Runtime runtime = await context.Runtimes.FirstAsync(r => r.Name == extract.RuntimeIdentifier);
-            RuntimeVersion version = runtime.Versions.FirstOrDefault(d => d.Version == extract.RuntimeVersion) ?? new RuntimeVersion { Id = Guid.NewGuid(), Runtime = runtime, Version = extract.RuntimeVersion };
+            Ecosystem runtime = await context.Ecosystems.FirstAsync(r => r.Name == extract.EcosystemIdentifier);
+            EcosystemVersion version = runtime.EcosystemVersions.FirstOrDefault(d => d.Version == extract.EcosystemVersion) ?? new EcosystemVersion { Id = Guid.NewGuid(), Ecosystem = runtime, Version = extract.EcosystemVersion };
 
             if (context.Entry(version).State == EntityState.Detached)
             {
-                context.RuntimeVersions.Add(version);
+                context.EcosystemVersions.Add(version);
                 await context.SaveChangesAsync();
             }
 
@@ -174,8 +173,8 @@ namespace Vision.Web.Core
 
         private async Task AssignAssetDependencies(Extract extract, Asset asset)
         {
-            string version = extract.RuntimeVersion;
-            string name = extract.RuntimeIdentifier;
+            string version = extract.EcosystemVersion;
+            string name = extract.EcosystemIdentifier;
 
             Dependency dependency = await GetOrCreateDependency(asset.Kind, name);
             DependencyVersion latest = await versionProvider.GetLatestMetaDataAsync(dependency);
@@ -199,7 +198,7 @@ namespace Vision.Web.Core
             });
         }
 
-        private async Task<Dependency> GetOrCreateDependency(DependencyKind kind, string name)
+        private async Task<Dependency> GetOrCreateDependency(EcosystemKind kind, string name)
         {
             Dependency dependency = await context.Dependencies.FirstOrDefaultAsync(d => d.Name == name && d.Kind == kind) ?? new Dependency { Name = name, Kind = kind, Updated = DateTime.Now };
 

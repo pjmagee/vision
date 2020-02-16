@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using System.Net.Http;
 using Vision.Web.Core;
 using Xunit;
 
@@ -18,7 +17,7 @@ namespace Vision.Tests.Unit.Pipelines
             sut = new JenkinsProvider(repositoryMatcher, Substitute.For<ILogger<JenkinsProvider>>(), Substitute.For<IMemoryCache>());
         }
 
-        [Theory]        
+        [Theory]
         [InlineData(CiCdKind.Gitlab, false)]
         [InlineData(CiCdKind.TeamCity, false)]
         [InlineData(CiCdKind.Jenkins, true)]
@@ -30,7 +29,7 @@ namespace Vision.Tests.Unit.Pipelines
         [Fact]
         public void Test()
         {
-            
+
         }
     }
 }

@@ -1,11 +1,11 @@
-﻿namespace Vision.Tests
-{
-    using Microsoft.Extensions.Logging;
-    using NSubstitute;
-    using System.Threading.Tasks;
-    using Vision.Web.Core;
-    using Xunit;
+﻿using Microsoft.Extensions.Logging;
+using NSubstitute;
+using System.Threading.Tasks;
+using Vision.Web.Core;
+using Xunit;
 
+namespace Vision.Tests
+{
     public class NpmVersionProviderTests
     {
         private readonly NpmVersionProvider sut;
@@ -20,8 +20,8 @@
         public async Task NpmApiTest(string endpoint, string package, string expected)
         {
             // arrange
-            RegistryDto registry = new RegistryDto { Endpoint = endpoint, IsEnabled = true, IsPublic = true, Kind = DependencyKind.Npm };
-            Dependency dependency = new Dependency { Name = package, Kind = DependencyKind.Npm };
+            RegistryDto registry = new RegistryDto { Endpoint = endpoint, IsEnabled = true, IsPublic = true, Kind = EcosystemKind.Npm };
+            Dependency dependency = new Dependency { Name = package, Kind = EcosystemKind.Npm };
 
             // act
             DependencyVersion latest = await sut.GetLatestMetaDataAsync(registry, dependency);

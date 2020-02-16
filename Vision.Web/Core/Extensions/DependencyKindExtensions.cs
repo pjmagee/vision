@@ -2,17 +2,17 @@
 {
     using System;
 
-    public static class DependencyKindExtensions
+    public static class EcosystemKindExtensions
     {
-        public static string GetFileExtension(this DependencyKind kind) => kind switch
+        public static string GetFileExtension(this EcosystemKind kind) => kind switch
         {
-            DependencyKind.Docker => AppHelper.DockerFile,
-            DependencyKind.NuGet => AppHelper.NuGetFile,
-            DependencyKind.PyPi => AppHelper.RequirementsFile,
-            DependencyKind.Maven => AppHelper.MavenFile,
-            DependencyKind.Gradle => AppHelper.GradleFile,
-            DependencyKind.RubyGem => AppHelper.RubyGemFile,
-            DependencyKind.Npm => AppHelper.NpmFile,
+            EcosystemKind.Docker => AppHelper.DockerFile,
+            EcosystemKind.NuGet => AppHelper.NuGetFile,
+            EcosystemKind.PyPi => AppHelper.RequirementsFile,
+            EcosystemKind.Maven => AppHelper.MavenFile,
+            EcosystemKind.Gradle => AppHelper.GradleFile,
+            EcosystemKind.RubyGem => AppHelper.RubyGemFile,
+            EcosystemKind.Npm => AppHelper.NpmFile,
             _ => throw new Exception("Unsupported kind for File extension")
         };
     }

@@ -4,13 +4,13 @@ namespace Vision.Web.Core
 {
     public class Extract
     {
-        public string RuntimeIdentifier { get; }
-        public string RuntimeVersion { get; }
+        public string EcosystemIdentifier { get; }
+        public string EcosystemVersion { get; }
 
         public Extract(string name, string version)
         {
-            RuntimeIdentifier = name ?? throw new ArgumentNullException(nameof(name));
-            RuntimeVersion = version ?? throw new ArgumentNullException(nameof(version));
+            EcosystemIdentifier = name ?? throw new ArgumentNullException(nameof(name));
+            EcosystemVersion = version ?? throw new ArgumentNullException(nameof(version));
         }
     }
 }

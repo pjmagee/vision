@@ -20,7 +20,7 @@
             {
                 <tr>
                     <td>
-                        <a href="@($"/data/vcs/{item.VersionControlId}/repositories/{item.RepositoryId}")">@item.AbsoluteUri</a>
+                        <a href="@($"/data/vcs/{item.VcsId}/repositories/{item.RepositoryId}")">@item.AbsoluteUri</a>
                     </td>
                     <td>@item.Assets</td>
                     <td>
@@ -60,9 +60,9 @@
 
 @code
 {
-    [Parameter] public Guid? RuntimeId { get; set; }
-    [Parameter] public Guid? RuntimeVersionId { get; set; }
-    [Parameter] public Guid? VersionControlId { get; set; }
+    [Parameter] public Guid? EcosystemId { get; set; }
+    [Parameter] public Guid? EcosystemVersionId { get; set; }
+    [Parameter] public Guid? VcsId { get; set; }
     [Parameter] public bool ShowIgnored { get; set; }
 
     public string Search { get; set; }
@@ -88,17 +88,17 @@
 
     async Task PageAsync(int page = 1)
     {
-        if (VersionControlId.HasValue)
+        if (VcsId.HasValue)
         {
-            Items = await Service.GetByVersionControlIdAsync(VersionControlId.Value, ShowIgnored, Search, page);
+            Items = await Service.GetByVcsIdAsync(VcsId.Value, ShowIgnored, Search, page);
         }
-        else if (RuntimeId.HasValue)
+        else if (EcosystemId.HasValue)
         {
-            Items = await Service.GetByRuntimeIdAsync(RuntimeId.Value, ShowIgnored, Search, page);
+            Items = await Service.GetByEcosystemIdAsync(EcosystemId.Value, ShowIgnored, Search, page);
         }
-        else if (RuntimeVersionId.HasValue)
+        else if (EcosystemVersionId.HasValue)
         {
-            Items = await Service.GetByRuntimeVersionIdAsync(RuntimeVersionId.Value, ShowIgnored, Search, page);
+            Items = await Service.GetByEcosystemVersionIdAsync(EcosystemVersionId.Value, ShowIgnored, Search, page);
         }
         else
         {

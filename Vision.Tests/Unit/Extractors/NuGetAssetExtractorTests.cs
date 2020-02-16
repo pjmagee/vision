@@ -29,8 +29,8 @@ namespace Vision.Tests
             // act
             var dependencies = sut.ExtractDependencies(new Asset { Raw = csproj }).ToList();
 
-            Assert.Equal("Package.Name", dependencies[0].RuntimeIdentifier);
-            Assert.Equal("1.0.0", dependencies[0].RuntimeVersion);
+            Assert.Equal("Package.Name", dependencies[0].EcosystemIdentifier);
+            Assert.Equal("1.0.0", dependencies[0].EcosystemVersion);
         }
 
         [Fact]
@@ -45,8 +45,8 @@ namespace Vision.Tests
             // act
             var dependencies = sut.ExtractDependencies(new Asset { Raw = csproj }).ToList();
 
-            Assert.Equal("Package.Name", dependencies[0].RuntimeIdentifier);
-            Assert.Equal("1.0.0", dependencies[0].RuntimeVersion);
+            Assert.Equal("Package.Name", dependencies[0].EcosystemIdentifier);
+            Assert.Equal("1.0.0", dependencies[0].EcosystemVersion);
         }
 
         [Fact]
@@ -61,21 +61,21 @@ namespace Vision.Tests
             // act
             var dependencies = sut.ExtractDependencies(new Asset { Raw = csproj }).ToList();
 
-            Assert.Equal("Package.Name", dependencies[0].RuntimeIdentifier);
-            Assert.Equal("1.0.0", dependencies[0].RuntimeVersion);
+            Assert.Equal("Package.Name", dependencies[0].EcosystemIdentifier);
+            Assert.Equal("1.0.0", dependencies[0].EcosystemVersion);
         }
 
         [Fact]
-        public void ExtractSingleFramework()
+        public void ExtractEcosystem()
         {
             // arrange
             var csproj = new XElement("TargetFramework", "netcoreapp2.0").ToString();
 
             // act
-            var frameworks = sut.ExtractRuntimes(new Asset { Raw = csproj }).ToList();
+            var ecosystems = sut.ExtractEcoSystem(new Asset { Raw = csproj }).ToList();
 
-            Assert.Equal(".NET", frameworks[0].RuntimeIdentifier);
-            Assert.Equal("netcoreapp2.0", frameworks[0].RuntimeVersion);
+            Assert.Equal(".NET", ecosystems[0].EcosystemIdentifier);
+            Assert.Equal("netcoreapp2.0", ecosystems[0].EcosystemVersion);
         }
 
         [Fact]
@@ -85,13 +85,13 @@ namespace Vision.Tests
             var csproj = new XElement("TargetFrameworks", "netcoreapp2.0; netstandard2.0").ToString();
 
             // act
-            var frameworks = sut.ExtractRuntimes(new Asset { Raw = csproj }).ToList();
+            var ecosystems = sut.ExtractEcoSystem(new Asset { Raw = csproj }).ToList();
 
-            Assert.Equal(".NET", frameworks[0].RuntimeIdentifier);
-            Assert.Equal("netcoreapp2.0", frameworks[0].RuntimeVersion);
+            Assert.Equal(".NET", ecosystems[0].EcosystemIdentifier);
+            Assert.Equal("netcoreapp2.0", ecosystems[0].EcosystemVersion);
 
-            Assert.Equal(".NET", frameworks[1].RuntimeIdentifier);
-            Assert.Equal("netstandard2.0", frameworks[1].RuntimeVersion);
+            Assert.Equal(".NET", ecosystems[1].EcosystemIdentifier);
+            Assert.Equal("netstandard2.0", ecosystems[1].EcosystemVersion);
         }
 
         [Fact]
@@ -111,6 +111,7 @@ namespace Vision.Tests
         {
             // arrange
             var csproj = new XElement("Project", new XElement("With", new XElement("No", new XElement("Publish", new XElement("Name"))))).ToString();
+            
             // act
             var name = sut.ExtractPublishName(new Asset { Raw = csproj, Path = "Vision.Example.csproj" }).ToList();
 

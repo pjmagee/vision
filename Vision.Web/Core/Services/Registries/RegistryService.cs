@@ -24,7 +24,7 @@ namespace Vision.Web.Core
         {
             encryptionService.Encrypt(dto);
 
-            ArtifactRegistry registry = new ArtifactRegistry
+            EcoRegistry registry = new EcoRegistry
             {
                 Endpoint = dto.Endpoint,
                 Kind = dto.Kind,
@@ -35,7 +35,7 @@ namespace Vision.Web.Core
                 Password = dto.Password
             };
 
-            context.Registries.Add(registry);
+            context.EcoRegistrySources.Add(registry);
             await context.SaveChangesAsync();
 
             logger.LogInformation("Created registry {0}", registry.Id);
@@ -47,7 +47,7 @@ namespace Vision.Web.Core
         {
             encryptionService.Encrypt(dto);
 
-            ArtifactRegistry registry = context.Registries.Find(dto.RegistryId);
+            EcoRegistry registry = context.EcoRegistrySources.Find(dto.RegistryId);
             registry.IsEnabled = dto.IsEnabled;
             registry.IsPublic = dto.IsPublic;
             registry.Kind = dto.Kind;
@@ -56,7 +56,7 @@ namespace Vision.Web.Core
             registry.Username = dto.Username;
             registry.Password = dto.Password;
 
-            context.Registries.Update(registry);
+            context.EcoRegistrySources.Update(registry);
             await context.SaveChangesAsync();
 
             logger.LogInformation("Updated registry {0}", registry.Id);
@@ -66,7 +66,7 @@ namespace Vision.Web.Core
 
         public async Task<IPaginatedList<RegistryDto>> GetAsync(int pageIndex = 1, int pageSize = 10)
         {
-            var query = context.Registries.Select(registry => new RegistryDto
+            var query = context.EcoRegistrySources.Select(registry => new RegistryDto
             {
                 ApiKey = registry.ApiKey,
                 Username = registry.Username,
@@ -83,7 +83,7 @@ namespace Vision.Web.Core
 
         public async Task<RegistryDto> GetByIdAsync(Guid registryId)
         {
-            ArtifactRegistry registry = await context.Registries.FindAsync(registryId);
+            EcoRegistry registry = await context.EcoRegistrySources.FindAsync(registryId);
 
             RegistryDto dto = new RegistryDto
             {
@@ -102,9 +102,9 @@ namespace Vision.Web.Core
             return dto;
         }
 
-        public async Task<List<RegistryDto>> GetEnabledByKindAsync(DependencyKind kind)
+        public async Task<List<RegistryDto>> GetEnabledByKindAsync(EcosystemKind kind)
         {
-            return await context.Registries
+            return await context.EcoRegistrySources
                 .Where(registry => registry.Kind == kind && registry.IsEnabled)
                 .OrderBy(registry => !registry.IsPublic)
                 .Select(registry => new RegistryDto

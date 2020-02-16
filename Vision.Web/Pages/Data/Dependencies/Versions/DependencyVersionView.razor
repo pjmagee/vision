@@ -1,0 +1,29 @@
+﻿@page "/data/dependencies/{DependencyId:guid}/versions/{DependencyVersionId:guid}"
+
+<BreadcrumbsComponent DependencyId="@DependencyId" DependencyVersionId="@DependencyVersionId" />
+
+<MetricsComponent DependencyVersionId="@DependencyVersionId" />
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
+    </div>
+    <div class="card-body">
+        <AssetsComponent DependencyVersionId="@DependencyVersionId" />
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Vulnerabilities</h6>
+    </div>
+    <div class="card-body">
+        <VulnerabilitiesComponent DependencyVersionId="@DependencyVersionId" />
+    </div>
+</div>
+
+@code
+{
+    [Parameter] public Guid DependencyVersionId { get; set; }
+    [Parameter] public Guid DependencyId { get; set; }
+}

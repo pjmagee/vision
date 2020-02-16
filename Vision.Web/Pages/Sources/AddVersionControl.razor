@@ -34,7 +34,7 @@
                 <BSLabel>Kind</BSLabel>
                 <InputSelect Class="form-control" @bind-Value="@Model.Kind">
                     <option selected>Select</option>
-                    @foreach (VersionControlKind kind in Enum.GetValues(typeof(VersionControlKind)).Cast<VersionControlKind>())
+                    @foreach (VcsKind kind in Enum.GetValues(typeof(VcsKind)).Cast<VcsKind>())
                     {
                         <option value="@kind">@kind.ToString()</option>
                     }

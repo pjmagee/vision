@@ -3,7 +3,7 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    
+
     public class CiCdService : ICiCdService
     {
         private readonly VisionDbContext context;
@@ -17,7 +17,7 @@
 
         public async Task<CiCdDto> GetByIdAsync(Guid cicdId)
         {
-            CiCd cicd = await context.CiCds.FindAsync(cicdId);
+            CiCd cicd = await context.CicdSources.FindAsync(cicdId);
 
             return new CiCdDto
             {
@@ -36,7 +36,7 @@
         {
             encryptionService.Encrypt(dto);
 
-            var cicd = context.CiCds.Find(dto.CiCdId);
+            var cicd = context.CicdSources.Find(dto.CiCdId);
             cicd.Endpoint = dto.Endpoint;
             cicd.Kind = dto.Kind;
             cicd.IsEnabled = dto.IsEnabled;
@@ -45,8 +45,8 @@
             cicd.Username = dto.Username;
             cicd.ApiKey = dto.ApiKey;
 
-            
-            context.CiCds.Update(cicd);
+
+            context.CicdSources.Update(cicd);
             await context.SaveChangesAsync();
 
             return new CiCdDto
@@ -76,7 +76,7 @@
                 Username = dto.Username
             };
 
-            context.CiCds.Add(cicd);
+            context.CicdSources.Add(cicd);
             await context.SaveChangesAsync();
 
             return new CiCdDto
@@ -92,7 +92,7 @@
 
         public async Task<IPaginatedList<CiCdDto>> GetAsync(int pageIndex = 1, int pageSize = 10)
         {
-            var query = context.CiCds.Select(cicd => new CiCdDto
+            var query = context.CicdSources.Select(cicd => new CiCdDto
             {
                 ApiKey = cicd.ApiKey,
                 CiCdId = cicd.Id,
@@ -102,7 +102,7 @@
                 Password = cicd.Password,
                 IsEnabled = cicd.IsEnabled,
                 IsGuestEnabled = cicd.IsGuestEnabled
-            });            
+            });
 
             return await PaginatedList<CiCdDto>.CreateAsync(query, pageIndex, pageSize);
         }

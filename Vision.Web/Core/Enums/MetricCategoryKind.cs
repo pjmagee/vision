@@ -9,8 +9,8 @@
         Asset,
         Dependency,
         DependencyVersion,
-        Runtime,
-        RuntimeVersion,
+        Ecosystem,
+        EcosystemVersion,
         Registry,
         CiCd
     }

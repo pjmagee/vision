@@ -1,0 +1,29 @@
+﻿@page "/data/vcs/{VcsId:guid}/repositories/{RepositoryId:guid}/ecosystems/{EcosystemId:guid}"
+@inherits OwningComponentBase
+
+<BreadcrumbsComponent VcsId="@VcsId" RepositoryId="@RepositoryId" EcosystemId="@EcosystemId" />
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
+    </div>
+    <div class="card-body">
+        <AssetsComponent EcosystemId="@EcosystemId" />
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Repositories</h6>
+    </div>
+    <div class="card-body">
+        <RepositoriesComponent EcosystemId="@EcosystemId" />
+    </div>
+</div>
+
+@code
+{
+    [Parameter] public Guid? EcosystemId { get; set; }
+    [Parameter] public Guid? RepositoryId { get; set; }
+    [Parameter] public Guid? VcsId { get; set; }
+}

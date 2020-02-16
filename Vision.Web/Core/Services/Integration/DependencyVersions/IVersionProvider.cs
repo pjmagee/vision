@@ -4,7 +4,7 @@ namespace Vision.Web.Core
 {
     public interface IDependencyVersionProvider
     {
-        bool Supports(DependencyKind kind);
+        bool Supports(EcosystemKind kind);
         Task<DependencyVersion> GetLatestMetaDataAsync(RegistryDto registry, Dependency dependency);
     }
 }

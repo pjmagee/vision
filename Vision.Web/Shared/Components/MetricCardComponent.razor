@@ -8,10 +8,10 @@
                     <div class="h5 mb-0 font-weight-bold text-gray-800">@Item.Value</div>
                 </div>
                 <div class="col-auto">
-                    @if (Item.DependencyKind.HasValue)
+                    @if (Item.EcosystemKind.HasValue)
                     {
-                        <div style="width: 2.5rem; height: 2.5rem; text-align: right;" class="@Item.DependencyKind.Value.GetIconClass()">
-                            @SvgService.GetSvg(Item.DependencyKind.Value)
+                        <div style="width: 2.5rem; height: 2.5rem; text-align: right;" class="@Item.EcosystemKind.Value.GetIconClass()">
+                            @SvgService.GetSvg(Item.EcosystemKind.Value)
                         </div>
                     }
                     else

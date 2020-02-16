@@ -16,7 +16,7 @@
         {
             sut = new DockerAssetExtractor(Substitute.For<ILogger<DockerAssetExtractor>>());
         }
-                
+
         [Theory]
         [InlineData("FROM ubuntu", "ubuntu", "")]
         [InlineData("FROM ubuntu:latest", "ubuntu", "latest")]
@@ -24,21 +24,21 @@
         public void ExtractImage(string file, string image, string version)
         {
             var dependencies = sut.ExtractDependencies(new Asset { Raw = file }).ToList();
-            
-            Assert.Equal(image, dependencies[0].RuntimeIdentifier);
-            Assert.Equal(version, dependencies[0].RuntimeVersion);
-        }        
+
+            Assert.Equal(image, dependencies[0].EcosystemIdentifier);
+            Assert.Equal(version, dependencies[0].EcosystemVersion);
+        }
 
         [Theory]
         [MemberData(nameof(InlineImages))]
         public void ExtractMultiImages(string file, string[] images, string[] versions)
-        {            
+        {
             var dependencies = sut.ExtractDependencies(new Asset { Raw = file }).ToList();
 
-            for(int i = 0; i < dependencies.Count; i++)
+            for (int i = 0; i < dependencies.Count; i++)
             {
-                Assert.Equal(images[i], dependencies[i].RuntimeIdentifier);
-                Assert.Equal(versions[i], dependencies[i].RuntimeVersion);
+                Assert.Equal(images[i], dependencies[i].EcosystemIdentifier);
+                Assert.Equal(versions[i], dependencies[i].EcosystemVersion);
             }
 
             Assert.Equal(images.Length, dependencies.Count);

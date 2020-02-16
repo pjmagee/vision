@@ -15,7 +15,7 @@ namespace Vision.Tests
         }
 
         [Theory]
-        [InlineData("ssh://git@domain:8080/key/project.git", "ssh://git@domain:8080/key/project.git", true)]        
+        [InlineData("ssh://git@domain:8080/key/project.git", "ssh://git@domain:8080/key/project.git", true)]
         [InlineData("http://domain:8090/scm/key/project.git", "http://domain:8090/scm/key/project.git", true)]
         [InlineData("http://domain:8090/scm/key/project.git", "ssh://git@domain:8080/key/project.git", true)]
         [InlineData("ssh://git@domain:8080/key/project.git", "http://domain:8090/scm/key/project.git", true)]

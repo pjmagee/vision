@@ -9,7 +9,7 @@ namespace Vision.Web.Core
         Task<RegistryDto> CreateAsync(RegistryDto dto);
         Task<RegistryDto> GetByIdAsync(Guid registryId);
         Task<RegistryDto> UpdateAsync(RegistryDto dto);
-        Task<List<RegistryDto>> GetEnabledByKindAsync(DependencyKind kind);
+        Task<List<RegistryDto>> GetEnabledByKindAsync(EcosystemKind kind);
         Task<IPaginatedList<RegistryDto>> GetAsync(int pageIndex = 1, int pageSize = 10);
     }
 }

@@ -4,16 +4,16 @@
     {
         public MetricAlertKind Kind { get; set; }
         public CategoryKind CategoryKind { get; set; }
-        public DependencyKind? DependencyKind { get; set; }
+        public EcosystemKind? EcosystemKind { get; set; }
         public string Title { get; set; }
 
         public Metric() {  }
 
-        public Metric(MetricAlertKind alertKind, CategoryKind categoryKind, DependencyKind? kind, string title)
+        public Metric(MetricAlertKind alertKind, CategoryKind categoryKind, EcosystemKind? kind, string title)
         {
             Kind = alertKind;
             CategoryKind = categoryKind;
-            DependencyKind = kind;
+            EcosystemKind = kind;
             Title = title;
         }
 

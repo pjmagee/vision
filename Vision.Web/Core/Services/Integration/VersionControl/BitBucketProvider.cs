@@ -21,7 +21,7 @@ namespace Vision.Web.Core
             this.logger = logger;
         }
 
-        public VersionControlKind Kind => VersionControlKind.Bitbucket;
+        public VcsKind Kind => VcsKind.Bitbucket;
 
         public async Task<IEnumerable<Asset>> GetAssetsAsync(VersionControlDto versionControl, RepositoryDto repository)
         {
@@ -50,7 +50,7 @@ namespace Vision.Web.Core
 
                                 logger.LogInformation($"Adding '{path}' for repository {repository.RepositoryId}");
 
-                                results.Add(new Asset { Id = Guid.NewGuid(), RepositoryId = repository.RepositoryId, Kind = path.GetDependencyKind(), Path = path, Raw = string.Join(Environment.NewLine, file.FileContents) });
+                                results.Add(new Asset { Id = Guid.NewGuid(), RepositoryId = repository.RepositoryId, Kind = path.GetEcosystemKind(), Path = path, Raw = string.Join(Environment.NewLine, file.FileContents) });
                             }
                         }
                     }
@@ -77,7 +77,7 @@ namespace Vision.Web.Core
                     results.Add(new VcsRepository
                     {
                         Id = Guid.NewGuid(),
-                        VcsId = versionControl.VersionControlId,
+                        VcsId = versionControl.VcsId,
                         WebUrl = repository.Links.Self[0].Href.ToString(),
                         Url = repository.Links.Clone[0].Href.ToString()
                     });

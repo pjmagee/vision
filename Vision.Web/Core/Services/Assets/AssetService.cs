@@ -29,11 +29,11 @@ namespace Vision.Web.Core
                 Dependencies = context.AssetDependencies.Count(x => x.AssetId == assetId),
                 Asset = asset.Path,
                 RepositoryId = asset.RepositoryId,
-                VersionControlId = asset.Repository.VcsId
+                VcsId = asset.Repository.VcsId
             };
         }
 
-        public async Task<IPaginatedList<AssetDto>> GetByDependencyIdAsync(Guid dependencyId, string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10)
+        public async Task<IPaginatedList<AssetDto>> GetByDependencyIdAsync(Guid dependencyId, string search, IEnumerable<EcosystemKind> kinds, int pageIndex = 1, int pageSize = 10)
         {
             var query = context.Assets.AsQueryable();
             var filter = kinds.ToIntArray();
@@ -58,14 +58,14 @@ namespace Vision.Web.Core
                     Kind = asset.Kind,
                     Dependencies = context.AssetDependencies.Count(a => a.AssetId == asset.Id),
                     RepositoryId = asset.RepositoryId,
-                    VersionControlId = asset.Repository.VcsId
+                    VcsId = asset.Repository.VcsId
                 })
                 .OrderByDescending(asset => asset.Dependencies);
 
             return await PaginatedList<AssetDto>.CreateAsync(paging, pageIndex, pageSize);
         }
 
-        public async Task<IPaginatedList<AssetDto>> GetByVersionIdAsync(Guid versionId, string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10)
+        public async Task<IPaginatedList<AssetDto>> GetByVersionIdAsync(Guid versionId, string search, IEnumerable<EcosystemKind> kinds, int pageIndex = 1, int pageSize = 10)
         {
             var query = context.Assets.AsQueryable();
             var filter = kinds.ToIntArray();
@@ -90,14 +90,14 @@ namespace Vision.Web.Core
                 Kind = asset.Kind,
                 Dependencies = context.AssetDependencies.Count(a => a.AssetId == asset.Id),
                 RepositoryId = asset.RepositoryId,
-                VersionControlId = asset.Repository.VcsId
+                VcsId = asset.Repository.VcsId
             })
             .OrderByDescending(asset => asset.Dependencies);
 
             return await PaginatedList<AssetDto>.CreateAsync(paging, pageIndex, pageSize);
         }
 
-        public async Task<IPaginatedList<AssetDto>> GetByRepositoryIdAsync(Guid repositoryId, string search, IEnumerable<DependencyKind> kinds, bool dependents, int pageIndex = 1, int pageSize = 10)
+        public async Task<IPaginatedList<AssetDto>> GetByRepositoryIdAsync(Guid repositoryId, string search, IEnumerable<EcosystemKind> kinds, bool dependents, int pageIndex = 1, int pageSize = 10)
         {
             var filter = kinds.ToIntArray();
             var query = context.Assets.AsQueryable();
@@ -141,14 +141,14 @@ namespace Vision.Web.Core
                 Asset = asset.Path,
                 Kind = asset.Kind,
                 RepositoryId = asset.RepositoryId,
-                VersionControlId = asset.Repository.VcsId
+                VcsId = asset.Repository.VcsId
             })
             .OrderByDescending(asset => asset.Dependencies);
 
             return PaginatedList<AssetDto>.Create(paging, pageIndex, pageSize);
         }
 
-        public async Task<IPaginatedList<AssetDto>> GetAsync(string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10)
+        public async Task<IPaginatedList<AssetDto>> GetAsync(string search, IEnumerable<EcosystemKind> kinds, int pageIndex = 1, int pageSize = 10)
         {
             var query = context.Assets.AsQueryable();
             var filter = kinds.ToIntArray();
@@ -171,14 +171,14 @@ namespace Vision.Web.Core
                 Dependencies = context.AssetDependencies.Count(assetDependency => assetDependency.AssetId == asset.Id),
                 Repository = asset.Repository.WebUrl,
                 RepositoryId = asset.RepositoryId,
-                VersionControlId = asset.Repository.VcsId
+                VcsId = asset.Repository.VcsId
             })
             .OrderByDescending(asset => asset.Dependencies);
 
             return await PaginatedList<AssetDto>.CreateAsync(paging, pageIndex, pageSize);
         }
 
-        public async Task<IPaginatedList<AssetDto>> GetByRuntimeIdAsync(Guid runtimeId, string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10)
+        public async Task<IPaginatedList<AssetDto>> GetByEcosystemIdAsync(Guid EcosystemId, string search, IEnumerable<EcosystemKind> kinds, int pageIndex = 1, int pageSize = 10)
         {
             var query = context.Assets.AsQueryable();
             var filter = kinds.ToIntArray();
@@ -194,7 +194,7 @@ namespace Vision.Web.Core
             }
 
             var paging = query
-                .Where(asset => context.AssetRuntimes.Any(ar => ar.AssetId == asset.Id && ar.RuntimeVersion.RuntimeId == runtimeId))
+                .Where(asset => context.AssetEcoSystems.Any(ar => ar.AssetId == asset.Id && ar.EcosystemVersion.EcosystemId == EcosystemId))
                 .Select(asset => new AssetDto
                 {
                     AssetId = asset.Id,
@@ -203,14 +203,14 @@ namespace Vision.Web.Core
                     Dependencies = context.AssetDependencies.Count(assetDependency => assetDependency.AssetId == asset.Id),
                     Repository = asset.Repository.WebUrl,
                     RepositoryId = asset.RepositoryId,
-                    VersionControlId = asset.Repository.VcsId
+                    VcsId = asset.Repository.VcsId
                 })
                 .OrderByDescending(asset => asset.Dependencies);
 
             return await PaginatedList<AssetDto>.CreateAsync(paging, pageIndex, pageSize);
         }
 
-        public async Task<IPaginatedList<AssetDto>> GetByRuntimeVersionIdAsync(Guid runtimeVersionId, string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10)
+        public async Task<IPaginatedList<AssetDto>> GetByEcosystemVersionIdAsync(Guid EcosystemVersionId, string search, IEnumerable<EcosystemKind> kinds, int pageIndex = 1, int pageSize = 10)
         {
             var query = context.Assets.AsQueryable();
             var filter = kinds.ToIntArray();
@@ -226,7 +226,7 @@ namespace Vision.Web.Core
             }
 
             var paging = query
-                .Where(asset => context.AssetRuntimes.Any(ar => ar.AssetId == asset.Id && ar.RuntimeVersionId == runtimeVersionId))
+                .Where(asset => context.AssetEcoSystems.Any(ar => ar.AssetId == asset.Id && ar.EcosystemVersionId == EcosystemVersionId))
                 .Select(asset => new AssetDto
                 {
                     AssetId = asset.Id,
@@ -235,18 +235,18 @@ namespace Vision.Web.Core
                     Dependencies = context.AssetDependencies.Count(assetDependency => assetDependency.AssetId == asset.Id),
                     Repository = asset.Repository.WebUrl,
                     RepositoryId = asset.RepositoryId,
-                    VersionControlId = asset.Repository.VcsId
+                    VcsId = asset.Repository.VcsId
                 })
                 .OrderByDescending(asset => asset.Dependencies);
 
             return await PaginatedList<AssetDto>.CreateAsync(paging, pageIndex, pageSize);
         }
 
-        public async Task<IPaginatedList<AssetDto>> GetByVersionControlIdAsync(Guid versionControlId, string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10)
+        public async Task<IPaginatedList<AssetDto>> GetByVcsIdAsync(Guid VcsId, string search, IEnumerable<EcosystemKind> kinds, int pageIndex = 1, int pageSize = 10)
         {
-            Vcs versionControl = context.VersionControls.Find(versionControlId);
+            Vcs versionControl = context.VcsSources.Find(VcsId);
 
-            var query = context.Assets.Where(asset => context.Repositories.Any(repository => repository.VcsId == versionControlId && asset.RepositoryId == repository.Id));
+            var query = context.Assets.Where(asset => context.VcsRepositories.Any(repository => repository.VcsId == VcsId && asset.RepositoryId == repository.Id));
             var filter = kinds.ToIntArray();
 
             if (filter.Any())
@@ -266,7 +266,7 @@ namespace Vision.Web.Core
                 Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id),
                 Repository = asset.Repository.Url,
                 RepositoryId = asset.RepositoryId,
-                VersionControlId = asset.Repository.VcsId
+                VcsId = asset.Repository.VcsId
             })
             .OrderByDescending(a => a.Dependencies);
 
@@ -279,7 +279,7 @@ namespace Vision.Web.Core
             return assets.Select(asset => extractor.ExtractPublishName(asset)).ToList();
         }
 
-        public async Task<IPaginatedList<AssetDto>> GetByAssetIdAsync(Guid id, string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10)
+        public async Task<IPaginatedList<AssetDto>> GetByAssetIdAsync(Guid id, string search, IEnumerable<EcosystemKind> kinds, int pageIndex = 1, int pageSize = 10)
         {
             var filter = kinds.ToIntArray();
             var query = context.Assets.Where(asset => asset.Id != id).AsQueryable();
@@ -303,7 +303,7 @@ namespace Vision.Web.Core
                 Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id),
                 Repository = asset.Repository.Url,
                 RepositoryId = asset.RepositoryId,
-                VersionControlId = asset.Repository.VcsId
+                VcsId = asset.Repository.VcsId
             })
             .OrderByDescending(a => a.Dependencies);
 

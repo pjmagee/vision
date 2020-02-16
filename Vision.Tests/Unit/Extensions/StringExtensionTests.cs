@@ -35,9 +35,9 @@
         [InlineData("packages.json.sample")]
         [InlineData("sample.sln")]
         [InlineData("maven.pom.xml.sample")]           
-        public void GetDependencyKindShouldThrowExceptionOnInvalidFile(string unsupported)
+        public void GetEcosystemKindShouldThrowExceptionOnInvalidFile(string unsupported)
         {
-            Assert.Throws<InvalidOperationException>(() => unsupported.GetDependencyKind());
+            Assert.Throws<InvalidOperationException>(() => unsupported.GetEcosystemKind());
         }
     }
 }

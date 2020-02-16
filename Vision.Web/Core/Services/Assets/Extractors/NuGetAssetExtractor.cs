@@ -29,7 +29,7 @@ namespace Vision.Web.Core
 
         private readonly ILogger<NuGetAssetExtractor> logger;
 
-        public DependencyKind Kind { get; } = DependencyKind.NuGet;
+        public EcosystemKind Kind { get; } = EcosystemKind.NuGet;
 
         public NuGetAssetExtractor(ILogger<NuGetAssetExtractor> logger)
         {
@@ -76,7 +76,7 @@ namespace Vision.Web.Core
             }
         }
 
-        public IEnumerable<Extract> ExtractRuntimes(Asset asset)
+        public IEnumerable<Extract> ExtractEcoSystem(Asset asset)
         {
             try
             {

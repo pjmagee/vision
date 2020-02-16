@@ -17,21 +17,21 @@
             this.extractor = extractor;
         }
 
-        public async Task<DependencyDto> GetByIdAsync(Guid dependencyId)
+        public async Task<DependencyDto> GetByIdAsync(Guid depId)
         {
-            Dependency dependency = await context.Dependencies.FindAsync(dependencyId);
+            Dependency dependency = await context.Dependencies.FindAsync(depId);
 
             return new DependencyDto
             {
                 Name = dependency.Name,
                 Kind = dependency.Kind,
                 DependencyId = dependency.Id,
-                Assets = await context.AssetDependencies.CountAsync(assetDependency => assetDependency.DependencyId == dependencyId),
-                Versions = await context.DependencyVersions.CountAsync(dependencyVersion => dependencyVersion.DependencyId == dependencyId),
+                Assets = await context.AssetDependencies.CountAsync(assetDependency => assetDependency.DependencyId == depId),
+                Versions = await context.DependencyVersions.CountAsync(dependencyVersion => dependencyVersion.DependencyId == depId),
             };
         }
 
-        public async Task<IPaginatedList<DependencyDto>> GetAsync(IEnumerable<DependencyKind> kinds, string search, int pageIndex = 1, int pageSize = 10)
+        public async Task<IPaginatedList<DependencyDto>> GetAsync(IEnumerable<EcosystemKind> kinds, string search, int pageIndex = 1, int pageSize = 10)
         {
             IQueryable<Dependency> query = context.Dependencies.AsQueryable();
             var filter = kinds.ToIntArray();
@@ -61,11 +61,11 @@
         }
 
 
-        public async Task<IPaginatedList<DependencyDto>> GetByRepositoryIdAsync(Guid repositoryId, IEnumerable<DependencyKind> kinds, string search, int pageIndex = 1, int pageSize = 10)
+        public async Task<IPaginatedList<DependencyDto>> GetByRepositoryIdAsync(Guid repoId, IEnumerable<EcosystemKind> kinds, string search, int pageIndex = 1, int pageSize = 10)
         {
             var filter = kinds.ToIntArray();
-            VcsRepository repository = context.Repositories.Find(repositoryId);
-            List<string> assetNames = context.Assets.Where(asset => asset.RepositoryId == repositoryId).Select(asset => extractor.ExtractPublishName(asset)).ToList();
+            VcsRepository repository = context.VcsRepositories.Find(repoId);
+            List<string> assetNames = context.Assets.Where(asset => asset.RepositoryId == repoId).Select(asset => extractor.ExtractPublishName(asset)).ToList();
 
             IQueryable<Dependency> query = context.Dependencies.AsQueryable();
 
@@ -95,10 +95,10 @@
             return await PaginatedList<DependencyDto>.CreateAsync(paging, pageIndex, pageSize);
         }
 
-        public async Task<IPaginatedList<DependencyDto>> GetByAssetIdAsync(Guid id, IEnumerable<DependencyKind> kinds, string search, int pageIndex = 1, int pageSize = 10)
+        public async Task<IPaginatedList<DependencyDto>> GetByAssetIdAsync(Guid assetId, IEnumerable<EcosystemKind> kinds, string search, int pageIndex = 1, int pageSize = 10)
         {
             var filter = kinds.ToIntArray();
-            Asset asset = await context.Assets.FindAsync(id);
+            Asset asset = await context.Assets.FindAsync(assetId);
             var publishName = extractor.ExtractPublishName(asset);
             IQueryable<Dependency> query = context.Dependencies.AsQueryable();
 

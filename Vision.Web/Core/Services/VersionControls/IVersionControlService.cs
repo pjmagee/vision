@@ -7,7 +7,7 @@ namespace Vision.Web.Core
     {
         Task<VersionControlDto> CreateVersionControl(VersionControlDto versionControl);
         Task<IPaginatedList<VersionControlDto>> GetAsync(int pageIndex = 1, int pageSize = 10);
-        Task<VersionControlDto> GetByIdAsync(Guid versionControlId);
+        Task<VersionControlDto> GetByIdAsync(Guid VcsId);
         Task<VersionControlDto> UpdateAsync(VersionControlDto versionControl);
     }
 }
