@@ -42,7 +42,7 @@ namespace Vision.Web.Core
 
                     new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, $"Dependencies", await context.Dependencies.CountAsync()),
                     new MetricItem(MetricAlertKind.Standard, CategoryKind.Dependency, $"Dependency versions", await context.DependencyVersions.CountAsync()),
-                    new MetricItem(MetricAlertKind.Warning, CategoryKind.Dependency, $"Vulnerabilities", await context.VulnerabilityReports.CountAsync()),
+                    new MetricItem(MetricAlertKind.Warning, CategoryKind.Dependency, $"Vulnerabilities", await context.Vulnerabilities.CountAsync()),
 
                     new MetricItem(MetricAlertKind.Standard, CategoryKind.Ecosystem, $"Ecosystems", await context.Ecosystems.CountAsync()),
                     new MetricItem(MetricAlertKind.Standard, CategoryKind.Ecosystem, $"Ecosystem versions", await context.EcosystemVersions.CountAsync()),

@@ -16,7 +16,7 @@
         public DbSet<Dependency> Dependencies { get; set; }
         public DbSet<DependencyVersion> DependencyVersions { get; set; }
 
-        public DbSet<VulnerabilityReport> VulnerabilityReports { get; set; }
+        public DbSet<Vulnerability> Vulnerabilities { get; set; }
 
         public DbSet<Vcs> VcsSources { get; set; }
         public DbSet<VcsRepository> VcsRepositories { get; set; }
@@ -93,7 +93,7 @@
                 entity.HasMany(x => x.Assets).WithOne(x => x.Dependency).HasForeignKey(x => x.DependencyId);
             });
 
-            modelBuilder.Entity<VulnerabilityReport>((entity) =>
+            modelBuilder.Entity<Vulnerability>((entity) =>
             {
                 entity.HasKey(x => x.Id);
                 entity.Property(x => x.Link).IsRequired();

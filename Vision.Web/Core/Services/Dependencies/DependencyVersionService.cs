@@ -16,27 +16,27 @@
 
             return new DependencyVersionDto
             {
-                Assets = context.AssetDependencies.Count(assetDependency => assetDependency.DependencyId == version.DependencyId),
+                Assets = context.AssetDependencies.Count(ad => ad.DependencyId == version.DependencyId),
                 DependencyId = version.DependencyId,
                 DependencyVersionId = version.Id,
                 IsLatest = version.IsLatest,
                 Version = version.Version,
-                Vulnerabilities = context.VulnerabilityReports.Count(r => r.DependencyVersionId == dependencyVersionId)
+                Vulnerabilities = context.Vulnerabilities.Count(r => r.DependencyVersionId == dependencyVersionId)
             };
         }
 
         public async Task<IPaginatedList<DependencyVersionDto>> GetByDependencyIdAsync(Guid dependencyId, int pageIndex = 1, int pageSize = 10)
         {
             var query = context.DependencyVersions
-                .Where(dependencyVersion => dependencyVersion.DependencyId == dependencyId)
-                .Select(dependencyVersion => new DependencyVersionDto
+                .Where(version => version.DependencyId == dependencyId)
+                .Select(version => new DependencyVersionDto
                 {
-                    Assets = context.AssetDependencies.Count(assetDependency => assetDependency.DependencyVersionId == dependencyVersion.Id),
-                    IsLatest = dependencyVersion.IsLatest,
-                    DependencyId = dependencyVersion.DependencyId,
-                    DependencyVersionId = dependencyVersion.Id,
-                    Version = dependencyVersion.Version,
-                    Vulnerabilities = context.VulnerabilityReports.Count(report => report.DependencyVersionId == dependencyVersion.Id)
+                    Assets = context.AssetDependencies.Count(ad => ad.DependencyVersionId == version.Id),
+                    IsLatest = version.IsLatest,
+                    DependencyId = version.DependencyId,
+                    DependencyVersionId = version.Id,
+                    Version = version.Version,
+                    Vulnerabilities = context.Vulnerabilities.Count(v => v.DependencyVersionId == version.Id)
                 })
                 .OrderBy(v => v.Assets)
                 .ThenBy(v => v.IsLatest);

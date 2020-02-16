@@ -66,7 +66,7 @@ namespace Vision.Web.Core
 
                 foreach (DependencyVersion version in picker.From(dependency.Versions.ToList()))
                 {
-                    context.VulnerabilityReports.Add(new VulnerabilityReport
+                    context.Vulnerabilities.Add(new Vulnerability
                     {
                         DependencyVersion = version,
                         DependencyVersionId = version.Id,

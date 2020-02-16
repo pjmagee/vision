@@ -68,7 +68,10 @@
 
 @code
 {
-    string ActiveClass(NavMenuItem item) => item.IsActive ? " active" : string.Empty;
+    string ActiveClass(NavMenuItem item)
+    {
+        return item.IsActive ? " active" : string.Empty;
+    }
 
     [Inject] NavigationService Navigation { get; set; }
     [Inject] NavigationManager NavigationManager { get; set; }
@@ -76,7 +79,22 @@
 
     protected override void OnInitialized()
     {
-        NavigationManager.LocationChanged += (sender, o) => Console.WriteLine("location: {0}", o);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    ~MenuComponent()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+
+    }
+
+    private void OnLocationChanged(object sender, LocationChangedEventArgs args)
+    {
+        StateHasChanged();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

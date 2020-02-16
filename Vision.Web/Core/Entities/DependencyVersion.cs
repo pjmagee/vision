@@ -11,7 +11,7 @@ namespace Vision.Web.Core
         public virtual Dependency Dependency { get; set; }
         public Guid DependencyId { get; set; }
         public virtual ICollection<AssetDependency> Assets { get; set; }
-        public virtual ICollection<VulnerabilityReport> Vulnerabilities { get; set; }
+        public virtual ICollection<Vulnerability> Vulnerabilities { get; set; }
 
         public int CompareTo(DependencyVersion other)
         {

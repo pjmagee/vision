@@ -35,8 +35,8 @@ namespace Vision.Web
             .AddHostedService<BackgroundSystemRefreshMonitor>();
 
         public static IServiceCollection RegisterVulnerabilityServices(this IServiceCollection services) => services
-            .AddScoped<IVulnerabilityReportService, VulnerabilityReportService>()
-            .AddScoped<IVulnerabilityReportProvider, OSSIndexVulnerabilityReportProvider>()
+            .AddScoped<IVulnerabilityService, VulnerabilityService>()
+            .AddScoped<IVulnerabilityProvider, OSSIndexVulnerabilityProvider>()
             .AddScoped<OSSIndexCoordinateBuilder>()
             .AddScoped<IAggregrateVulnerabilityReportProvider, AggregrateVulnerabilityReportProvider>();
 

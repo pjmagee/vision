@@ -1,5 +1,18 @@
 ﻿@inherits OwningComponentBase
 
+<div class="form-inline mb-4">
+    <BSFormLabel Class="my-1 mr-2">Kind</BSFormLabel>
+    <select @onchange="@DropDownFilterAsync" class="form-control my-1 mr-sm-2">
+        <option>Any...</option>
+        @foreach (var kind in AppHelper.EcosystemKinds)
+        {
+            <option value="@kind">@kind.GetName()</option>
+        }
+    </select>
+    <input class="form-control mr-sm-2" @bind-Value="@Search" @bind-Value:event="oninput" type="text" />
+    <button type="button" class="btn btn-primary" @onclick="@(async() => await PageAsync(Items.PageIndex))">Search</button>
+</div>
+
 <BSTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
     <thead>
         <tr>
@@ -12,7 +25,7 @@
     <tbody>
         @if (Items != null)
         {
-            @foreach (var item in Items)
+            @foreach (VulnerabilityReportDto item in Items)
             {
                 <tr>
                     <td>@item.ReporterKind</td>
@@ -35,7 +48,11 @@
         }
         else
         {
-            <LoaderComponent />
+            <tr>
+                <td colspan="4">
+                    <LoaderComponent />
+                </td>
+            </tr>
         }
     </tbody>
 </BSTable>
@@ -46,12 +63,14 @@
 {
     [Parameter] public Guid? DependencyVersionId { get; set; }
 
-    IVulnerabilityReportService VulnerabilityService { get; set; }
+    IVulnerabilityService VulnerabilityService { get; set; }
     IPaginatedList<VulnerabilityReportDto> Items { get; set; }
+    EcosystemKind? Kind { get; set; }
+    string Search { get; set; }
 
     protected override void OnInitialized()
     {
-        VulnerabilityService = (IVulnerabilityReportService)ScopedServices.GetService(typeof(IVulnerabilityReportService));
+        VulnerabilityService = (IVulnerabilityService)ScopedServices.GetService(typeof(IVulnerabilityService));
     }
 
     protected override async Task OnParametersSetAsync()
@@ -59,12 +78,35 @@
         await PageAsync(1);
     }
 
+    async Task DropDownFilterAsync(ChangeEventArgs args)
+    {
+        if (Enum.TryParse(typeof(EcosystemKind), (string)args.Value, true, out var kind))
+        {
+            Kind = (EcosystemKind)kind;
+        }
+        else
+        {
+            Kind = null;
+        }
+
+        await PageAsync(Items?.PageIndex ?? 1);
+    }
+
     async Task PageAsync(int page)
     {
         if (DependencyVersionId.HasValue)
         {
             Items = await VulnerabilityService.GetByDependencyVersionIdAsync(DependencyVersionId.Value, page);
-            StateHasChanged();
         }
+        else if (Kind.HasValue)
+        {
+            Items = await VulnerabilityService.GetByEcosystemKindAsync(Kind.Value, page);
+        }
+        else
+        {
+            Items = new PaginatedList<VulnerabilityReportDto>(new List<VulnerabilityReportDto>(), 0, 1, 10);
+        }
+
+        StateHasChanged();
     }
 }
