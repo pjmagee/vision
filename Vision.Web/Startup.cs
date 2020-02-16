@@ -17,14 +17,17 @@ namespace Vision.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDataProtection();
+            
             services.AddMemoryCache();
+            
             services.AddRazorPages();
+            
             services.AddServerSideBlazor();
-
+            
             services.AddVisionServices(Configuration);
-
+            
             services.AddCors(options => options.AddPolicy("CorsPolicy", builder => builder.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin()));
-
+            
             services.AddOpenApiDocument(config =>
             {
                 config.PostProcess = document =>

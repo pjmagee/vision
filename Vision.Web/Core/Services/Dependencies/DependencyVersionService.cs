@@ -36,7 +36,8 @@
                     DependencyVersionId = dependencyVersion.Id,
                     Version = dependencyVersion.Version
                 })
-                .OrderBy(v => v.IsLatest);
+                .OrderBy(v => v.Assets)
+                .ThenBy(v => v.IsLatest);
 
             return await PaginatedList<DependencyVersionDto>.CreateAsync(query, pageIndex, pageSize);
         }

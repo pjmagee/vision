@@ -3,7 +3,6 @@
     using Docker.Registry.DotNet;
     using Docker.Registry.DotNet.Authentication;
     using Docker.Registry.DotNet.Models;
-    using Microsoft.AspNetCore.DataProtection;
     using Microsoft.Extensions.Logging;
     using System;
     using System.Linq;

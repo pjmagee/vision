@@ -1,12 +1,12 @@
-﻿namespace Vision.Web.Core
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.Logging;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
+namespace Vision.Web.Core
+{
     public class RegistryService : IRegistryService
     {
         private readonly IEncryptionService encryptionService;
@@ -24,7 +24,7 @@
         {
             encryptionService.Encrypt(dto);
 
-            Registry registry = new Registry
+            ArtifactRegistry registry = new ArtifactRegistry
             {
                 Endpoint = dto.Endpoint,
                 Kind = dto.Kind,
@@ -47,14 +47,14 @@
         {
             encryptionService.Encrypt(dto);
 
-            Registry registry = context.Registries.Find(dto.RegistryId);
+            ArtifactRegistry registry = context.Registries.Find(dto.RegistryId);
             registry.IsEnabled = dto.IsEnabled;
             registry.IsPublic = dto.IsPublic;
             registry.Kind = dto.Kind;
             registry.Endpoint = dto.Endpoint;
             registry.ApiKey = dto.ApiKey;
             registry.Username = dto.Username;
-            registry.Password = dto.Password;                
+            registry.Password = dto.Password;
 
             context.Registries.Update(registry);
             await context.SaveChangesAsync();
@@ -70,7 +70,7 @@
             {
                 ApiKey = registry.ApiKey,
                 Username = registry.Username,
-                Password = registry.Password,                
+                Password = registry.Password,
                 Endpoint = registry.Endpoint,
                 IsEnabled = registry.IsEnabled,
                 IsPublic = registry.IsPublic,
@@ -83,13 +83,13 @@
 
         public async Task<RegistryDto> GetByIdAsync(Guid registryId)
         {
-            Registry registry = await context.Registries.FindAsync(registryId);
+            ArtifactRegistry registry = await context.Registries.FindAsync(registryId);
 
             RegistryDto dto = new RegistryDto
             {
                 ApiKey = registry.ApiKey,
                 Username = registry.Username,
-                Password = registry.Password,                
+                Password = registry.Password,
                 Endpoint = registry.Endpoint,
                 IsEnabled = registry.IsEnabled,
                 IsPublic = registry.IsPublic,
@@ -111,7 +111,7 @@
                 {
                     ApiKey = registry.ApiKey,
                     Username = registry.Username,
-                    Password = registry.Password,                    
+                    Password = registry.Password,
                     Endpoint = registry.Endpoint,
                     IsEnabled = registry.IsEnabled,
                     IsPublic = registry.IsPublic,

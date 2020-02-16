@@ -4,13 +4,13 @@ namespace Vision.Web.Core
 {
     public class Extract
     {
-        public string Name { get; }
-        public string Version { get; }
+        public string RuntimeIdentifier { get; }
+        public string RuntimeVersion { get; }
 
         public Extract(string name, string version)
         {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-            Version = version ?? throw new ArgumentNullException(nameof(version));
+            RuntimeIdentifier = name ?? throw new ArgumentNullException(nameof(name));
+            RuntimeVersion = version ?? throw new ArgumentNullException(nameof(version));
         }
     }
 }

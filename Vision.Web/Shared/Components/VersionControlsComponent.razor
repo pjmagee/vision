@@ -1,4 +1,6 @@
-﻿<BSTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
+﻿@inherits OwningComponentBase
+
+<BSTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
     <thead>
         <tr>
             <th>Kind</th>
@@ -50,10 +52,16 @@
 
 @code
 {
-    [Inject] IVersionControlService  Service { get; set; }
-    [Inject] SvgService SvgService { get; set; }
+    IVersionControlService Service { get; set; }
+    SvgService SvgService { get; set; }
 
     IPaginatedList<VersionControlDto> Items { get; set; }
+
+    protected override void OnInitialized()
+    {
+        SvgService = (SvgService) ScopedServices.GetService(typeof(SvgService));
+        Service = (IVersionControlService)ScopedServices.GetService(typeof(IVersionControlService));
+    }
 
     protected override async Task OnInitializedAsync()
     {

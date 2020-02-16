@@ -33,7 +33,7 @@
 
         public async Task<IPaginatedList<DependencyDto>> GetAsync(IEnumerable<DependencyKind> kinds, string search, int pageIndex = 1, int pageSize = 10)
         {
-            var query = context.Dependencies.AsQueryable();
+            IQueryable<Dependency> query = context.Dependencies.AsQueryable();
             var filter = kinds.ToIntArray();
 
             if (filter.Any())
@@ -57,16 +57,17 @@
             .OrderByDescending(d => d.Assets)
             .ThenByDescending(d => d.Versions);
 
-            return await PaginatedList<DependencyDto>.CreateAsync(paging.AsNoTracking(), pageIndex, pageSize);
+            return await PaginatedList<DependencyDto>.CreateAsync(paging, pageIndex, pageSize);
         }
+
 
         public async Task<IPaginatedList<DependencyDto>> GetByRepositoryIdAsync(Guid repositoryId, IEnumerable<DependencyKind> kinds, string search, int pageIndex = 1, int pageSize = 10)
         {
             var filter = kinds.ToIntArray();
-            Repository repository = await context.Repositories.FindAsync(repositoryId);
-            List<string> assetNames = await context.Assets.Where(asset => asset.RepositoryId == repositoryId).Select(asset => extractor.ExtractPublishName(asset)).ToListAsync();
+            VcsRepository repository = context.Repositories.Find(repositoryId);
+            List<string> assetNames = context.Assets.Where(asset => asset.RepositoryId == repositoryId).Select(asset => extractor.ExtractPublishName(asset)).ToList();
 
-            var query = context.Dependencies.AsQueryable();                
+            IQueryable<Dependency> query = context.Dependencies.AsQueryable();
 
             if (filter.Any())
             {
@@ -91,15 +92,15 @@
             .OrderByDescending(d => d.Assets)
             .ThenByDescending(d => d.Versions);
 
-            return await PaginatedList<DependencyDto>.CreateAsync(paging.AsNoTracking(), pageIndex, pageSize);
+            return await PaginatedList<DependencyDto>.CreateAsync(paging, pageIndex, pageSize);
         }
 
         public async Task<IPaginatedList<DependencyDto>> GetByAssetIdAsync(Guid id, IEnumerable<DependencyKind> kinds, string search, int pageIndex = 1, int pageSize = 10)
         {
             var filter = kinds.ToIntArray();
-            var asset = await context.Assets.FindAsync(id);
+            Asset asset = await context.Assets.FindAsync(id);
             var publishName = extractor.ExtractPublishName(asset);
-            var query = context.Dependencies.AsQueryable();
+            IQueryable<Dependency> query = context.Dependencies.AsQueryable();
 
             if (filter.Any())
             {
@@ -124,7 +125,7 @@
             .OrderByDescending(d => d.Assets)
             .ThenByDescending(d => d.Versions);
 
-            return await PaginatedList<DependencyDto>.CreateAsync(paging.AsNoTracking(), pageIndex, pageSize);
+            return await PaginatedList<DependencyDto>.CreateAsync(paging, pageIndex, pageSize);
         }
     }
 }

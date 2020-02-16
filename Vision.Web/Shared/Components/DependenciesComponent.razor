@@ -1,4 +1,6 @@
-﻿<div class="form-inline mb-4">
+﻿@inherits OwningComponentBase
+
+<div class="form-inline mb-4">
     <BSFormLabel Class="my-1 mr-2">Kind</BSFormLabel>
     <select @onchange="@DropDownFilterAsync" class="form-control my-1 mr-sm-2">
         <option>Any...</option>
@@ -36,9 +38,7 @@
             @if (Items.Count == 0)
             {
                 <tr>
-                    <td colspan="4">
-                        No dependencies found.
-                    </td>
+                    <td colspan="4">None found.</td>
                 </tr>
             }
         }
@@ -58,14 +58,21 @@
 @code
 {
     [Parameter] public Guid? RepositoryId { get; set; }
+    [Parameter] public Guid? RegistryId { get; set; }
 
-    [Inject] SvgService SvgService { get; set; }
-    [Inject] IDependencyService Service { get; set; }
+    SvgService SvgService { get; set; }
+    IDependencyService Service { get; set; }
 
     IPaginatedList<DependencyDto> Items { get; set; }
     List<DependencyKind> Kinds { get; set; } = new List<DependencyKind>();
     DependencyKind? Kind { get; set; }
     string Search { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Service = (IDependencyService)ScopedServices.GetService(typeof(IDependencyService));
+        SvgService = (SvgService)ScopedServices.GetService(typeof(SvgService));
+    }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -96,11 +103,15 @@
         {
             Items = await Service.GetByRepositoryIdAsync(RepositoryId.Value, Kinds, Search, page);
         }
+        else if (RegistryId.HasValue)
+        {
+
+        }
         else
         {
             Items = await Service.GetAsync(Kinds, Search, page);
         }
 
-        // StateHasChanged();
+        StateHasChanged();
     }
 }

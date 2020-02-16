@@ -2,12 +2,11 @@
 
 namespace Vision.Web.Core
 {
-
     public interface IAssetExtractor
     {
-        bool Supports(DependencyKind kind);
+        DependencyKind Kind { get; }
         IEnumerable<Extract> ExtractDependencies(Asset asset);
-        IEnumerable<Extract> ExtractFrameworks(Asset asset);
+        IEnumerable<Extract> ExtractRuntimes(Asset asset);
         string ExtractPublishName(Asset asset);
     }
 }

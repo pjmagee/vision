@@ -15,12 +15,12 @@ namespace Vision.Web
             {
                 using (var scope = host.Services.CreateScope())
                 {
-                    // FakeDataGenerator fakeDataGenerator = scope.ServiceProvider.GetRequiredService<FakeDataGenerator>();
-                    // await fakeDataGenerator.SeedAsync();
+                    FakeDataGenerator fakeDataGenerator = scope.ServiceProvider.GetRequiredService<FakeDataGenerator>();
+                    await fakeDataGenerator.SeedAsync();
 
-                    // var context = scope.ServiceProvider.GetRequiredService<VisionDbContext>();
-                    // await context.Database.EnsureDeletedAsync();
-                    // await context.Database.EnsureCreatedAsync();
+                    //var context = scope.ServiceProvider.GetRequiredService<VisionDbContext>();
+                    //await context.Database.EnsureDeletedAsync();
+                    //await context.Database.EnsureCreatedAsync();
                 }
 
                 await host.RunAsync();

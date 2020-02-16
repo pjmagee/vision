@@ -5,12 +5,11 @@ using System.Linq;
 
 namespace Vision.Web.Core
 {
-
     public class DockerAssetExtractor : IAssetExtractor
     {
         private readonly ILogger<DockerAssetExtractor> logger;
 
-        public bool Supports(DependencyKind kind) => kind == DependencyKind.Docker;
+        public DependencyKind Kind { get; } = DependencyKind.Docker;
 
         public DockerAssetExtractor(ILogger<DockerAssetExtractor> logger)
         {
@@ -40,7 +39,7 @@ namespace Vision.Web.Core
             }
         }
 
-        public IEnumerable<Extract> ExtractFrameworks(Asset asset)
+        public IEnumerable<Extract> ExtractRuntimes(Asset asset)
         {
             // ¯\_(ツ)_/¯ Erm...
             // Do we....list previous docker images? No no no.

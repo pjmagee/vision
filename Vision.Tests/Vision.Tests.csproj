@@ -1,11 +1,15 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="Current">
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <IsPackable>false</IsPackable>
     <LangVersion>8.0</LangVersion>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>2.0</OldToolsVersion>
+    <ProjectGuid>{A3B81618-02E1-4EC3-8891-D3D855A8A8D1}</ProjectGuid>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.0.0-preview3.19153.1" />
@@ -20,14 +24,11 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Vision.Web\Vision.Web.csproj" />
-  </ItemGroup>
-
   <ItemGroup>
     <Folder Include="Integration\" />
     <Folder Include="Unit\Providers\VersionControls\" />
   </ItemGroup>
-
+  <ItemGroup>
+    <ProjectReference Include="..\Vision.Web\Vision.Web.csproj" />
+  </ItemGroup>
 </Project>

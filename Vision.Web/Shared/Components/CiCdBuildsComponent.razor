@@ -1,4 +1,6 @@
-﻿<BSTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
+﻿@inherits OwningComponentBase
+
+<BSTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
     <thead>
         <tr>
             <th>Kind</th>
@@ -22,7 +24,7 @@
             {
                 <tr>
                     <td colspan="3">
-                        No CI/CD builds found.
+                        None found.
                     </td>
                 </tr>
             }
@@ -42,14 +44,20 @@
 {
     [Parameter] public Guid RepositoryId { get; set; }
 
-    [Inject] SvgService SvgService { get; set; }
-    [Inject] IAggregateCICDBuildsProvider CICDProvider { get; set; }
-
+    SvgService SvgService { get; set; }
+    IAggregateCICDBuildsProvider CICDProvider { get; set; }
+    
     IEnumerable<CiCdBuildDto> Items { get; set; }
+
+    protected override void OnInitialized()
+    {
+        SvgService = (SvgService)ScopedServices.GetService(typeof(SvgService));
+        CICDProvider = (IAggregateCICDBuildsProvider)ScopedServices.GetService(typeof(IAggregateCICDBuildsProvider));
+    }
 
     protected override async Task OnParametersSetAsync()
     {
         Items = await CICDProvider.GetBuildsByRepositoryIdAsync(RepositoryId);
-        // StateHasChanged();
+        StateHasChanged();
     }
 }

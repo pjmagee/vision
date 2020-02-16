@@ -1,4 +1,6 @@
-﻿<BSTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
+﻿@inherits OwningComponentBase
+
+<BSTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
     <thead>
         <tr>
             <th>Version</th>
@@ -21,9 +23,7 @@
             @if (Items.Count == 0)
             {
                 <tr>
-                    <td colspan="3">
-                        No dependency versions found.
-                    </td>
+                    <td colspan="3">None found.</td>
                 </tr>
             }
         }
@@ -37,11 +37,16 @@
 <PagerComponent Pager="Items" Page="@(async(p) => await PageAsync(p))"></PagerComponent>
 
 @code
-{   
+{
     [Parameter] public Guid? DependencyId { get; set; }
-    [Inject] IDependencyVersionService VersionService { get; set; }
 
+    IDependencyVersionService VersionService { get; set; }
     IPaginatedList<DependencyVersionDto> Items { get; set; }
+
+    protected override void OnInitialized()
+    {
+        VersionService = (IDependencyVersionService) ScopedServices.GetService(typeof(IDependencyVersionService));
+    }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -50,11 +55,10 @@
 
     async Task PageAsync(int page)
     {
-        if(DependencyId.HasValue)
+        if (DependencyId.HasValue)
         {
             Items = await VersionService.GetByDependencyIdAsync(DependencyId.Value, page);
+            StateHasChanged();
         }
-
-        // StateHasChanged();
     }
 }

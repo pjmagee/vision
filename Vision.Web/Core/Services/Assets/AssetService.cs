@@ -1,11 +1,11 @@
-﻿namespace Vision.Web.Core
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
+namespace Vision.Web.Core
+{
     public class AssetService : IAssetService
     {
         private readonly VisionDbContext context;
@@ -22,14 +22,14 @@
         public async Task<AssetDto> GetByIdAsync(Guid assetId)
         {
             Asset asset = await context.Assets.FindAsync(assetId);
-            
+
             return new AssetDto
             {
                 AssetId = asset.Id,
-                Dependencies = await context.AssetDependencies.CountAsync(x => x.AssetId == assetId),
+                Dependencies = context.AssetDependencies.Count(x => x.AssetId == assetId),
                 Asset = asset.Path,
                 RepositoryId = asset.RepositoryId,
-                VersionControlId = asset.Repository.VersionControlId
+                VersionControlId = asset.Repository.VcsId
             };
         }
 
@@ -48,7 +48,8 @@
                 query = query.Where(asset => asset.Path.Contains(search));
             }
 
-            var paging = query.Where(asset => context.AssetDependencies.Any(ad => ad.DependencyId == dependencyId && ad.AssetId == asset.Id))
+            var paging = query
+                .Where(asset => context.AssetDependencies.Any(ad => ad.DependencyId == dependencyId && ad.AssetId == asset.Id))
                 .Select(asset => new AssetDto
                 {
                     AssetId = asset.Id,
@@ -57,11 +58,11 @@
                     Kind = asset.Kind,
                     Dependencies = context.AssetDependencies.Count(a => a.AssetId == asset.Id),
                     RepositoryId = asset.RepositoryId,
-                    VersionControlId = asset.Repository.VersionControlId
+                    VersionControlId = asset.Repository.VcsId
                 })
                 .OrderByDescending(asset => asset.Dependencies);
 
-            return await PaginatedList<AssetDto>.CreateAsync(paging.AsNoTracking(), pageIndex, pageSize);
+            return await PaginatedList<AssetDto>.CreateAsync(paging, pageIndex, pageSize);
         }
 
         public async Task<IPaginatedList<AssetDto>> GetByVersionIdAsync(Guid versionId, string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10)
@@ -79,8 +80,8 @@
                 query = query.Where(asset => asset.Path.Contains(search));
             }
 
-            query = query.Where(asset => context.AssetDependencies.Any(ad => ad.DependencyVersionId == versionId && ad.AssetId == asset.Id));            
-                
+            query = query.Where(asset => context.AssetDependencies.Any(ad => ad.DependencyVersionId == versionId && ad.AssetId == asset.Id));
+
             var paging = query.Select(asset => new AssetDto
             {
                 AssetId = asset.Id,
@@ -89,11 +90,11 @@
                 Kind = asset.Kind,
                 Dependencies = context.AssetDependencies.Count(a => a.AssetId == asset.Id),
                 RepositoryId = asset.RepositoryId,
-                VersionControlId = asset.Repository.VersionControlId
+                VersionControlId = asset.Repository.VcsId
             })
             .OrderByDescending(asset => asset.Dependencies);
 
-            return await PaginatedList<AssetDto>.CreateAsync(paging.AsNoTracking(), pageIndex, pageSize);
+            return await PaginatedList<AssetDto>.CreateAsync(paging, pageIndex, pageSize);
         }
 
         public async Task<IPaginatedList<AssetDto>> GetByRepositoryIdAsync(Guid repositoryId, string search, IEnumerable<DependencyKind> kinds, bool dependents, int pageIndex = 1, int pageSize = 10)
@@ -106,9 +107,11 @@
                 var dependencies = await dependencyService.GetByRepositoryIdAsync(repositoryId, kinds, search, pageIndex, pageSize);
 
                 if (dependencies.Count == 0)
+                {
                     return new PaginatedList<AssetDto>(Enumerable.Empty<AssetDto>().ToList(), 0, 0, 0);
+                }
 
-                query = context.Assets.Where(asset => asset.RepositoryId != repositoryId);          
+                query = context.Assets.Where(asset => asset.RepositoryId != repositoryId);
 
                 foreach (var dependency in dependencies)
                 {
@@ -119,13 +122,13 @@
             {
                 query = context.Assets.Where(asset => asset.RepositoryId == repositoryId).AsQueryable();
             }
-            
+
             if (filter.Any())
             {
                 query = query.Where(asset => filter.Contains((int)asset.Kind));
             }
 
-            if(!string.IsNullOrWhiteSpace(search))
+            if (!string.IsNullOrWhiteSpace(search))
             {
                 query = query.Where(asset => asset.Path.Contains(search));
             }
@@ -138,12 +141,12 @@
                 Asset = asset.Path,
                 Kind = asset.Kind,
                 RepositoryId = asset.RepositoryId,
-                VersionControlId = asset.Repository.VersionControlId
+                VersionControlId = asset.Repository.VcsId
             })
-            .OrderByDescending(asset => asset.Dependencies);    
+            .OrderByDescending(asset => asset.Dependencies);
 
-            return await PaginatedList<AssetDto>.CreateAsync(paging.AsNoTracking(), pageIndex, pageSize);
-        }        
+            return PaginatedList<AssetDto>.Create(paging, pageIndex, pageSize);
+        }
 
         public async Task<IPaginatedList<AssetDto>> GetAsync(string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10)
         {
@@ -168,14 +171,14 @@
                 Dependencies = context.AssetDependencies.Count(assetDependency => assetDependency.AssetId == asset.Id),
                 Repository = asset.Repository.WebUrl,
                 RepositoryId = asset.RepositoryId,
-                VersionControlId = asset.Repository.VersionControlId
+                VersionControlId = asset.Repository.VcsId
             })
             .OrderByDescending(asset => asset.Dependencies);
 
-            return await PaginatedList<AssetDto>.CreateAsync(paging.AsNoTracking(), pageIndex, pageSize);
+            return await PaginatedList<AssetDto>.CreateAsync(paging, pageIndex, pageSize);
         }
 
-        public async Task<IPaginatedList<AssetDto>> GetByFrameworkIdAsync(Guid frameworkId, string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10)
+        public async Task<IPaginatedList<AssetDto>> GetByRuntimeIdAsync(Guid runtimeId, string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10)
         {
             var query = context.Assets.AsQueryable();
             var filter = kinds.ToIntArray();
@@ -191,7 +194,7 @@
             }
 
             var paging = query
-                .Where(asset => context.AssetFrameworks.Any(af => af.AssetId == asset.Id && af.FrameworkId == frameworkId))
+                .Where(asset => context.AssetRuntimes.Any(ar => ar.AssetId == asset.Id && ar.RuntimeVersion.RuntimeId == runtimeId))
                 .Select(asset => new AssetDto
                 {
                     AssetId = asset.Id,
@@ -200,18 +203,50 @@
                     Dependencies = context.AssetDependencies.Count(assetDependency => assetDependency.AssetId == asset.Id),
                     Repository = asset.Repository.WebUrl,
                     RepositoryId = asset.RepositoryId,
-                    VersionControlId = asset.Repository.VersionControlId
+                    VersionControlId = asset.Repository.VcsId
                 })
                 .OrderByDescending(asset => asset.Dependencies);
 
-            return await PaginatedList<AssetDto>.CreateAsync(paging.AsNoTracking(), pageIndex, pageSize);
+            return await PaginatedList<AssetDto>.CreateAsync(paging, pageIndex, pageSize);
+        }
+
+        public async Task<IPaginatedList<AssetDto>> GetByRuntimeVersionIdAsync(Guid runtimeVersionId, string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10)
+        {
+            var query = context.Assets.AsQueryable();
+            var filter = kinds.ToIntArray();
+
+            if (filter.Any())
+            {
+                query = query.Where(asset => filter.Contains((int)asset.Kind));
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(asset => asset.Path.Contains(search, StringComparison.OrdinalIgnoreCase));
+            }
+
+            var paging = query
+                .Where(asset => context.AssetRuntimes.Any(ar => ar.AssetId == asset.Id && ar.RuntimeVersionId == runtimeVersionId))
+                .Select(asset => new AssetDto
+                {
+                    AssetId = asset.Id,
+                    Asset = asset.Path,
+                    Kind = asset.Kind,
+                    Dependencies = context.AssetDependencies.Count(assetDependency => assetDependency.AssetId == asset.Id),
+                    Repository = asset.Repository.WebUrl,
+                    RepositoryId = asset.RepositoryId,
+                    VersionControlId = asset.Repository.VcsId
+                })
+                .OrderByDescending(asset => asset.Dependencies);
+
+            return await PaginatedList<AssetDto>.CreateAsync(paging, pageIndex, pageSize);
         }
 
         public async Task<IPaginatedList<AssetDto>> GetByVersionControlIdAsync(Guid versionControlId, string search, IEnumerable<DependencyKind> kinds, int pageIndex = 1, int pageSize = 10)
         {
-            VersionControl versionControl = await context.VersionControls.FindAsync(versionControlId);
+            Vcs versionControl = context.VersionControls.Find(versionControlId);
 
-            var query = context.Assets.Where(asset => context.Repositories.Any(repository => repository.VersionControlId == versionControlId && asset.RepositoryId == repository.Id));
+            var query = context.Assets.Where(asset => context.Repositories.Any(repository => repository.VcsId == versionControlId && asset.RepositoryId == repository.Id));
             var filter = kinds.ToIntArray();
 
             if (filter.Any())
@@ -231,16 +266,16 @@
                 Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id),
                 Repository = asset.Repository.Url,
                 RepositoryId = asset.RepositoryId,
-                VersionControlId = asset.Repository.VersionControlId
+                VersionControlId = asset.Repository.VcsId
             })
             .OrderByDescending(a => a.Dependencies);
 
-            return await PaginatedList<AssetDto>.CreateAsync(paging.AsNoTracking(), pageIndex, pageSize);
+            return await PaginatedList<AssetDto>.CreateAsync(paging, pageIndex, pageSize);
         }
 
         public async Task<List<string>> GetPublishedNamesByRepositoryIdAsync(Guid repositoryId)
         {
-            List<Asset> assets = await context.Assets.Where(asset => asset.RepositoryId == repositoryId).AsNoTracking().ToListAsync();
+            List<Asset> assets = await context.Assets.Where(asset => asset.RepositoryId == repositoryId).ToListAsync();
             return assets.Select(asset => extractor.ExtractPublishName(asset)).ToList();
         }
 
@@ -268,11 +303,11 @@
                 Dependencies = context.AssetDependencies.Count(ad => ad.AssetId == asset.Id),
                 Repository = asset.Repository.Url,
                 RepositoryId = asset.RepositoryId,
-                VersionControlId = asset.Repository.VersionControlId
+                VersionControlId = asset.Repository.VcsId
             })
             .OrderByDescending(a => a.Dependencies);
 
-            return await PaginatedList<AssetDto>.CreateAsync(paging.AsNoTracking(), pageIndex, pageSize);
+            return PaginatedList<AssetDto>.Create(paging, pageIndex, pageSize);
         }
     }
 }

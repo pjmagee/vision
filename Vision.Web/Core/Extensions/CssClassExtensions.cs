@@ -22,10 +22,10 @@ namespace Vision.Web.Core
             CiCdKind.TeamCity => Brand("fa-teamcity"),
             _ => string.Empty
         };
-                
-        public static string GetFontAwesomeClass(this Metric metric) => 
-            metric.DependencyKind.HasValue ? 
-            metric.DependencyKind.Value.GetFontAwesomeClass() : 
+
+        public static string GetFontAwesomeClass(this Metric metric) =>
+            metric.DependencyKind.HasValue ?
+            metric.DependencyKind.Value.GetFontAwesomeClass() :
             metric.CategoryKind.GetFontAwesomeClass();
 
         private static string GetFontAwesomeClass(this CategoryKind kind) => kind switch
@@ -37,9 +37,9 @@ namespace Vision.Web.Core
             CategoryKind.VersionControl => Solid("fa-server"),
             CategoryKind.Repository => Solid("fa-code-branch"),
             CategoryKind.Dependency => Regular("fa-file-archive"),
-            CategoryKind.Framework => Solid("fa-cubes"),
+            CategoryKind.Runtime => Solid("fa-cubes"),
+            CategoryKind.RuntimeVersion => Regular("fa-copy"),
             CategoryKind.Registry => Solid("fa-server"),
-            CategoryKind.Version => Regular("fa-copy"),
             _ => string.Empty
         };
 

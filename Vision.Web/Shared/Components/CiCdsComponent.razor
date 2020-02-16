@@ -1,4 +1,6 @@
-﻿<BSTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
+﻿@inherits OwningComponentBase
+
+<BSTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
     <thead>
         <tr>
             <th>Kind</th>
@@ -24,18 +26,14 @@
                     <td>@item.ApiKey.ToYesNo()</td>
                     <th>@item.IsEnabled.ToYesNo()</th>
                     <th>@item.IsGuestEnabled.ToYesNo()</th>
-                    <td>
-                        <a href="@($"/sources/edit/cicds/{item.CiCdId}")">Edit</a>
-                    </td>
+                    <td><a href="@($"/sources/edit/cicds/{item.CiCdId}")">Edit</a></td>
                 </tr>
             }
 
             @if (Items.Count == 0)
             {
                 <tr>
-                    <td colspan="8">
-                        No CI/CD sources found.
-                    </td>
+                    <td colspan="8">None found.</td>
                 </tr>
             }
         }
@@ -56,8 +54,14 @@
 {
     IPaginatedList<CiCdDto> Items { get; set; }
 
-    [Inject] ICiCdService Service { get; set; }
-    [Inject] SvgService SvgService { get; set; }
+    ICiCdService Service { get; set; }
+    SvgService SvgService { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Service = (ICiCdService)ScopedServices.GetService(typeof(ICiCdService));
+        SvgService = (SvgService)ScopedServices.GetService(typeof(SvgService));
+    }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -67,7 +71,6 @@
     async Task PageAsync(int page)
     {
         Items = await Service.GetAsync(page);
-        // StateHasChanged();
+        StateHasChanged();
     }
 }
-

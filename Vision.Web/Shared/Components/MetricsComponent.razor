@@ -1,10 +1,12 @@
-﻿@if (Items != null)
+﻿@inherits OwningComponentBase
+
+@if (Items != null)
 {
     <div class="row mb-4">
         @foreach (MetricItem item in Items)
         {
             <div class="col-xl-3 col-md-6 mb-4">
-                <MetricCardComponent Item="item"></MetricCardComponent>
+                <MetricCardComponent Item="item" />
             </div>
         }
     </div>
@@ -22,9 +24,13 @@ else
     [Parameter] public Guid? DependencyId { get; set; }
     [Parameter] public Guid? VersionId { get; set; }
 
-    [Inject] IMetricService MetricService { get; set; }
-
+    IMetricService MetricService { get; set; }
     IEnumerable<MetricItem> Items { get; set; }
+
+    protected override void OnInitialized()
+    {
+        MetricService = (IMetricService)ScopedServices.GetService(typeof(IMetricService));
+    }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -32,19 +38,19 @@ else
         {
             Items = await MetricService.GetMetricsAsync(VersionControlId.Value, CategoryKind.VersionControl);
         }
-        else if(RepositoryId.HasValue)
+        else if (RepositoryId.HasValue)
         {
             Items = await MetricService.GetMetricsAsync(RepositoryId.Value, CategoryKind.Repository);
         }
-        else if(AssetId.HasValue)
+        else if (AssetId.HasValue)
         {
             Items = await MetricService.GetMetricsAsync(AssetId.Value, CategoryKind.Asset);
         }
-        else if(DependencyId.HasValue)
+        else if (DependencyId.HasValue)
         {
             Items = await MetricService.GetMetricsAsync(DependencyId.Value, CategoryKind.Dependency);
         }
-        else if(VersionId.HasValue)
+        else if (VersionId.HasValue)
         {
             Items = await MetricService.GetMetricsAsync(VersionId.Value, CategoryKind.DependencyVersion);
         }

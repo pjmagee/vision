@@ -20,7 +20,7 @@ namespace Vision.Web.Core
         {
             using (var scope = logger.BeginScope($"{nameof(ExtractDependencies)}::[{asset.Path}]"))
             {
-                foreach(var extractor in extractors.Where(extractor => extractor.Supports(asset.Kind)))
+                foreach (var extractor in extractors.Where(extractor => extractor.Kind == asset.Kind))
                 {
                     try
                     {
@@ -29,11 +29,11 @@ namespace Vision.Web.Core
                         logger.LogInformation($"{nameof(ExtractDependencies)}::['{asset.Path}']::[{extractor.GetType().Name}]::FOUND::[{extracts.Count()}]");
 
                         if (extracts.Any())
-                        {                            
+                        {
                             return extracts;
-                        }                                                 
+                        }
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         logger.LogError(e, $"{nameof(ExtractDependencies)}::['{asset.Path}']::[{extractor.GetType().Name}]::ERROR");
                     }
@@ -45,17 +45,17 @@ namespace Vision.Web.Core
             return Enumerable.Empty<Extract>();
         }
 
-        public IEnumerable<Extract> ExtractFrameworks(Asset asset)
+        public IEnumerable<Extract> ExtractRuntimes(Asset asset)
         {
             using (var scope = logger.BeginScope($"{nameof(ExtractDependencies)}::[{asset.Path}]"))
             {
-                foreach (var extractor in extractors.Where(extractor => extractor.Supports(asset.Kind)))
+                foreach (var extractor in extractors.Where(extractor => extractor.Kind == asset.Kind))
                 {
                     try
                     {
-                        var extracts = extractor.ExtractFrameworks(asset);
+                        var extracts = extractor.ExtractRuntimes(asset);
 
-                        logger.LogInformation($"{nameof(ExtractFrameworks)}::['{asset.Path}']::[{extractor.GetType().Name}]::FOUND::[{extracts.Count()}]");
+                        logger.LogInformation($"{nameof(ExtractRuntimes)}::['{asset.Path}']::[{extractor.GetType().Name}]::FOUND::[{extracts.Count()}]");
 
                         if (extracts.Any())
                         {
@@ -64,12 +64,12 @@ namespace Vision.Web.Core
                     }
                     catch (Exception e)
                     {
-                        logger.LogError(e, $"{nameof(ExtractFrameworks)}::['{asset.Path}']::[{extractor.GetType().Name}]::ERROR");
+                        logger.LogError(e, $"{nameof(ExtractRuntimes)}::['{asset.Path}']::[{extractor.GetType().Name}]::ERROR");
                     }
                 }
             }
 
-            logger.LogInformation($"{nameof(ExtractFrameworks)}::['{asset.Path}']::NONE");
+            logger.LogInformation($"{nameof(ExtractRuntimes)}::['{asset.Path}']::NONE");
 
             return Enumerable.Empty<Extract>();
         }
@@ -78,7 +78,7 @@ namespace Vision.Web.Core
         {
             using (var scope = logger.BeginScope($"{nameof(ExtractDependencies)}::[{asset.Path}]"))
             {
-                foreach (var extractor in extractors.Where(extractor => extractor.Supports(asset.Kind)))
+                foreach (var extractor in extractors.Where(extractor => extractor.Kind == asset.Kind))
                 {
                     try
                     {

@@ -9,12 +9,12 @@ namespace Vision.Web.Core
 {
     public class AggregateVersionControlProvider : IAggregateVersionControlProvider
     {
-        private readonly IEnumerable<IVersionControlProvider> providers;        
+        private readonly IEnumerable<IVersionControlProvider> providers;
         private readonly ILogger<AggregateVersionControlProvider> logger;
-        
+
         public AggregateVersionControlProvider(IEnumerable<IVersionControlProvider> providers, ILogger<AggregateVersionControlProvider> logger)
         {
-            this.providers = providers;      
+            this.providers = providers;
             this.logger = logger;
         }
 
@@ -24,7 +24,7 @@ namespace Vision.Web.Core
             {
                 List<Asset> results = new List<Asset>();
 
-                foreach (IVersionControlProvider provider in providers.Where(p => p.Supports(versionControl.Kind)))
+                foreach (IVersionControlProvider provider in providers.Where(provider => provider.Kind == versionControl.Kind))
                 {
                     try
                     {
@@ -43,13 +43,13 @@ namespace Vision.Web.Core
             }
         }
 
-        public async Task<IEnumerable<Repository>> GetRepositoriesAsync(VersionControlDto versionControl)
+        public async Task<IEnumerable<VcsRepository>> GetRepositoriesAsync(VersionControlDto versionControl)
         {
-            List<Repository> results = new List<Repository>();
+            List<VcsRepository> results = new List<VcsRepository>();
 
-            foreach (IVersionControlProvider provider in providers.Where(provider => provider.Supports(versionControl.Kind)))
+            foreach (IVersionControlProvider provider in providers.Where(provider => provider.Kind == versionControl.Kind))
             {
-                IEnumerable<Repository> repositories = await provider.GetRepositoriesAsync(versionControl);
+                IEnumerable<VcsRepository> repositories = await provider.GetRepositoriesAsync(versionControl);
                 results.AddRange(repositories);
             }
 

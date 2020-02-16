@@ -1,4 +1,6 @@
-﻿<BSTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
+﻿@inherits OwningComponentBase
+
+<BSTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
     <thead>
         <tr>
             <th>Kind</th>
@@ -53,11 +55,17 @@
 <PagerComponent Pager="Items" Page="@(async(p) => await PageAsync(p))"></PagerComponent>
 
 @code
-{   
-    [Inject] IRegistryService Service { get; set; }
-    [Inject] SvgService SvgService { get; set; }
+{
+    IRegistryService Service { get; set; }
+    SvgService SvgService { get; set; }
 
     IPaginatedList<RegistryDto> Items { get; set; }
+
+    protected override void OnInitialized()
+    {
+        SvgService = (SvgService)ScopedServices.GetService(typeof(SvgService));
+        Service = (IRegistryService)ScopedServices.GetService(typeof(IRegistryService));
+    }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -67,6 +75,6 @@
     async Task PageAsync(int page)
     {
         Items = await Service.GetAsync(page);
-        // StateHasChanged();
+        StateHasChanged();
     }
 }

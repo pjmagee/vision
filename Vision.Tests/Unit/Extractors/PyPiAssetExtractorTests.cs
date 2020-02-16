@@ -25,8 +25,8 @@
 
             for (int i = 0; i < dependencies.Count; i++)
             {
-                Assert.Equal(packages[i], dependencies[i].Name);
-                Assert.Equal(versions[i], dependencies[i].Version);
+                Assert.Equal(packages[i], dependencies[i].RuntimeIdentifier);
+                Assert.Equal(versions[i], dependencies[i].RuntimeVersion);
             }
 
             Assert.Equal(packages.Length, dependencies.Count);

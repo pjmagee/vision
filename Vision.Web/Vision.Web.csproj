@@ -6,13 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Api\**" />
-    <Content Remove="Api\**" />
-    <EmbeddedResource Remove="Api\**" />
-    <None Remove="Api\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Atlassian.Stash.Api" Version="3.1.20" />
     <PackageReference Include="BlazorStrap" Version="1.1.101" />
     <PackageReference Include="Docker.Registry.DotNet" Version="1.0.10" />

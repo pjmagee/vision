@@ -1,4 +1,6 @@
-﻿@if(!Dependents)
+﻿@inherits OwningComponentBase
+
+@if (!Dependents)
 {
     <div class="form-inline mb-4">
         <BSFormLabel Class="my-1 mr-2">Kind</BSFormLabel>
@@ -9,9 +11,9 @@
                 <option value="@kind">@kind.GetName()</option>
             }
         </select>
-        <InputText class="form-control mr-sm-2" @bind-Value="@Search" @bind-Value:event="oninput" type="text" />
+        <input class="form-control mr-sm-2" @bind-Value="@Search" @bind-Value:event="oninput" type="text" />
         <Button type="button" class="btn btn-primary" @onclick="@(async() => await PageAsync(Items.PageIndex))">Search</Button>
-     </div>
+    </div>
 }
 
 <BSTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
@@ -45,9 +47,7 @@
             @if (Items.Count == 0)
             {
                 <tr>
-                    <td colspan="4">
-                        No assets found.
-                    </td>
+                    <td colspan="4">No assets found.</td>
                 </tr>
             }
         }
@@ -70,19 +70,27 @@
     [Parameter] public Guid? VersionControlId { get; set; }
     [Parameter] public Guid? DependencyId { get; set; }
     [Parameter] public Guid? VersionId { get; set; }
-    [Parameter] public Guid? FrameworkId { get; set; }
+    [Parameter] public Guid? RuntimeId { get; set; }
+    [Parameter] public Guid? RuntimeVersionId { get; set; }
     [Parameter] public Guid? AssetId { get; set; }
     [Parameter] public bool Dependents { get; set; }
 
-    [Inject] IAssetService AssetService { get; set; }
-    [Inject] IDependencyService DependencyService { get; set; }
-    [Inject] SvgService SvgService { get; set; }
+    IAssetService AssetService { get; set; }
+    IDependencyService DependencyService { get; set; }
+    SvgService SvgService { get; set; }
 
     IPaginatedList<AssetDto> Items { get; set; }
     List<DependencyKind> Kinds = new List<DependencyKind>();
     DependencyKind? Kind { get; set; }
     string Search { get; set; }
     int PageSize { get; set; } = 10;
+
+    protected override void OnInitialized()
+    {
+        SvgService = (SvgService)ScopedServices.GetService(typeof(SvgService));
+        AssetService = (IAssetService)ScopedServices.GetService(typeof(IAssetService));
+        DependencyService = (IDependencyService)ScopedServices.GetService(typeof(IDependencyService));
+    }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -124,11 +132,15 @@
         {
             Items = await AssetService.GetByVersionIdAsync(VersionId.Value, Search, Kinds, page, PageSize);
         }
-        else if (FrameworkId.HasValue)
+        else if (RuntimeVersionId.HasValue)
         {
-            Items = await AssetService.GetByFrameworkIdAsync(FrameworkId.Value, Search, Kinds, page, PageSize);
+            Items = await AssetService.GetByRuntimeVersionIdAsync(RuntimeVersionId.Value, Search, Kinds, page, PageSize);
         }
-        else if(AssetId.HasValue)
+        else if (RuntimeId.HasValue)
+        {
+            Items = await AssetService.GetByRuntimeIdAsync(RuntimeId.Value, Search, Kinds, page, PageSize);
+        }
+        else if (AssetId.HasValue)
         {
             Items = await AssetService.GetByAssetIdAsync(AssetId.Value, Search, Kinds, page, PageSize);
         }
@@ -137,6 +149,6 @@
             Items = await AssetService.GetAsync(Search, Kinds, page, PageSize);
         }
 
-        // StateHasChanged();
+        StateHasChanged();
     }
 }

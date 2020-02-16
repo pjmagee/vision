@@ -9,7 +9,7 @@ namespace Vision.Web.Core
     {
         private readonly ILogger<PyPiAssetExtractor> logger;
 
-        public bool Supports(DependencyKind kind) => kind == DependencyKind.PyPi;
+        public DependencyKind Kind { get; } = DependencyKind.PyPi;
 
         public PyPiAssetExtractor(ILogger<PyPiAssetExtractor> logger)
         {
@@ -26,7 +26,7 @@ namespace Vision.Web.Core
             return extracts.Select(extract => new Extract(extract.First()?.Trim(), extract.Last()?.Trim()));
         }
 
-        public IEnumerable<Extract> ExtractFrameworks(Asset asset)
+        public IEnumerable<Extract> ExtractRuntimes(Asset asset)
         {
             // https://pip.pypa.io/en/stable/reference/pip_install/#requirement-specifiers
             // SomeProject ==5.4 ; python_version < '2.7'

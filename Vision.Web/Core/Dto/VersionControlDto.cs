@@ -1,8 +1,8 @@
-﻿namespace Vision.Web.Core
-{
-    using System;
-    using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
+namespace Vision.Web.Core
+{
     public class VersionControlDto
     {
         [Required]

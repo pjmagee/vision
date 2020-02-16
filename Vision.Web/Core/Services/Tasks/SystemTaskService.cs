@@ -1,11 +1,11 @@
-﻿namespace Vision.Web.Core
-{
-    using Microsoft.EntityFrameworkCore;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
+namespace Vision.Web.Core
+{
     public class SystemTaskService : ISystemTaskService
     {
         private readonly VisionDbContext context;

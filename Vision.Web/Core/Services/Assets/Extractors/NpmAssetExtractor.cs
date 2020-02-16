@@ -10,7 +10,7 @@ namespace Vision.Web.Core
     {
         private readonly ILogger<NpmAssetExtractor> logger;
 
-        public bool Supports(DependencyKind kind) => kind == DependencyKind.Npm;
+        public DependencyKind Kind { get; } = DependencyKind.Npm;
 
         public NpmAssetExtractor(ILogger<NpmAssetExtractor> logger)
         {
@@ -36,23 +36,23 @@ namespace Vision.Web.Core
 
                 logger.LogTrace($"Extracted {extracts.Count} dependencies for {asset.Path}");
 
-                return extracts;                
+                return extracts;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 logger.LogTrace(e, $"Could not extract dependencies for {asset.Path}");
-            }            
+            }
 
             return Enumerable.Empty<Extract>();
         }
 
-        public IEnumerable<Extract> ExtractFrameworks(Asset asset)
+        public IEnumerable<Extract> ExtractRuntimes(Asset asset)
         {
             List<Extract> extracts = new List<Extract>();
 
             try
             {
-                JObject package = JObject.Parse(asset.Raw);                
+                JObject package = JObject.Parse(asset.Raw);
 
                 if (package.ContainsKey("engines"))
                 {
@@ -64,8 +64,8 @@ namespace Vision.Web.Core
                     }
 
                     logger.LogTrace($"Extracted {extracts.Count} engines for {asset.Repository.WebUrl} : {asset.Path}");
-                }                
-            }            
+                }
+            }
             catch (Exception e)
             {
                 logger.LogTrace(e, $"Could not extract engines for {asset.Repository.WebUrl} : {asset.Path} ");
@@ -74,7 +74,7 @@ namespace Vision.Web.Core
             foreach (Extract extract in extracts)
             {
                 yield return extract;
-            }   
+            }
         }
 
         public string ExtractPublishName(Asset asset)

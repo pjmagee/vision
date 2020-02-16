@@ -17,7 +17,7 @@ namespace Vision.Web.Core
         private const string PackageReference = "PackageReference";
         private const string DotNetCliToolReference = "DotNetCliToolReference";
         private const string Reference = "Reference";
-        
+
         private const string TargetFramework = "TargetFramework";
         private const string TargetFrameworks = "TargetFrameworks";
         private const string TargetFrameworkVersion = "TargetFrameworkVersion";
@@ -29,7 +29,7 @@ namespace Vision.Web.Core
 
         private readonly ILogger<NuGetAssetExtractor> logger;
 
-        public bool Supports(DependencyKind kind) => kind == DependencyKind.NuGet;
+        public DependencyKind Kind { get; } = DependencyKind.NuGet;
 
         public NuGetAssetExtractor(ILogger<NuGetAssetExtractor> logger)
         {
@@ -69,14 +69,14 @@ namespace Vision.Web.Core
                     }
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 logger.LogTrace(e, $"Could not extract dependencies for asset {asset.Path}");
                 throw;
-            }         
+            }
         }
 
-        public IEnumerable<Extract> ExtractFrameworks(Asset asset)
+        public IEnumerable<Extract> ExtractRuntimes(Asset asset)
         {
             try
             {
@@ -97,7 +97,6 @@ namespace Vision.Web.Core
                                                                 from framework in multiple.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries)
                                                                 select framework);
 
-
                         var extracts = targetFrameworks.Concat(targetFramework).Select(fw => new Extract(Framework, fw?.Trim())).ToList();
 
                         logger.LogTrace($"Extracted {extracts.Count} frameworks for asset {asset.Path}");
@@ -106,7 +105,7 @@ namespace Vision.Web.Core
                     }
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 logger.LogTrace(e, $"Could not extract frameworks for asset {asset.Path}");
                 throw;
@@ -122,14 +121,14 @@ namespace Vision.Web.Core
         }
 
         private Extract FromOldReference(XElement reference)
-        {                     
+        {
             var include = reference.Attribute(Include)?.Value;
             var segments = include.Split(',');
 
             string name = segments[0].Trim();
             string version = null;
 
-            foreach(string segment in segments)
+            foreach (string segment in segments)
             {
                 var pair = segment.Split('=');
 
@@ -161,7 +160,7 @@ namespace Vision.Web.Core
                     }
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 logger.LogTrace(e, $"Error extracting publish name from {asset.Path}.");
             }

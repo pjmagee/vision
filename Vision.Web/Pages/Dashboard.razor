@@ -1,6 +1,8 @@
 ﻿@page "/"
 @page "/dashboard"
 
+@inherits OwningComponentBase
+
 <BreadcrumbsComponent>
     <BSBreadcrumbItem IsActive="true">Dashboard</BSBreadcrumbItem>
 </BreadcrumbsComponent>
@@ -36,7 +38,7 @@
                     </div>
                 }
             </div>
-        </div>    
+        </div>
         <div class="col-xl-6 col-md-6">
             <div class="row mb-1">
                 <div class="col">
@@ -57,13 +59,18 @@
 
 @code
 {
-    IEnumerable<MetricItem> Items { get ; set; }
+    IEnumerable<MetricItem> Items { get; set; }
 
-    [Inject] IMetricService MetricService { get; set; }
-         
+    IMetricService MetricService { get; set; }
 
-    protected async override Task OnInitializedAsync()
-    {        
+    protected override void OnInitialized()
+    {
+        MetricService = (IMetricService)ScopedServices.GetService(typeof(IMetricService));
+    }
+
+    protected async override Task OnParametersSetAsync()
+    {
         Items = await MetricService.GetCountsAsync();
+        StateHasChanged();
     }
 }

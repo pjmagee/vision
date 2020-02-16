@@ -25,8 +25,8 @@
         {
             var dependencies = sut.ExtractDependencies(new Asset { Raw = file }).ToList();
             
-            Assert.Equal(image, dependencies[0].Name);
-            Assert.Equal(version, dependencies[0].Version);
+            Assert.Equal(image, dependencies[0].RuntimeIdentifier);
+            Assert.Equal(version, dependencies[0].RuntimeVersion);
         }        
 
         [Theory]
@@ -37,8 +37,8 @@
 
             for(int i = 0; i < dependencies.Count; i++)
             {
-                Assert.Equal(images[i], dependencies[i].Name);
-                Assert.Equal(versions[i], dependencies[i].Version);
+                Assert.Equal(images[i], dependencies[i].RuntimeIdentifier);
+                Assert.Equal(versions[i], dependencies[i].RuntimeVersion);
             }
 
             Assert.Equal(images.Length, dependencies.Count);

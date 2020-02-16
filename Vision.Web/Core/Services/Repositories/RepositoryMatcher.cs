@@ -3,7 +3,6 @@ using System;
 
 namespace Vision.Web.Core
 {
-
     public class RepositoryMatcher : IRepositoryMatcher
     {
         private readonly ILogger<RepositoryMatcher> logger;
@@ -32,7 +31,6 @@ namespace Vision.Web.Core
             catch (Exception e)
             {
                 logger.LogError(e, $"Could not compare {url1} and {url2}");
-                
             }
 
             return false;

@@ -12,7 +12,7 @@ namespace Vision.Web.Core
         public static IEnumerable<VersionControlKind> VersionControlKinds { get; } = Enum.GetValues(typeof(VersionControlKind)).Cast<VersionControlKind>();
         public static string GetName(this Enum kind) => Enum.GetName(kind.GetType(), kind);
 
-        public const string NuGetFile = ".csproj";
+        public const string NuGetFile = "csproj";
         public const string RequirementsFile = "requirements.txt";
         public const string MavenFile = "pom.xml";
         public const string RubyGemFile = "GemFile";

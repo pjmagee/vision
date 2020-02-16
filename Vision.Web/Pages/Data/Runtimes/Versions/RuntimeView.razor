@@ -1,13 +1,13 @@
-﻿@page "/data/frameworks/{FrameworkId:guid}"
+﻿@page "/data/runtimes/{RuntimeId:guid}/versions/{RuntimeVersionId:guid}"
 
-<BreadcrumbsComponent FrameworkId="@FrameworkId" />
+<BreadcrumbsComponent RuntimeId="@RuntimeId" RuntimeVersionId="@RuntimeVersionId" />
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">Assets</h6>
     </div>
     <div class="card-body">
-        <AssetsComponent FrameworkId="@FrameworkId" />
+        <AssetsComponent RuntimeVersionId="@RuntimeId" />
     </div>
 </div>
 
@@ -16,11 +16,12 @@
         <h6 class="m-0 font-weight-bold text-primary">Repositories</h6>
     </div>
     <div class="card-body">
-        <RepositoriesComponent FrameworkId="@FrameworkId" />
+        <RepositoriesComponent RuntimeVersionId="@RuntimeId" />
     </div>
 </div>
 
 @code
 {
-    [Parameter] public Guid FrameworkId { get; set; }
+    [Parameter] public Guid RuntimeId { get; set; }
+    [Parameter] public Guid RuntimeVersionId { get; set; }
 }

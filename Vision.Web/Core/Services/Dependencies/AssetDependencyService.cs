@@ -30,10 +30,10 @@
                     DependencyVersionId = assetDependency.DependencyVersionId,
                     IsLatest = assetDependency.DependencyVersion.IsLatest,
                     RepositoryId = assetDependency.Asset.RepositoryId,
-                    VersionControlId = assetDependency.Asset.Repository.VersionControlId
+                    VersionControlId = assetDependency.Asset.Repository.VcsId
                 });
 
-            return await PaginatedList<AssetDependencyDto>.CreateAsync(query.AsNoTracking(), pageIndex, pageSize);
+            return await Task.FromResult(PaginatedList<AssetDependencyDto>.Create(query, pageIndex, pageSize));
         }
 
         public async Task<IPaginatedList<AssetDependencyDto>> GetByDependencyIdAsync(Guid dependencyId, int pageIndex = 1, int pageSize = 10)
@@ -52,10 +52,10 @@
                     IsLatest = assetDependency.DependencyVersion.IsLatest,
                     Dependency = assetDependency.Dependency.Name,
                     RepositoryId = assetDependency.Asset.RepositoryId,
-                    VersionControlId = assetDependency.Asset.Repository.VersionControlId
+                    VersionControlId = assetDependency.Asset.Repository.VcsId
                 });
 
-            return await PaginatedList<AssetDependencyDto>.CreateAsync(query.AsNoTracking(), pageIndex, pageSize);
+            return await Task.FromResult(PaginatedList<AssetDependencyDto>.Create(query, pageIndex, pageSize));
         }
     }
 }

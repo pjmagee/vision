@@ -29,6 +29,13 @@ namespace Vision.Web.Core
             return new PaginatedList<T>(items, count, pageIndex, pageSize);
         }
 
+        public static IPaginatedList<T> Create(IQueryable<T> source, int pageIndex, int pageSize)
+        {
+            int count = source.Count();
+            List<T> items = source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
+            return new PaginatedList<T>(items, count, pageIndex, pageSize);
+        }
+
         public IEnumerable<(int, string)> GetPages()
         {
             int current = PageIndex;

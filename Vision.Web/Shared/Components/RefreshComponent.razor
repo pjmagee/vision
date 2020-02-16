@@ -1,4 +1,6 @@
-﻿<div class="row mb-2">
+﻿@inherits OwningComponentBase
+
+<div class="row mb-2">
     <div class="col">
         <button class="btn btn-primary float-right" @onclick="@(async () => await RefreshAsync())">Refresh</button>
     </div>
@@ -7,10 +9,14 @@
 @code
 {
     [Parameter] public Guid Id { get; set; }
-
     [Parameter] public TaskScopeKind Target { get; set; }
 
-    [Inject] ISystemTaskService SystemTaskService { get; set; }
+    ISystemTaskService SystemTaskService { get; set; }
+
+    protected override void OnInitialized()
+    {
+        SystemTaskService = (ISystemTaskService)ScopedServices.GetService(typeof(ISystemTaskService));
+    }
 
     private async Task RefreshAsync()
     {

@@ -1,4 +1,5 @@
 ﻿@page "/data/vcs/{VersionControlId:guid}/repositories/{RepositoryId:guid}"
+@inherits OwningComponentBase
 
 <BreadcrumbsComponent VersionControlId="@VersionControlId" RepositoryId="@RepositoryId" />
 
@@ -29,7 +30,7 @@
         <h6 class="m-0 font-weight-bold text-primary">Frameworks</h6>
     </div>
     <div class="card-body">
-        <FrameworksComponent RepositoryId="@RepositoryId" />
+        <RuntimeComponent RepositoryId="@RepositoryId" />
     </div>
 </div>
 

@@ -29,8 +29,8 @@ namespace Vision.Tests
             // act
             var dependencies = sut.ExtractDependencies(new Asset { Raw = csproj }).ToList();
 
-            Assert.Equal("Package.Name", dependencies[0].Name);
-            Assert.Equal("1.0.0", dependencies[0].Version);
+            Assert.Equal("Package.Name", dependencies[0].RuntimeIdentifier);
+            Assert.Equal("1.0.0", dependencies[0].RuntimeVersion);
         }
 
         [Fact]
@@ -45,8 +45,8 @@ namespace Vision.Tests
             // act
             var dependencies = sut.ExtractDependencies(new Asset { Raw = csproj }).ToList();
 
-            Assert.Equal("Package.Name", dependencies[0].Name);
-            Assert.Equal("1.0.0", dependencies[0].Version);
+            Assert.Equal("Package.Name", dependencies[0].RuntimeIdentifier);
+            Assert.Equal("1.0.0", dependencies[0].RuntimeVersion);
         }
 
         [Fact]
@@ -61,8 +61,8 @@ namespace Vision.Tests
             // act
             var dependencies = sut.ExtractDependencies(new Asset { Raw = csproj }).ToList();
 
-            Assert.Equal("Package.Name", dependencies[0].Name);
-            Assert.Equal("1.0.0", dependencies[0].Version);
+            Assert.Equal("Package.Name", dependencies[0].RuntimeIdentifier);
+            Assert.Equal("1.0.0", dependencies[0].RuntimeVersion);
         }
 
         [Fact]
@@ -72,10 +72,10 @@ namespace Vision.Tests
             var csproj = new XElement("TargetFramework", "netcoreapp2.0").ToString();
 
             // act
-            var frameworks = sut.ExtractFrameworks(new Asset { Raw = csproj }).ToList();
+            var frameworks = sut.ExtractRuntimes(new Asset { Raw = csproj }).ToList();
 
-            Assert.Equal(".NET", frameworks[0].Name);
-            Assert.Equal("netcoreapp2.0", frameworks[0].Version);
+            Assert.Equal(".NET", frameworks[0].RuntimeIdentifier);
+            Assert.Equal("netcoreapp2.0", frameworks[0].RuntimeVersion);
         }
 
         [Fact]
@@ -85,13 +85,13 @@ namespace Vision.Tests
             var csproj = new XElement("TargetFrameworks", "netcoreapp2.0; netstandard2.0").ToString();
 
             // act
-            var frameworks = sut.ExtractFrameworks(new Asset { Raw = csproj }).ToList();
+            var frameworks = sut.ExtractRuntimes(new Asset { Raw = csproj }).ToList();
 
-            Assert.Equal(".NET", frameworks[0].Name);
-            Assert.Equal("netcoreapp2.0", frameworks[0].Version);
+            Assert.Equal(".NET", frameworks[0].RuntimeIdentifier);
+            Assert.Equal("netcoreapp2.0", frameworks[0].RuntimeVersion);
 
-            Assert.Equal(".NET", frameworks[1].Name);
-            Assert.Equal("netstandard2.0", frameworks[1].Version);
+            Assert.Equal(".NET", frameworks[1].RuntimeIdentifier);
+            Assert.Equal("netstandard2.0", frameworks[1].RuntimeVersion);
         }
 
         [Fact]

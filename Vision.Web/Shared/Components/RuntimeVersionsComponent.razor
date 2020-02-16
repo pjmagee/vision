@@ -1,0 +1,72 @@
+﻿@inherits OwningComponentBase
+
+<BSTable IsBordered="true" IsResponsive="true" IsSmall="true" IsStriped="true">
+    <BSTableHead>
+        <tr>
+            <th>@nameof(RuntimeVersionDto.Version)</th>
+            <th>@nameof(RuntimeVersionDto.Assets)</th>
+        </tr>
+    </BSTableHead>
+    <tbody>
+        @if (Items != null)
+        {
+            @foreach (var item in Items)
+            {
+                <tr>
+                    <td>
+                        <a href="@($"/data/runtimes/{item.RuntimeId}/versions/{item.RuntimeVersionId}")">@item.Version</a>
+                    </td>
+                    <td>@item.Assets</td>
+                </tr>
+            }
+
+            @if (Items.Count == 0)
+            {
+                <tr>
+                    <td colspan="2">None found. </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="3">
+                    <LoaderComponent />
+                </td>
+            </tr>
+        }
+    </tbody>
+</BSTable>
+
+<PagerComponent Pager="Items" Page="@(async(p) => await PageAsync(p))"></PagerComponent>
+
+@code
+{
+    [Parameter] public Guid? RuntimeId { get; set; }
+
+    IRuntimeService RuntimeService { get; set; }
+    SvgService SvgService { get; set; }
+
+    IPaginatedList<RuntimeVersionDto> Items { get; set; }
+
+    protected override void OnInitialized()
+    {
+        RuntimeService = (IRuntimeService)ScopedServices.GetService(typeof(IRuntimeService));
+        SvgService = (SvgService)ScopedServices.GetService(typeof(SvgService));
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await PageAsync(page: 1);
+    }
+
+    async Task PageAsync(int page = 1)
+    {
+        if (RuntimeId.HasValue)
+        {
+            Items = await RuntimeService.GetByRuntimeIdAsync(RuntimeId.Value, page);
+        }
+
+        StateHasChanged();
+    }
+}

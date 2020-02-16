@@ -1,29 +1,33 @@
 ﻿@if (Pager != null)
 {
     <BSPagination Alignment="Alignment.Right">
-        <BSPaginationItem IsDisabled="@(Pager.HasPreviousPage == false)">
-            <BSPaginationLink Href="#" @onclick="@(() => Page(Pager.PageIndex - 1))" PaginationLinkType="PaginationLinkType.PreviousText" />
+        <BSPaginationItem IsDisabled="@(!Pager.HasPreviousPage)">
+            <BSPaginationLink @onclick="@((e) => Page(Pager.PageIndex - 1))" PaginationLinkType="PaginationLinkType.PreviousText" />
         </BSPaginationItem>
 
-        @foreach ((int, string) page in Pager.GetPages())
+        @foreach ((int index, string page) in Pager.GetPages())
         {
-            <BSPaginationItem IsActive="@(page.Item1 == Pager.PageIndex)">
-                <BSPaginationLink Href="#" @onclick="@(() => Page(page.Item1))" PaginationLinkType="PaginationLinkType.Custom">@(page.Item2)</BSPaginationLink>
+            <BSPaginationItem IsActive="@(index == Pager.PageIndex)">
+                <BSPaginationLink @onclick="@((e) => Page(index))" PaginationLinkType="PaginationLinkType.Custom">
+                    @(page)
+                </BSPaginationLink>
             </BSPaginationItem>
         }
 
-        <BSPaginationItem IsDisabled="@(Pager.HasNextPage == false)">
-            <BSPaginationLink Href="#" @onclick="@(() => Page(Pager.PageIndex + 1))" PaginationLinkType="PaginationLinkType.NextText" />
+        <BSPaginationItem IsDisabled="@(!Pager.HasNextPage)">
+            <BSPaginationLink @onclick="@((e) => Page(Pager.PageIndex + 1))" PaginationLinkType="PaginationLinkType.NextText" />
         </BSPaginationItem>
     </BSPagination>
 }
 else
 {
-    
+
 }
 
 @code
 {
     [Parameter] public IPaginatedList Pager { get; set; }
-    [Parameter] public Action<int> Page { get; set; }    
+    [Parameter] public Action<int> Page { get; set; }
+
+    [Inject] NavigationManager NavigationManager { get; set; }
 }

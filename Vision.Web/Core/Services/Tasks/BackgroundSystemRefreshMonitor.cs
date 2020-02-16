@@ -1,14 +1,14 @@
-﻿namespace Vision.Web.Core
-{
-    using System;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Hosting;
-    using Microsoft.Extensions.Logging;
+﻿using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
+namespace Vision.Web.Core
+{
     internal class BackgroundSystemRefreshMonitor : IHostedService
     {
         private readonly ILogger logger;
@@ -18,7 +18,7 @@
         {
             this.services = services;
             this.logger = logger;
-        }        
+        }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
@@ -29,7 +29,7 @@
         private async Task DoWorkAsync(CancellationToken cancellationToken)
         {
             logger.LogInformation("Hosted Service started.");
-                          
+
             using (IServiceScope scope = services.CreateScope())
             {
                 IRefreshService taskService = scope.ServiceProvider.GetRequiredService<IRefreshService>();
@@ -47,6 +47,7 @@
                         }
                         catch (Exception e)
                         {
+                            logger.LogCritical(e, "Transaction roll back");
                             transaction.Rollback();
                         }
                     }
@@ -65,8 +66,8 @@
                 if (await context.Assets.AnyAsync(a => a.RepositoryId == repository.Id))
                 {
                     logger.LogInformation($"Removing repository assocated from repository {repository.Id}");
-                    context.AssetFrameworks.RemoveRange(context.AssetFrameworks.Where(af => af.Asset.Repository == repository));
-                    context.Assets.RemoveRange(context.Assets.Where(asset => asset.RepositoryId == repository.Id));                    
+                    context.AssetRuntimes.RemoveRange(context.AssetRuntimes.Where(af => af.Asset.Repository == repository));
+                    context.Assets.RemoveRange(context.Assets.Where(asset => asset.RepositoryId == repository.Id));
                     await context.SaveChangesAsync();
                 }
             }

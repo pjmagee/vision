@@ -2,7 +2,6 @@
 
 namespace Vision.Web.Core
 {
-
     public class EncryptionService : IEncryptionService
     {
         private readonly IDataProtector protector;
@@ -30,7 +29,7 @@ namespace Vision.Web.Core
             registry.Username = Decrypt(registry.Username);
             registry.ApiKey = Decrypt(registry.ApiKey);
         }
-                
+
 
         public void Encrypt(VersionControlDto versionControl)
         {
@@ -53,18 +52,12 @@ namespace Vision.Web.Core
 
         public string Encrypt(string text)
         {
-            if(!string.IsNullOrWhiteSpace(text))
-                return protector.Protect(text);
-
-            return text;
+            return !string.IsNullOrWhiteSpace(text) ? protector.Protect(text) : text;
         }
 
         public string Decrypt(string text)
         {
-            if (!string.IsNullOrWhiteSpace(text))
-                return protector.Unprotect(text);
-
-            return text;
+            return !string.IsNullOrWhiteSpace(text) ? protector.Unprotect(text) : text;
         }
     }
 }

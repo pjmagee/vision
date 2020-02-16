@@ -1,7 +1,7 @@
 ﻿namespace Vision.Web.Core
 {
     public enum CategoryKind
-    {        
+    {
         Source,
         Data,
         VersionControl,
@@ -9,9 +9,9 @@
         Asset,
         Dependency,
         DependencyVersion,
-        Framework,
+        Runtime,
+        RuntimeVersion,
         Registry,
-        Version,
         CiCd
     }
 }

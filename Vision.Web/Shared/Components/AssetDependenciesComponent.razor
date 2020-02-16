@@ -1,4 +1,6 @@
-﻿<BSTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
+﻿@inherits OwningComponentBase
+
+<BSTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
     <thead>
         <tr>
             <th>@nameof(AssetDependencyDto.Dependency)</th>
@@ -21,9 +23,7 @@
             @if (Items.Count == 0)
             {
                 <tr>
-                    <td colspan="3">
-                        No asset dependencies found.
-                    </td>
+                    <td colspan="3">No asset dependencies found.</td>
                 </tr>
             }
         }
@@ -43,10 +43,14 @@
 @code
 {
     [Parameter] public Guid? AssetId { get; set; }
-    
-    [Inject] IAssetDependencyService Service { get; set; }
 
+    IAssetDependencyService Service { get; set; }
     IPaginatedList<AssetDependencyDto> Items { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Service = (IAssetDependencyService)ScopedServices.GetService(typeof(IAssetDependencyService));
+    }
 
     protected async override Task OnParametersSetAsync()
     {
@@ -55,8 +59,10 @@
 
     async Task PageAsync(int page)
     {
-        Items = await Service.GetByAssetIdAsync(AssetId.Value, page);
-
-        // StateHasChanged();
+        if (AssetId.HasValue)
+        {
+            Items = await Service.GetByAssetIdAsync(AssetId.Value, page);
+            StateHasChanged();
+        }
     }
 }

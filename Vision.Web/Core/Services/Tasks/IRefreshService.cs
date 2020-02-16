@@ -1,8 +1,8 @@
-﻿namespace Vision.Web.Core
-{
-    using System;
-    using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
+namespace Vision.Web.Core
+{
     public interface IRefreshService
     {
         Task RefreshAllAsync();

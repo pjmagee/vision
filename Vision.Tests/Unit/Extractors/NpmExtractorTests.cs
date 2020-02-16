@@ -21,16 +21,16 @@ namespace Vision.Tests
         {
             // arrange
             string json = "{ \"name\": \"Vision\", \"version\": \"0.0.0\",  \"dependencies\": { \"express\": \"expressjs/express\", \"mocha\": \"mochajs/mocha#4727d357ea\", \"module\": \"user/repo#feature\\/branch\" } }";
-            Asset asset = new Asset { Repository = new Repository { WebUrl = "http://git:8080/KEY/repository.git/Browse/" }, Raw = json };
+            Asset asset = new Asset { Repository = new VcsRepository { WebUrl = "http://git:8080/KEY/repository.git/Browse/" }, Raw = json };
 
             // act
             List<Extract> extracts = sut.ExtractDependencies(asset).ToList();
 
             Assert.Equal(3, extracts.Count);
-            Assert.Equal("express", extracts[0].Name);
-            Assert.Equal("expressjs/express", extracts[0].Version);
-            Assert.Equal("mocha", extracts[1].Name);
-            Assert.Equal("mochajs/mocha#4727d357ea", extracts[1].Version);
+            Assert.Equal("express", extracts[0].RuntimeIdentifier);
+            Assert.Equal("expressjs/express", extracts[0].RuntimeVersion);
+            Assert.Equal("mocha", extracts[1].RuntimeIdentifier);
+            Assert.Equal("mochajs/mocha#4727d357ea", extracts[1].RuntimeVersion);
         }
 
         [Fact]
@@ -38,16 +38,16 @@ namespace Vision.Tests
         {
             // Arrange
             string json = "{ \"name\": 'Vision', \"engines\": { \"node\":\">=0.10.3 <0.12\", \"npm\":\"10.0\" } } ";
-            Asset asset = new Asset { Repository = new Repository { WebUrl = "http://git:8080/KEY/repository.git/Browse/" }, Raw = json };
+            Asset asset = new Asset { Repository = new VcsRepository { WebUrl = "http://git:8080/KEY/repository.git/Browse/" }, Raw = json };
 
             // Act
-            List<Extract> extracts = sut.ExtractFrameworks(asset).ToList();
+            List<Extract> extracts = sut.ExtractRuntimes(asset).ToList();
 
             Assert.Equal(2, extracts.Count);
-            Assert.Equal("node", extracts[0].Name);
-            Assert.Equal(">=0.10.3 <0.12", extracts[0].Version);
-            Assert.Equal("npm", extracts[1].Name);
-            Assert.Equal("10.0", extracts[1].Version);
+            Assert.Equal("node", extracts[0].RuntimeIdentifier);
+            Assert.Equal(">=0.10.3 <0.12", extracts[0].RuntimeVersion);
+            Assert.Equal("npm", extracts[1].RuntimeIdentifier);
+            Assert.Equal("10.0", extracts[1].RuntimeVersion);
         }
 
         [Fact]
@@ -55,7 +55,7 @@ namespace Vision.Tests
         {
             // Arrange
             string json = "{ \"name\": 'Vision', \"engines\": { \"node\":\">=0.10.3 <0.12\", \"npm\":\"10.0\" } } ";
-            Asset asset = new Asset { Repository = new Repository { WebUrl = "http://git:8080/KEY/repository.git/Browse/" }, Raw = json };
+            Asset asset = new Asset { Repository = new VcsRepository { WebUrl = "http://git:8080/KEY/repository.git/Browse/" }, Raw = json };
 
             // Act
             string name = sut.ExtractPublishName(asset);

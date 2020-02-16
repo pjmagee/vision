@@ -12,7 +12,8 @@ namespace Vision.Web
             services
                 .AddDbContext<VisionDbContext>(options => options
                     .UseLazyLoadingProxies(useLazyLoadingProxies: true)
-                    .UseSqlServer(configuration["ConnectionStrings:Default"]), ServiceLifetime.Transient);
+                    // .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                    .UseSqlServer(configuration["ConnectionStrings:Default"]), ServiceLifetime.Transient, ServiceLifetime.Transient);
 
             services
                 .RegisterVersionControlServices()
@@ -20,10 +21,9 @@ namespace Vision.Web
                 .RegisterDependencyServices()
                 .RegisterCiCdServices()
                 .RegisterRazorComponentServices()
-                // .RegisterRefreshServices()
                 .AddSingleton<IEncryptionService, EncryptionService>()
-                .AddScoped<FakeDataGenerator>()
-                .AddScoped<IMetricService, MetricService>();
+                .AddTransient<FakeDataGenerator>()
+                .AddTransient<IMetricService, MetricService>();
 
             return services;
         }
@@ -34,39 +34,39 @@ namespace Vision.Web
             .AddHostedService<BackgroundSystemRefreshMonitor>();
 
         private static IServiceCollection RegisterRazorComponentServices(this IServiceCollection services) => services
-            .AddScoped<SvgService>()
+            .AddSingleton<SvgService>()
             .AddScoped<NavigationService>();
 
         private static IServiceCollection RegisterCiCdServices(this IServiceCollection services) => services
-            .AddScoped<ICiCdService, CiCdService>()
-            .AddScoped<ICiCdProvider, TeamCityProvider>()
-            .AddScoped<ICiCdProvider, JenkinsProvider>()
-            .AddScoped<IAggregateCICDBuildsProvider, AggregateCICDBuildsProvider>();
+            .AddTransient<ICiCdService, CiCdService>()
+            .AddTransient<ICiCdProvider, TeamCityProvider>()
+            .AddTransient<ICiCdProvider, JenkinsProvider>()
+            .AddTransient<IAggregateCICDBuildsProvider, AggregateCICDBuildsProvider>();
 
         private static IServiceCollection RegisterDependencyServices(this IServiceCollection services) => services
-            .AddScoped<IRegistryService, RegistryService>()
-            .AddScoped<IDependencyVersionService, DependencyVersionService>()
-            .AddScoped<IDependencyService, DependencyService>()
-            .AddScoped<IDependencyVersionProvider, NuGetVersionProvider>()
-            .AddScoped<IDependencyVersionProvider, DockerVersionProvider>()
-            .AddScoped<IDependencyVersionProvider, NpmVersionProvider>()
-            .AddScoped<IAggregateDependencyVersionProvider, AggregateDependencyVersionProvider>();
+            .AddTransient<IRegistryService, RegistryService>()
+            .AddTransient<IDependencyVersionService, DependencyVersionService>()
+            .AddTransient<IDependencyService, DependencyService>()
+            .AddTransient<IDependencyVersionProvider, NuGetVersionProvider>()
+            .AddTransient<IDependencyVersionProvider, DockerVersionProvider>()
+            .AddTransient<IDependencyVersionProvider, NpmVersionProvider>()
+            .AddTransient<IAggregateDependencyVersionProvider, AggregateDependencyVersionProvider>();
 
         private static IServiceCollection RegisterAssetServices(this IServiceCollection services) => services
-            .AddScoped<IFrameworkService, FrameworkService>()
-            .AddScoped<IAssetService, AssetService>()
-            .AddScoped<IAssetDependencyService, AssetDependencyService>()
-            .AddScoped<IAssetExtractor, NpmAssetExtractor>()
-            .AddScoped<IAssetExtractor, NuGetAssetExtractor>()
-            .AddScoped<IAssetExtractor, DockerAssetExtractor>()
-            .AddScoped<IAggregateAssetExtractor, AggregateAssetExtractor>();
+            .AddTransient<IRuntimeService, RuntimeService>()
+            .AddTransient<IAssetService, AssetService>()
+            .AddTransient<IAssetDependencyService, AssetDependencyService>()
+            .AddTransient<IAssetExtractor, NpmAssetExtractor>()
+            .AddTransient<IAssetExtractor, NuGetAssetExtractor>()
+            .AddTransient<IAssetExtractor, DockerAssetExtractor>()
+            .AddTransient<IAggregateAssetExtractor, AggregateAssetExtractor>();
 
         private static IServiceCollection RegisterVersionControlServices(this IServiceCollection services) => services
-            .AddScoped<IVersionControlService, VersionControlService>()
-            .AddScoped<IRepositoryService, RepositoryService>()
-            .AddScoped<IRepositoryMatcher, RepositoryMatcher>()
-            .AddScoped<IVersionControlProvider, BitBucketProvider>()
-            .AddScoped<IVersionControlProvider, GitlabProvider>()
-            .AddScoped<IAggregateVersionControlProvider, AggregateVersionControlProvider>();
+            .AddTransient<IVersionControlService, VersionControlService>()
+            .AddTransient<IRepositoryService, RepositoryService>()
+            .AddTransient<IRepositoryMatcher, RepositoryMatcher>()
+            .AddTransient<IVersionControlProvider, BitBucketProvider>()
+            .AddTransient<IVersionControlProvider, GitlabProvider>()
+            .AddTransient<IAggregateVersionControlProvider, AggregateVersionControlProvider>();
     }
 }

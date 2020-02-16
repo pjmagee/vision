@@ -11,13 +11,20 @@ namespace Vision.Web.Core
         public virtual Dependency Dependency { get; set; }
         public Guid DependencyId { get; set; }
         public virtual ICollection<AssetDependency> Assets { get; set; }
-        
+
         public int CompareTo(DependencyVersion other)
         {
-            // this does NOT support semantic versioning AT ALL.
-            // quick fix
+            // quick hack - this does NOT support semantic versioning AT ALL.
 
-            return new Version(Version).CompareTo(new Version(other.Version));
+            if (System.Version.TryParse(Version, out Version? v1))
+            {
+                if (System.Version.TryParse(other.Version, out Version? v2))
+                {
+                    return v1.CompareTo(v2);
+                }
+            }
+
+            return Version.CompareTo(other.Version);
         }
     }
 }

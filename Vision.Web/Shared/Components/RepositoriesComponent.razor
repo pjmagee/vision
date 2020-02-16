@@ -1,4 +1,6 @@
-﻿<div class="form-inline mb-4">
+﻿@inherits OwningComponentBase
+
+<div class="form-inline mb-4">
     <input class="form-control mr-sm-2" @bind-Value="@Search" @bind-Value:event="oninput" type="text" />
     <button type="button" class="btn btn-primary" @onclick="@(async() => await PageAsync(Items.PageIndex))">Search</button>
 </div>
@@ -6,8 +8,8 @@
 <BSTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
     <thead>
         <tr>
-            <th>Url</th>
-            <th>Assets</th>
+            <th>@(nameof(RepositoryDto.Url))</th>
+            <th>@(nameof(RepositoryDto.Assets))</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -17,7 +19,9 @@
             @foreach (var item in Items)
             {
                 <tr>
-                    <td><a href="@($"/data/vcs/{item.VersionControlId}/repositories/{item.RepositoryId}")">@item.WebUrl</a></td>
+                    <td>
+                        <a href="@($"/data/vcs/{item.VersionControlId}/repositories/{item.RepositoryId}")">@item.AbsoluteUri</a>
+                    </td>
                     <td>@item.Assets</td>
                     <td>
                         @if (item.IsIgnored)
@@ -56,15 +60,20 @@
 
 @code
 {
-    [Parameter] public Guid? FrameworkId { get; set; }
+    [Parameter] public Guid? RuntimeId { get; set; }
+    [Parameter] public Guid? RuntimeVersionId { get; set; }
     [Parameter] public Guid? VersionControlId { get; set; }
     [Parameter] public bool ShowIgnored { get; set; }
 
     public string Search { get; set; }
 
-    [Inject] IRepositoryService Service { get; set; }
-
     IPaginatedList<RepositoryDto> Items { get; set; }
+    IRepositoryService Service { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Service = (IRepositoryService)ScopedServices.GetService(typeof(IRepositoryService));
+    }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -83,15 +92,19 @@
         {
             Items = await Service.GetByVersionControlIdAsync(VersionControlId.Value, ShowIgnored, Search, page);
         }
-        else if (FrameworkId.HasValue)
+        else if (RuntimeId.HasValue)
         {
-            Items = await Service.GetByFrameworkIdAsync(FrameworkId.Value, ShowIgnored, Search, page);
+            Items = await Service.GetByRuntimeIdAsync(RuntimeId.Value, ShowIgnored, Search, page);
+        }
+        else if (RuntimeVersionId.HasValue)
+        {
+            Items = await Service.GetByRuntimeVersionIdAsync(RuntimeVersionId.Value, ShowIgnored, Search, page);
         }
         else
         {
             Items = await Service.GetAsync(ShowIgnored, Search, page);
         }
 
-        // StateHasChanged();
+        StateHasChanged();
     }
 }

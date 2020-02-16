@@ -36,7 +36,7 @@
         public async void GetByFrameworkIdAsync()
         {
             // TODO
-            IPaginatedList<AssetDto> assets = await sut.GetByFrameworkIdAsync(Guid.Empty, "", new DependencyKind[] { }, pageIndex: 1, pageSize: 1);
+            IPaginatedList<AssetDto> assets = await sut.GetByRuntimeIdAsync(Guid.Empty, "", new DependencyKind[] { }, pageIndex: 1, pageSize: 1);
         }
 
         [Fact]

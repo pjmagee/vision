@@ -2,12 +2,12 @@
 {
     public enum DependencyKind
     {
-        PyPi,        
-        Npm,        
-        NuGet,        
-        Docker,        
-        Maven,        
-        Gradle,        
+        PyPi,
+        Npm,
+        NuGet,
+        Docker,
+        Maven,
+        Gradle,
         RubyGem
     }
 }
