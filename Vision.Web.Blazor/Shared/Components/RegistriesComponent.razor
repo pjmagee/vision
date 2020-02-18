@@ -1,0 +1,80 @@
+﻿@inherits OwningComponentBase
+
+<BSTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
+    <thead>
+        <tr>
+            <th>Kind</th>
+            <th>Endpoint</th>
+            <th>Public</th>
+            <th>Enabled</th>
+            <th>API Key</th>
+            <th>Username</th>
+            <th>Password</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Items != null)
+        {
+            @foreach (var item in Items)
+            {
+                <tr>
+                    <td class="@item.Kind.GetIconClass() text-center">@SvgService.GetSvg(item.Kind)</td>
+                    <td><a href="@($"/data/registries/{item.RegistryId}")">@item.Endpoint</a></td>
+                    <td>@item.IsPublic.ToYesNo()</td>
+                    <td>@item.IsEnabled.ToYesNo()</td>
+                    <td title="@item.ApiKey">@item.ApiKey.ToYesNo()</td>
+                    <td title="@item.Username">@item.ApiKey.ToYesNo()</td>
+                    <td title="@item.Password">@item.ApiKey.ToYesNo()</td>
+                    <td>
+                        <a href="@($"/sources/edit/registries/{item.RegistryId}")">Edit</a>
+                    </td>
+                </tr>
+            }
+
+            @if (Items.Count == 0)
+            {
+                <tr>
+                    <td colspan="8">
+                        No registries found.
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="9">
+                    <LoaderComponent />
+                </td>
+            </tr>
+        }
+    </tbody>
+</BSTable>
+
+<PagerComponent Items="Items" Page="@(async(p) => await PageAsync(p))"></PagerComponent>
+
+@code
+{
+    IRegistryService Service { get; set; }
+    SvgService SvgService { get; set; }
+
+    IPaginatedList<RegistryDto> Items { get; set; }
+
+    protected override void OnInitialized()
+    {
+        SvgService = (SvgService)ScopedServices.GetService(typeof(SvgService));
+        Service = (IRegistryService)ScopedServices.GetService(typeof(IRegistryService));
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await PageAsync(1);
+    }
+
+    async Task PageAsync(int page)
+    {
+        Items = await Service.GetAsync(page);
+        StateHasChanged();
+    }
+}

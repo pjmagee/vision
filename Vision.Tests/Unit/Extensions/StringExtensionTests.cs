@@ -1,20 +1,20 @@
-﻿namespace Vision.Tests
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Vision.Web.Core;
-    using Xunit;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Vision.Core;
+using Xunit;
 
+namespace Vision.Tests
+{
     public class StringExtensionTests
     {
-        public static IEnumerable<object[]> Extensions => AppHelper
+        public static IEnumerable<object[]> Extensions => Constants
             .SupportedExtensions
             .Select(ext => new object[] { ext, true })
             .Concat(new[]
             {
                 new object[] { ".sample", false },
-                new object[] { ".proj.sample", false },                
+                new object[] { ".proj.sample", false },
                 new object[] { "Dockerfile.sample", false },
                 new object[] { "pom.xml.sample", false },
                 new object[] { "node_modules/package.json", false },
@@ -34,7 +34,7 @@
         [InlineData("Dockerfile.sample")]
         [InlineData("packages.json.sample")]
         [InlineData("sample.sln")]
-        [InlineData("maven.pom.xml.sample")]           
+        [InlineData("maven.pom.xml.sample")]
         public void GetEcosystemKindShouldThrowExceptionOnInvalidFile(string unsupported)
         {
             Assert.Throws<InvalidOperationException>(() => unsupported.GetEcosystemKind());

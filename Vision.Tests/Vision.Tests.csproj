@@ -33,6 +33,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Vision.Web\Vision.Web.csproj" />
+    <ProjectReference Include="..\Vision.Core\Vision.Core.csproj" />
+    <ProjectReference Include="..\Vision.Web.Blazor\Vision.Web.Blazor.csproj" />
   </ItemGroup>
 </Project>

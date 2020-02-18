@@ -3,7 +3,7 @@ using NSubstitute;
 using System;
 using System.Linq;
 using System.Xml.Linq;
-using Vision.Web.Core;
+using Vision.Core;
 using Xunit;
 
 namespace Vision.Tests

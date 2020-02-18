@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using NSubstitute;
 using System.Threading.Tasks;
-using Vision.Web.Core;
+using Vision.Core;
 using Xunit;
 
 namespace Vision.Tests

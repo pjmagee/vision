@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using NSubstitute;
-using Vision.Web.Core;
+using Vision.Core;
 using Xunit;
 
 namespace Vision.Tests

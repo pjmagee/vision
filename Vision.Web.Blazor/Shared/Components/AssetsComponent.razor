@@ -1,0 +1,154 @@
+﻿@inherits OwningComponentBase
+
+@if (!Dependents)
+{
+    <div class="form-inline mb-4">
+        <BSFormLabel Class="my-1 mr-2">Kind</BSFormLabel>
+        <select @onchange="@DropDownFilterAsync" class="form-control my-1 mr-sm-2">
+            <option>Any...</option>
+            @foreach (var kind in Constants.EcosystemKinds)
+            {
+                <option value="@kind">@kind.GetName()</option>
+            }
+        </select>
+        <input class="form-control mr-sm-2" @bind-Value="@Search" @bind-Value:event="oninput" type="text" />
+        <Button type="button" class="btn btn-primary" @onclick="@(async() => await PageAsync(Items.PageIndex))">Search</Button>
+    </div>
+}
+
+<BSTable IsResponsive="true" IsSmall="true" IsStriped="true" IsBordered="true">
+    <thead>
+        <tr>
+            <th>@nameof(AssetDto.Kind)</th>
+            <th>@nameof(AssetDto.Asset)</th>
+            <th>@nameof(AssetDto.Repository)</th>
+            <th>@nameof(AssetDto.Dependencies)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Items != null)
+        {
+            @foreach (var item in Items)
+            {
+                <tr>
+                    <td class="@item.Kind.GetIconClass() text-center">
+                        @SvgService.GetSvg(item.Kind)
+                    </td>
+                    <td>
+                        <a href="@($"/data/vcs/{item.VcsId}/repositories/{item.RepositoryId}/assets/{item.AssetId}")">@item.Asset</a>
+                    </td>
+                    <td>
+                        <a href="@($"/data/vcs/{item.VcsId}/repositories/{item.RepositoryId}")">@item.Repository</a>
+                    </td>
+                    <td>@item.Dependencies</td>
+                </tr>
+            }
+
+            @if (Items.Count == 0)
+            {
+                <tr>
+                    <td colspan="4">No assets found.</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="4">
+                    <LoaderComponent />
+                </td>
+            </tr>
+        }
+    </tbody>
+</BSTable>
+
+<PagerComponent Items="Items" Page="@(async(p) => await PageAsync(p))"></PagerComponent>
+
+@code
+{
+    [Parameter] public Guid? RepositoryId { get; set; }
+    [Parameter] public Guid? VcsId { get; set; }
+    [Parameter] public Guid? DependencyId { get; set; }
+    [Parameter] public Guid? DependencyVersionId { get; set; }
+    [Parameter] public Guid? EcosystemId { get; set; }
+    [Parameter] public Guid? EcosystemVersionId { get; set; }
+    [Parameter] public Guid? AssetId { get; set; }
+    [Parameter] public bool Dependents { get; set; }
+
+    IAssetService AssetService { get; set; }
+    IDependencyService DependencyService { get; set; }
+    SvgService SvgService { get; set; }
+
+    IPaginatedList<AssetDto> Items { get; set; }
+    List<EcosystemKind> Kinds = new List<EcosystemKind>();
+    EcosystemKind? Kind { get; set; }
+    string Search { get; set; }
+    int PageSize { get; set; } = 10;
+
+    protected override void OnInitialized()
+    {
+        SvgService = (SvgService)ScopedServices.GetService(typeof(SvgService));
+        AssetService = (IAssetService)ScopedServices.GetService(typeof(IAssetService));
+        DependencyService = (IDependencyService)ScopedServices.GetService(typeof(IDependencyService));
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await PageAsync(1);
+    }
+
+    async Task DropDownFilterAsync(ChangeEventArgs args)
+    {
+        if (Enum.TryParse(typeof(EcosystemKind), (string)args.Value, true, out var kind))
+        {
+            Kind = (EcosystemKind)kind;
+        }
+        else
+        {
+            Kind = null;
+        }
+
+        await PageAsync(Items.PageIndex);
+    }
+
+    async Task PageAsync(int page)
+    {
+        Kinds.Clear();
+        if (Kind.HasValue) Kinds.Add(Kind.Value);
+
+        if (RepositoryId.HasValue)
+        {
+            Items = await AssetService.GetByRepositoryIdAsync(RepositoryId.Value, Search, Kinds, Dependents, page, PageSize);
+        }
+        else if (VcsId.HasValue)
+        {
+            Items = await AssetService.GetByVcsIdAsync(VcsId.Value, Search, Kinds, page, PageSize);
+        }
+        else if (DependencyId.HasValue)
+        {
+            Items = await AssetService.GetByDependencyIdAsync(DependencyId.Value, Search, Kinds, page, PageSize);
+        }
+        else if (DependencyVersionId.HasValue)
+        {
+            Items = await AssetService.GetByVersionIdAsync(DependencyVersionId.Value, Search, Kinds, page, PageSize);
+        }
+        else if (EcosystemVersionId.HasValue)
+        {
+            Items = await AssetService.GetByEcosystemVersionIdAsync(EcosystemVersionId.Value, Search, Kinds, page, PageSize);
+        }
+        else if (EcosystemId.HasValue)
+        {
+            Items = await AssetService.GetByEcosystemIdAsync(EcosystemId.Value, Search, Kinds, page, PageSize);
+        }
+        else if (AssetId.HasValue)
+        {
+            Items = await AssetService.GetByAssetIdAsync(AssetId.Value, Search, Kinds, page, PageSize);
+        }
+        else
+        {
+            Items = await AssetService.GetAsync(Search, Kinds, page, PageSize);
+        }
+
+        StateHasChanged();
+    }
+}

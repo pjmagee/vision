@@ -1,10 +1,10 @@
-﻿namespace Vision.Tests
-{
-    using Microsoft.EntityFrameworkCore;
-    using System;
-    using Vision.Web.Core;
-    using Xunit;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
+using Vision.Core;
+using Xunit;
 
+namespace Vision.Tests
+{
     public class AssetDependencyServiceTests : IDisposable
     {
         private readonly AssetDependencyService sut;

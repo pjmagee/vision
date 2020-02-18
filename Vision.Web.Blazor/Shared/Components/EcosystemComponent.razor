@@ -1,0 +1,81 @@
+﻿@inherits OwningComponentBase
+
+<BSTable IsBordered="true" IsResponsive="true" IsSmall="true" IsStriped="true">
+    <BSTableHead>
+        <tr>
+            <th>@nameof(EcosystemDto.Name)</th>
+            <th>@nameof(EcosystemDto.Versions)</th>
+            <th>@nameof(EcosystemDto.Assets)</th>
+        </tr>
+    </BSTableHead>
+    <tbody>
+        @if (Items != null)
+        {
+            @foreach (var item in Items)
+            {
+                <tr>
+                    <td><a href="@($"/data/ecosystems/{item.EcosystemId}")">@item.Name</a></td>
+                    <td>@item.Versions</td>
+                    <td>@item.Assets</td>
+                </tr>
+            }
+
+            @if (Items.Count == 0)
+            {
+                <tr>
+                    <td colspan="3">None found.</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="3">
+                    <LoaderComponent />
+                </td>
+            </tr>
+        }
+    </tbody>
+</BSTable>
+
+<PagerComponent Items="Items" Page="@(async(p) => await PageAsync(p))"></PagerComponent>
+
+@code
+{
+    [Parameter] public Guid? RepositoryId { get; set; }
+    [Parameter] public Guid? AssetId { get; set; }
+
+    IEcosystemService EcosystemService { get; set; }
+    SvgService SvgService { get; set; }
+
+    IPaginatedList<EcosystemDto> Items { get; set; }
+
+    protected override void OnInitialized()
+    {
+        EcosystemService = (IEcosystemService)ScopedServices.GetService(typeof(IEcosystemService));
+        SvgService = (SvgService)ScopedServices.GetService(typeof(SvgService));
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await PageAsync(page: 1);
+    }
+
+    async Task PageAsync(int page = 1)
+    {
+        if (RepositoryId.HasValue)
+        {
+            Items = await EcosystemService.GetByRepositoryIdAsync(RepositoryId.Value, page);
+        }
+        else if (AssetId.HasValue)
+        {
+            Items = await EcosystemService.GetByAssetIdAsync(AssetId.Value, page);
+        }
+        else
+        {
+            Items = await EcosystemService.GetAsync(page);
+        }
+
+        StateHasChanged();
+    }
+}

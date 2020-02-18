@@ -5,7 +5,7 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using Vision.Web.Core;
+    using Vision.Core;
     using Xunit;
 
     public class DependencyServiceTests : IDisposable

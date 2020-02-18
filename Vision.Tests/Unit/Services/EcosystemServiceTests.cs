@@ -2,7 +2,7 @@
 {
     using Microsoft.EntityFrameworkCore;
     using System;
-    using Vision.Web.Core;
+    using Vision.Core;
     using Xunit;
 
     public class EcosystemServiceTests : IDisposable

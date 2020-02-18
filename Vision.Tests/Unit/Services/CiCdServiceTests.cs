@@ -1,11 +1,11 @@
-﻿namespace Vision.Tests
-{
-    using Microsoft.EntityFrameworkCore;
-    using NSubstitute;
-    using System;
-    using Vision.Web.Core;
-    using Xunit;
+﻿using Microsoft.EntityFrameworkCore;
+using NSubstitute;
+using System;
+using Vision.Core;
+using Xunit;
 
+namespace Vision.Tests
+{
     public class CiCdServiceTests : IDisposable
     {
         private readonly CiCdService sut;

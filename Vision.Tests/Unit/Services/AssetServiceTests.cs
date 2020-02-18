@@ -4,7 +4,7 @@
     using NSubstitute;
     using System;
     using System.Collections.Generic;
-    using Vision.Web.Core;
+    using Vision.Core;
     using Xunit;
 
     public class AssetServiceTests : IDisposable
