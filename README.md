@@ -2,6 +2,27 @@
 
 This project runs on .NET Core 3 Preview
 
+## About
+
+Vision is a POC platform that allows customers to integrate their chosen technology stack and ecosystems in order to provide useful insights about the maturity, security and agility of their technology health.
+
+### Graphs and Statistics cover
+
+- dependencies and versions of those dependencies
+- language ratio across tech estate similar to Github code file statistics
+- pipeline build times
+- docker images detected and versions
+- most and least used dependencies across all projects
+- reverse lookups in order to navigate to source code directly from builds and artifacts
+- the number of assets and artifacts in registries that are and arent being used
+
+### What does this achieve?
+
+- This platform aims to drive technical teams forward by highlighting areas of the tech estate that just are not inline with other teams in the company or are falling behind, to help make strategic decisions about migrating estates or products to different languages, or platforms
+- Provide engineering managers, principals, architects to get a large overview spanning a companies stack after company aqcuistions, moving across teams etc
+- Asset health reports are common practice, this also helps produce reports from actual sources, rather than manually managed spreadsheets by the squads or managers of teams
+- Help drive agility within the company and to enable teams to take action by making these issues visible at a higher level and in an easier way to ingest data to understand their tech estate
+
 ## Technologies / Frameworks
 
 * [.NET Core 3.0](https://devblogs.microsoft.com/dotnet/announcing-net-core-3-preview-1-and-open-sourcing-windows-desktop-frameworks/)
